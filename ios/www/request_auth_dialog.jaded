@@ -1,0 +1,232 @@
+script(src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js")
+
+script(src="/socket.io/socket.io.js")
+
+script
+	// socket.io
+	// Real-time event-driven sockets, client-side code.
+
+	// Socket connection for data streaming
+	var socketio = null;
+
+	$(function() {
+		socketio = io.connect();
+
+		// Error
+		socketio.socket.on('error', function(reason) {
+			console.error('Unable to connect socket.io', reason);
+
+			$('#incomingChatMessages').append('<li>Unable to connect (not authorized)</li>');
+		});
+
+		// Listen for 'connect' event listener and define event handler.
+		socketio.on('connect', function () {
+			$('#incomingChatMessages').append($('<li>Connected</li>'));
+
+			socketio.on('oauthrequesttoken', function(incomingMsg) {
+				$('#incomingChatMessages').append($('<li>Authenticating with access token</li>'));
+				//var message = JSON.stringify({ 'token': oauthAccessToken, 'message': messageText });
+				//var oauthAccessToken = $('#token_response').text(); // Get access token
+				var oauthAccessToken = localStorage['token'];
+				socketio.emit('oauthtoken', oauthAccessToken);
+			});
+
+			socketio.on('oauthtokensuccess', function(incomingMsg) {
+				$('#incomingChatMessages').append($('<li>Authentication successful</li>'));
+				// TODO: If there's an error, then remove the token from localStorage, request refresh (if expired, eg.,)
+				//var oauthAccessToken = localStorage['token'];
+				//socketio.emit('oauthtoken', oauthAccessToken);
+			});
+
+			socketio.on('message', function(message) {
+				$('#incomingChatMessages').append($('<li></li>').text(message));
+
+				// TODO: Update this to use custom message
+				// var stroke = JSON.parse(message);
+				// var s = new createjs.Shape();
+				// s.graphics.clear().setStrokeStyle(stroke['size'], 'round', 'round').beginStroke(stroke['color']).moveTo(stroke['from'].x, stroke['from'].y).curveTo(stroke['midpoint'].x, stroke['midpoint'].y, stroke['to'].x, stroke['to'].y);
+				// stage.addChild(s);
+			});
+
+			socketio.on('disconnect', function() {
+				$('#incomingChatMessages').append('<li>Disconnected</li>');
+			});
+		});
+
+		// Define interaction event listeners
+
+		// Set up event listener
+		$('#outgoingChatMessage').keypress(function(event) {
+			if(event.which == 13) {
+				event.preventDefault();
+
+				// var oauthAccessToken = $('#token_response').text(); // Get access token
+				var oauthAccessToken = localStorage['token'];
+				var messageText = $('#outgoingChatMessage').val();
+				var message = JSON.stringify({ 'token': oauthAccessToken, 'message': messageText });
+
+				console.log('Sending message: ' + message);
+				socketio.send(message);
+				$('#incomingChatMessages').append($('<li></li>').text($('#outgoingChatMessage').val()));
+				$('#outgoingChatMessage').val('');
+			}
+		});
+	});
+
+script
+	// OAuth2 Client (prior to authentication/authorization flow)
+
+	function requestAuthorizationGrant(options) {
+
+		var uri = "/dialog/authorize?client_id=" + options['client_id'] + "&client_secret=" + options['client_secret'] + "&response_type=code&redirect_uri=/oauth/exchange";
+
+		$('#authorize_link').attr('href', uri);
+		alert($('#authorize_link').attr());
+		//$('#authorize_link').click();
+	}
+
+
+	// OAuth2 Client-side Code
+
+	window.onload = function() {
+
+		// Client
+		$('#authorize_link').click(function() {
+
+			requestAuthorizationGrant({
+					'client_id': localStorage['client_id'],
+					'client_secret': localStorage['client_secret'],
+					'response_type': 'code',
+					'redirect_uri': '/oauth/exchange'
+				});
+		});
+
+		// Check if an OAuth authorization code was received
+
+
+		if(window.location.search.indexOf("code=") !== -1) {
+
+			var from = window.location.search.indexOf("code=") + 5;
+			var to = window.location.search.indexOf("&", from);
+			var code = null;
+			if (to !== -1) {
+				code = window.location.search.substring(from, to);
+				localStorage['code'] = code;
+			} else {
+				code = window.location.search.substring(from);
+				localStorage['code'] = code;
+			}
+		}
+
+
+		// OAuth 2
+		var a_link = document.getElementById("auth_link");
+		a_link.onclick = function() {
+			exchangeGrantForAccessToken({ 
+				'client_id': localStorage['client_id'],
+				'client_secret': localStorage['client_secret'],
+				'code': localStorage['code'],
+				'grant_type': 'authorization_code',
+				'redirect_uri': '/'
+			});
+
+			return false;
+		}
+
+		$('#account-list').click(function() {
+			
+			//var access_token = $('#token_response').text();
+
+			apiGetUser({
+					'access_token': localStorage['token']
+				});
+
+			return false;
+		});
+	}
+
+	function exchangeGrantForAccessToken(options) {
+		console.log('Exchanging authorization grant for access token.');
+		// console.log(data);
+		$.ajax({
+			type: 'POST',
+			beforeSend: function(request) {
+				request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+			},
+			url: '/oauth/token',
+			data: 'client_id=' + options['client_id'] + '&client_secret=' + options['client_secret'] + '&code=' + options['code'] + '&grant_type=authorization_code&redirect_uri=/oauth/exchange',
+			dataType: 'text',
+			processData: false,
+			success: function(data) {
+				console.log('Received access token (success).');
+				var token = jQuery.parseJSON(data);
+				$('#token_response').text(token.access_token);
+				localStorage['token'] = token.access_token;
+			},
+			error: function() {
+				console.log('Failed to retreive access token.');
+			}
+		});
+	}
+
+	function apiGetUser(options) {
+		console.log('Requesting protected resource user.');
+		$.ajax({
+			type: 'GET',
+			beforeSend: function(request) {
+				request.setRequestHeader('Authorization', 'Bearer ' + options['access_token']);
+			},
+			url: '/api/account/list',
+			dataType: 'text',
+			success: function(data) {
+				console.log('Received protected resource (success).');
+				var user = jQuery.parseJSON(data);
+				$('#resource_response').text(data);
+			},
+			error: function() {
+				console.log('Failed to retreive protected resource.');
+			}
+		});
+	}
+
+h1 Authorize ScienceKit Client
+
+h2 Request authorization grant from resource owner (human, authenticated user)
+
+a(id="authorize_link", href="javascript:void(0);") Authorize
+
+p Received authorization grant (identified by authorization code) 'code': #{ authorization_code }
+
+hr
+
+h2 Exchange client's authorization grant for a client access token
+
+a(id="auth_link", href="javascript:void(0);") Authenticate ScienceKit
+
+p(id="token_response") no token received
+
+hr
+
+h2 Request resource (on behalf of owner that granted authorization)
+
+a(id="account-list", href="javascript:void(0);") Request resource (using access token)
+
+p(id="resource_response") no resource received
+
+hr
+
+h2 Timeline (socket.io Demo)
+
+p Micro-contribution: 
+	input(id="outgoingChatMessage")
+ul(id="incomingChatMessages")
+
+hr
+
+a(href="/") << Home
+
+// bob:secret@localhost:3000/oauth/token
+//
+// Content-Type: application/x-www-form-urlencoded
+//
+// client_id=abc123&client_secret=ssh-secret&code=aLfc8IerbeeLEGTP&grant_type=authorization_code&redirect_uri=/

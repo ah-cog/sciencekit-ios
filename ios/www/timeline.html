@@ -1,0 +1,179 @@
+<!DOCTYPE html><html><head><title>ScienceKit</title><link rel="stylesheet" href="./css/style.css"><script src="cordova-2.5.0.js"></script><script src="jquery.min.js"></script><script src="socket.io.min.js"></script><script src="childbrowser.js"></script><script src="js/sciencekit.js"></script><script>localStorage['host'] = 'http://10.10.0.140:3000';
+localStorage['client_id'] = 'abc123';
+localStorage['client_secret'] = 'ssh-secret';
+
+// PhoneGap
+
+function onDeviceReady() {
+
+ // do Something!
+ // example: display a Cordova Alert
+ // see docs.phonegap.com for full details
+ //navigator.notification.alert(
+ //	'Cordova is ready!',			// message
+ //	function() {
+ 
+ //		alert("Done!");
+ 
+ //	}, 								// callback
+ //	'Congratulations',				// title
+ //	'Done'							// buttonName
+ //);
+}</script></head><body><!-- TODO: Remove this!--><!--h2 Exchange client's authorization grant for a client access token--><!--a(id="auth_link", href="javascript:void(0);") Authenticate ScienceKit--><!--p(id="token_response") no token received--><!--h2 Request Resource (on behalf of owner that granted authorization)--><!--a(id="account-list", href="javascript:void(0);") Request resource (using access token)--><!--p(id="resource_response") no resource received--><div id="top" style="text-align: right; font-size: 30px; padding-right: 10px;" class="edge"><a></a><a href="javscript:void(0);" onclick="generateStory();"> <img src="./img/story-time.png" alt="story time"></a><a href="javascript:void(0);" onclick="scrollTickle();"> <img src="./img/search.png" alt="search"></a><a href="./timeline.html"> <img src="./img/refresh.png" alt="refresh"></a><a href="javscript:void(0);" onclick="scrollToTop();"> <img src="./img/up-arrow.png" alt="top"></a></div><!--.edge(id="top", style="text-align: left; font-size: 30px; padding-right: 10px;")--><!--	a(href="javscript:void(0);", onclick="$(window).scrollTop(0);") --><!--		img(src="./img/chat.png", alt="chat") --><div id="narrative" class="narrative"><ul id="narrative-list-template"><li id="narrative-element-template" style="display: none;" data-id="" data-timeline=""><div style="display: table; width: 100%;"><div style="display: table-row;"><div style="display: table-cell; text-align: center; vertical-align: middle;"><img src="./img/thought.png" width="30" height="30" style="padding: 10px;"></div><div style="display: table-cell; width: 100%; border-left: 2px solid #f16521;"><div class="element-widget"><div style="display: table; width: 100%;" class="element-table"><div style="display: table-row;" class="element"><div style="display: table-cell; vertical-align: middle;" contenteditable="true" class="text">-</div><div style="width: 120px; display: table-cell; text-align: right;" class="options"><img src="./img/love.png"><img src="./img/cross.png"><img src="./img/time-clock.png" class="timeline"></div></div></div></div></div></div></div></li><li id="topic-activity-template" style="display: none;" data-id="" data-timeline=""><div style="display: table; width: 100%;"><div style="display: table-row;"><div style="display: table-cell; text-align: center; vertical-align: middle;"><img src="./img/topic.png" width="30" height="30" style="padding: 10px;"></div><div style="display: table-cell; width: 100%; border-left: 2px solid #00a14b;"><div class="element-widget"><div style="display: table; width: 100%;" class="element-table"><div style="display: table-row;" class="element"><div style="display: table-cell; vertical-align: middle;" contenteditable="true" class="text">-</div><div style="width: 120px; display: table-cell; text-align: right;" class="options"><img src="./img/love.png"><img src="./img/cross.png"><img src="./img/time-clock.png" class="timeline"></div></div></div></div></div></div></div></li><li id="photo-template" style="display: none;" data-id="" data-timeline=""><div style="display: table; width: 100%;"><div style="display: table-row;"><div style="display: table-cell; text-align: center; vertical-align: middle;"><img src="./img/camera.png" width="30" height="30" style="padding: 10px;"></div><div style="display: table-cell; width: 100%; border-left: 2px solid #7e3f98;"><div class="element-widget"><div style="display: table; width: 100%;" class="element-table"><div style="display: table-row;" class="element"><img src="./img/camera.png" width="150" height="150" class="image"><div style="width: 120px; display: table-cell; text-align: right;" class="options"><img src="./img/love.png"><img src="./img/cross.png"><img src="./img/time-clock.png" class="timeline"></div></div></div></div></div></div></div></li><li id="video-activity-template" style="display: none;" data-id="" data-timeline=""><div style="display: table; width: 100%;"><div style="display: table-row;"><div style="display: table-cell; text-align: center; vertical-align: middle;"><img src="./img/video.png" width="30" height="30" style="padding: 10px;"></div><div style="display: table-cell; width: 100%; border-left: 2px solid #7e3f98;"><div class="element-widget"><div style="display: table; width: 100%;" class="element-table"><div style="display: table-row;" class="element"><video width="640" height="480" controls class="video"><source src="" class="source"></video><div style="width: 120px; display: table-cell; text-align: right;" class="options"><img src="./img/love.png"><img src="./img/cross.png"><img src="./img/time-clock.png" class="timeline"></div></div></div></div></div></div></div></li></ul></div><!-- Top of interface--><div style="display: table; width: 100%; margin: 0px; padding: 0px;"><div style="display: table-row;"><div style="display: table-cell; text-align: center; vertical-align: middle; width: 30px;"><img src="./img/blank.png" width="30" height="30" style="padding: 10px;"></div><div style="display: table-cell; width: 100%; border-left: 2px solid #f16521; padding-left: 10px;"><img src="./img/sciencekit-logo.png" alt="sciencekit logo" style="margin-top: 50px;"></div></div><div style="display: table-row;"><div style="display: table-cell; text-align: center; vertical-align: middle; width: 30px;"><img src="./img/blank.png" width="30" height="30" style="padding: 10px;"></div><div style="display: table-cell; width: 100%; border-left: 2px solid #f16521; padding-left: 10px;"><p id="beginning" class="tagline">once upon a time</p></div></div></div><!-- Timeline interface--><ul id="narrative-list"></ul><div id="bottom" style="text-align: right; font-size: 30px; padding-right: 10px;" class="edge"><a href="javscript:void(0);" onclick="scrollToBottom();"> <img src="./img/down-arrow.png" alt="bottom" style="position: absolute; bottom: 0px; right: 0px;"></a></div><div id="footer" class="float-action"><div class="float-action-edge"><a href="javscript:void(0);" onclick="scrollToBottom();"> <img src="./img/down-arrow.png" alt="bottom" style="position: absolute; bottom: 0px; right: 0px;"></a></div><div class="float-action-body"><img src="./img/thought.png" width="50" height="50"><img src="./img/camera.png" width="50" height="50"><img src="./img/video.png" width="50" height="50"><img src="./img/topic.png" width="50" height="50"></div></div><!-- Bottom of interface--><div style="display: table; width: 100%; margin: 0px; padding: 0px;"><div style="display: table-row;"><div style="display: table-cell; text-align: center; vertical-align: middle; width: 30px;"><img src="./img/blank.png" width="30" height="30" style="padding: 10px;"></div><div style="display: table-cell; width: 100%; border-left: 2px solid #f16521; padding-left: 10px; padding-top: 20px;"><p class="tagline">and then you came along.  what do you want to do?</p></div></div><div style="display: table-row;"><div style="display: table-cell; text-align: center; vertical-align: middle; width: 30px;"><img src="./img/blank.png" width="30" height="30" style="padding: 10px;"></div><div style="display: table-cell; width: 100%; border-left: 2px solid #f16521; padding-left: 10px;"><div style="background-image: url(./img/thought.png); background-repeat:no-repeat; background-position:3px 0px; height: 100px; width: 200px; padding-left: 118px; padding-top: 34px; font-size: 30px;"><a id="create-thought-button" data-artifact-type="thought" href="javascript:void(0);">thought </a></div><div style="background-image: url(./img/camera.png); background-repeat:no-repeat; height: 100px; width: 200px; padding-left: 118px; padding-top: 34px; font-size: 30px;"><a href="javascript:void(0);" data-artifact-type="camera" onclick="capturePhotoToURI();">photo</a></div><div style="background-image: url(./img/video.png); background-repeat:no-repeat; height: 100px; width: 200px; padding-left: 118px; padding-top: 34px; font-size: 30px;"><a href="javascript:void(0);" data-artifact-type="camera" onclick="captureVideo2();">video</a></div><div style="background-image: url(./img/topic.png); background-repeat:no-repeat; background-position:3px 0px; height: 100px; width: 200px; padding-left: 118px; padding-top: 34px; font-size: 30px;"><a id="create-topic-button" data-artifact-type="topic" href="javascript:void(0);">topic </a></div><div style="background-image: url(./img/camera.png); background-repeat:no-repeat; height: 100px; width: 200px; padding-left: 118px; padding-top: 34px; font-size: 30px;"><a href="javascript:void(0);" data-artifact-type="camera" onclick="captureAvatarToURI();">avatar</a></div><!--| | --><!--a(id="create-question-button", href="javascript:void(0);") question --><!--| | --><!--a(id="create-cause-and-effect-button", href="javascript:void(0);") cause and effect --><!--| | --><!--a(id="create-step-by-step-button", href="javascript:void(0);") step by step --><!--| | --><!--a(id="create-note-button", href="javascript:void(0);") note --><!--| |--><!--a(href="javascript:void(0);", onclick="uploadPhoto();") upload --><!--| crazy game, immersive madlib | --><!--| voice | --><!--| collage |--><!--| measurement |--><!--| tag |--><!--| time |--><!--| compass |--><!--| vibration |--><!-- img(src="./img/sciencekit-logo-small.png", alt="sciencekit logo", id="sciencekit-small-logo") --></div></div></div><!-- Storybook interface--><div id="float-page" class="float-page"><div class="float-page-table"><p class="float-page-p">once upon a time</p></div></div><script>window.onload = function() {
+ // Initialize interface
+ $('#float-page').hide();
+ 
+ // Populate timeline
+ getTimeline();
+ 
+ // Add handler for interrupting automatic scrolling
+ $('body,html').bind("scroll mousedown DOMMouseScroll mousewheel keyup", function(e) {
+  if ( e.which > 0 || e.type === "mousedown" || e.type === "mousewheel") {
+   console.log('Canceling autoscrolling animation.');
+   clearTimeout($.data(document, 'timer'));
+   $("html,body").stop();
+  }
+ });
+ 
+ // Set time to scroll to bottom
+ $.data(document, 'timer', setTimeout(function() {
+  scrollToBottom();
+ }, 2000));
+}
+
+// Show options when scroll up, hide when scroll down
+var prevPosition = 0;
+window.onscroll = function() {
+ // console.log("scroll event detected! " + window.pageXOffset + " " + window.pageYOffset);
+ 
+ var currPosition = window.pageYOffset;
+ var delta = currPosition - prevPosition;
+ prevPosition = currPosition;
+ //console.log(delta);
+ 
+ // Show or hide bottom shortcuts
+ if(delta > 10) {
+  $("#footer").slideUp();
+ } else if (delta < -10) {
+  $("#footer").slideDown();
+ }
+}
+
+// Scroll to element
+
+function generateStory() {
+ // TODO: Take into account voting!
+ 
+ // Show the introduction
+ $('#float-page').fadeIn().delay(2000).fadeOut();
+ 
+ // Generate list of "pages" to include in story
+ var timelineList = $('#timeline-list li').get();
+ var timelineHighlights = [ 0, 13, 19, 37, 55, 68 ];
+ 
+ // Scroll through the pages
+ $("html,body").stop().delay(1000);
+ for(var i = 0; i < 6; i++) {
+  $('html,body').animate({ scrollTop: $(timelineList[(timelineHighlights[i])]).offset().top }, 1000).delay(1000);
+ }
+ 
+ // Scroll to "end point" of story
+ //$('html,body').animate({ scrollTop: $('#sciencekit-small-logo').offset().top }, 1000);
+ $('html,body').animate({ scrollTop: document.body.scrollHeight }, 1000);
+}
+
+function generatePage() {
+ // Show full-screen
+ // Show controls for "next" and "previous" page
+ // Let interact with page/timeline
+}
+
+
+function scrollToTop() {
+ $('html,body').animate({ scrollTop: 0 }, 1000);
+}
+
+function scrollToBottom() {
+ //$('html,body').animate({ scrollTop: $('#sciencekit-small-logo').offset().top }, 1000);
+ $('html,body').animate({ scrollTop: document.body.scrollHeight }, 1000);
+}
+
+function scrollTickle() {
+ var range = 70;
+ var ms = 110;
+ var iterations = 2;
+ var position = $(window).scrollTop();
+ for(var i = 0; i < iterations; i++) {
+  $('html,body').animate({ scrollTop: position + range }, ms);
+  $('html,body').animate({ scrollTop: position - range }, ms);
+ }
+ $('html,body').animate({ scrollTop: position }, ms);
+ return false;
+}
+
+// x = 0;  //horizontal coord
+// y = document.height; //vertical coord
+// window.scroll(x,y);
+//$('#beginning').hide();
+//$('#beginning').fadeIn(3000);
+
+
+// Wire up interface
+$('#create-thought-button').click(function() {
+
+ // Add question to list immediately
+ var e = addThoughtWidget();
+ 
+ return false;
+});
+
+$('#create-topic-button').click(function() {
+ var e = addTopicWidget();
+ return false;
+});
+
+$('#create-question-button').click(function() {
+
+ // Add question to list immediately
+ var e = addQuestion({ 
+  message: { 
+   text: 'Hey! Hey! Hey!'
+  }, 
+  account: { 
+   username: 'Mike' 
+  }
+ });
+ 
+ return false;
+});
+
+$('#create-cause-and-effect-button').click(function() {
+
+ // Add question to list immediately
+ addCauseAndEffect({ 
+  message: { 
+   text: 'Hey! Hey! Hey!'
+  }, 
+  account: { 
+   username: 'Mike' 
+  }
+ });
+ 
+ return false;
+});
+
+$('#create-step-by-step-button').click(function() {
+
+ // Add question to list immediately
+ addStepByStep({});
+ 
+ return false;
+});
+
+$('#create-note-button').click(function() {
+
+ // Add question to list immediately
+ addNote({});
+ 
+ return false;
+});</script></body></html>
