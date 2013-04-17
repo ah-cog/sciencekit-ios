@@ -19,106 +19,42 @@ block content
 		a(href="./timeline.html") 
 			img(src="./img/refresh.png", alt="refresh") 
 		a(href="javscript:void(0);", onclick="scrollToTop();") 
-			img(src="./img/up-arrow.png", alt="top") 
-	//.edge(id="top", style="text-align: left; font-size: 30px; padding-right: 10px;")
-	//	a(href="javscript:void(0);", onclick="$(window).scrollTop(0);") 
-	//		img(src="./img/chat.png", alt="chat") 
+			img(src="./img/up-arrow.png", alt="top")
 
-	.narrative(id="narrative")
-		ul(id="narrative-list-template")
-			li(id="narrative-element-template", style="display: none;", data-id="", data-timeline="")
-				div(style="display: table; width: 100%;")
-					div(style="display: table-row;")
-						div(style="display: table-cell; text-align: center; vertical-align: middle;")
-							img(src="./img/thought.png", width="30", height="30", style="padding: 10px;")
+	//
+	// Templates for Timeline Widgets (this is not visible)
+	//
 
-						div(style="display: table-cell; width: 100%; border-left: 2px solid #f16521;")
+	.narrative-templates(id="narrative-templates")
+	
+		// Template timeline widgets
+		include widget-templates
 
-							div(class="element-widget")
-								div(class="element-table", style="display: table; width: 100%;")
-
-
-										div(class="element", style="display: table-row;")
-											div(class="text", style="display: table-cell; vertical-align: middle;", contenteditable="true")
-												| -
-
-											div(class="options", style="width: 120px; display: table-cell; text-align: right;")
-												img(src="./img/love.png")
-												img(src="./img/cross.png")
-												img(src="./img/time-clock.png", class="timeline")
-
-			li(id="topic-activity-template", style="display: none;", data-id="", data-timeline="")
-				div(style="display: table; width: 100%;")
-					div(style="display: table-row;")
-						div(style="display: table-cell; text-align: center; vertical-align: middle;")
-							img(src="./img/topic.png", width="30", height="30", style="padding: 10px;")
-
-						div(style="display: table-cell; width: 100%; border-left: 2px solid #00a14b;")
-
-							div(class="element-widget")
-								div(class="element-table", style="display: table; width: 100%;")
-
-
-										div(class="element", style="display: table-row;")
-											div(class="text", style="display: table-cell; vertical-align: middle;", contenteditable="true")
-												| -
-
-											div(class="options", style="width: 120px; display: table-cell; text-align: right;")
-												img(src="./img/love.png")
-												img(src="./img/cross.png")
-												img(src="./img/time-clock.png", class="timeline")
-
-			li(id="photo-template", style="display: none;", data-id="", data-timeline="")
-				div(style="display: table; width: 100%;")
-					div(style="display: table-row;")
-						div(style="display: table-cell; text-align: center; vertical-align: middle;")
-							img(src="./img/camera.png", width="30", height="30", style="padding: 10px;")
-
-						div(style="display: table-cell; width: 100%; border-left: 2px solid #7e3f98;")
-
-							div(class="element-widget")
-								div(class="element-table", style="display: table; width: 100%;")
-
-
-										div(class="element", style="display: table-row;")
-											img(class="image", src="./img/camera.png", width="150", height="150")
-
-											div(class="options", style="width: 120px; display: table-cell; text-align: right;")
-												img(src="./img/love.png")
-												img(src="./img/cross.png")
-												img(src="./img/time-clock.png", class="timeline")
-
-			li(id="video-activity-template", style="display: none;", data-id="", data-timeline="")
-				div(style="display: table; width: 100%;")
-					div(style="display: table-row;")
-						div(style="display: table-cell; text-align: center; vertical-align: middle;")
-							img(src="./img/video.png", width="30", height="30", style="padding: 10px;")
-
-						div(style="display: table-cell; width: 100%; border-left: 2px solid #7e3f98;")
-
-							div(class="element-widget")
-								div(class="element-table", style="display: table; width: 100%;")
-
-
-										div(class="element", style="display: table-row;")
-											video(class="video", width="640", height="480", controls)
-												source(class="source", src="")
-
-											div(class="options", style="width: 120px; display: table-cell; text-align: right;")
-												img(src="./img/love.png")
-												img(src="./img/cross.png")
-												img(src="./img/time-clock.png", class="timeline")
-
+	//
 	// Top of interface
+	//
+
 	div(style="display: table; width: 100%; margin: 0px; padding: 0px;")
-		div(style="display: table-row;")
+
+		// ScienceKit logo
+		div(style="display: table-row;", id="previous-timeline-widget")
+			div(style="display: table-cell; text-align: center; vertical-align: middle; width: 30px;")
+				img(src="./img/blank.png", width="50", height="50", style="padding: 0px;")
+				img(class="link", src="./img/timeline-edge-to-previous.png", width="50", height="50", style="padding: 0px;")
+				
+			div(style="display: table-cell; width: 100%; padding-left: 10px;")
+				| 
+
+		// ScienceKit logo
+		div(style="display: table-row;", id="sciencekit-logo")
 			div(style="display: table-cell; text-align: center; vertical-align: middle; width: 30px;")
 				img(src="./img/blank.png", width="30", height="30", style="padding: 10px;")
 				
 			div(style="display: table-cell; width: 100%; border-left: 2px solid #f16521; padding-left: 10px;")
 				img(src="./img/sciencekit-logo.png", alt="sciencekit logo", style="margin-top: 50px;")
 
-		div(style="display: table-row;")
+		// Timeline introductory text
+		div(style="display: table-row;", id="timeline-intro-text")
 			div(style="display: table-cell; text-align: center; vertical-align: middle; width: 30px;")
 				img(src="./img/blank.png", width="30", height="30", style="padding: 10px;")
 
@@ -149,7 +85,7 @@ block content
 				img(src="./img/blank.png", width="30", height="30", style="padding: 10px;")
 				
 			div(style="display: table-cell; width: 100%; border-left: 2px solid #f16521; padding-left: 10px; padding-top: 20px;")
-				p(class="tagline") and then you came along.  what do you want to do?
+				p(class="tagline") ahoy there... what do you want to do?
 
 		div(style="display: table-row;")
 			div(style="display: table-cell; text-align: center; vertical-align: middle; width: 30px;")
@@ -204,6 +140,8 @@ block content
 			// Initialize interface
 			$('#float-page').hide();
 
+			$('#previous-timeline-widget').hide();
+
 			// Populate timeline
 			getTimeline();
 
@@ -216,10 +154,40 @@ block content
 				}
 			});
 
-			// Set time to scroll to bottom
-			$.data(document, 'timer', setTimeout(function() {
-				scrollToBottom();
-			}, 2000));
+			// Listen for touch events
+			document.addEventListener('touchstart', function(event) {
+				//event.preventDefault();
+				var touch = event.touches[0];
+				console.log("touchstart: Touch x:" + touch.pageX + ", y:" + touch.pageY);
+			}, false);
+
+			document.addEventListener('touchmove', function(event) {
+				//event.preventDefault();
+				var touch = event.touches[0];
+				console.log("touchmove: Touch x:" + touch.pageX + ", y:" + touch.pageY);
+			}, false);
+
+			// touchend
+			document.addEventListener('touchend', function(event) {
+				//event.preventDefault();
+				var touch = event.touches[0];
+				console.log("touchend: Touch x:" + touch.pageX + ", y:" + touch.pageY);
+			}, false);
+
+			// touchcancel
+			document.addEventListener('touchcancel', function(event) {
+				//event.preventDefault();
+				var touch = event.touches[0];
+				console.log("touchcancel: Touch x:" + touch.pageX + ", y:" + touch.pageY);
+			}, false);
+
+			// orientationchange
+
+			// gesturestart
+
+			// gesturechange
+
+			// gestureend
 		}
 
 		// Show options when scroll up, hide when scroll down
@@ -238,6 +206,28 @@ block content
 			} else if (delta < -10) {
 				$("#footer").slideDown();
 			}
+
+			// Update widget with focus (closest to center)
+			//if (window.scrollY)
+			var closestWidget = null;
+			var closestDistance = -1;
+			var timelineList = $('#narrative-list li').get();
+			for(var i = 0; i < timelineList.length; i++) {
+				//$(timelineList[i]).css('background-color', 'white');
+				$(timelineList[i]).find('.element .options').css('visibility', 'hidden');
+
+				var widgetTop = Math.abs($(timelineList[i]).position().top - (currPosition + window.innerHeight / 2));
+				if (closestDistance == -1 || (widgetTop < closestDistance)) {
+					closestWidget = $(timelineList[i]);
+					closestDistance = widgetTop;
+				}
+			}
+			console.log('Widget with focus: ' + $(closestWidget).attr('id'));
+			//$(closestWidget).find('.element-widget').css('height', '500px;');
+			//$(closestWidget).fadeOut();ddd
+			//$(closestWidget).css('background-color', '#ddd');
+			$(closestWidget).find('.element .options').css('visibility', 'visible');
+			//setCurrentWidget(closestWidget);
 		}
 
 		// Scroll to element
@@ -249,7 +239,7 @@ block content
 			$('#float-page').fadeIn().delay(2000).fadeOut();
 
 			// Generate list of "pages" to include in story
-			var timelineList = $('#timeline-list li').get();
+			var timelineList = $('#narrative-list li').get();
 			var timelineHighlights = [ 0, 13, 19, 37, 55, 68 ];
 
 			// Scroll through the pages
@@ -316,32 +306,10 @@ block content
 		});
 
 		$('#create-question-button').click(function() {
-
-			// Add question to list immediately
-			var e = addQuestion({ 
-				message: { 
-					text: 'Hey! Hey! Hey!'
-				}, 
-				account: { 
-					username: 'Mike' 
-				}
-			});
-
 			return false;
 		});
 
 		$('#create-cause-and-effect-button').click(function() {
-
-			// Add question to list immediately
-			addCauseAndEffect({ 
-				message: { 
-					text: 'Hey! Hey! Hey!'
-				}, 
-				account: { 
-					username: 'Mike' 
-				}
-			});
-
 			return false;
 		});
 

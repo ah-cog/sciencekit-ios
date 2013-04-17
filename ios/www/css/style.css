@@ -43,6 +43,10 @@ a:hover {
   color: #6478b8;
 }
 
+narrative-templates {
+  display: none;
+}
+
 
 #narrative-list {
   list-style-type: none;
@@ -59,14 +63,15 @@ a:hover {
   margin: 0px;
   padding: 0px;
 }
+
 .element-widget {
-  padding: 5px;
-  margin: 10px;
+  padding: 10px 8px 10px 8px;
+  margin: 13px 40px 13px 13px;
   border-width: 1px;
   border-color: #dddddd;
   border-style: solid;
   font-size: 20px;
-  border-radius: 4px;
+  border-radius: 8px;
 }
 
 

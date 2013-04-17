@@ -5,10 +5,14 @@
 var socketio = null;
 
 $(function() {
-	//localStorage['host'] = 'http://129.2.101.49:3000'; // June's server
-	localStorage['host'] = 'http://10.109.90.128:3000';
-	localStorage['client_id'] = 'abc123';
-	localStorage['client_secret'] = 'ssh-secret';
+	delete localStorage['host'];
+	delete localStorage['client_id'];
+	delete localStorage['client_secret'];
+	delete localStorage['token'];
+
+	////localStorage['host'] = 'http://10.109.90.186:3000';
+	//localStorage['client_id'] = 'abc123';
+	//localStorage['client_secret'] = 'ssh-secret';
 
 	socketio = io.connect(localStorage['host']);
 
@@ -556,45 +560,22 @@ function apiGetUser(options) {
 	});
 }
 
-var UUID = 0;
-function getUUID() {
-	return UUID++;
-}
-
-function getPhotos() {
-	console.log('Requesting protected timeline resources.');
-	$.ajax({
-		type: 'GET',
-		beforeSend: function(request) {
-			request.setRequestHeader('Authorization', 'Bearer ' + localStorage['token']);
-		},
-		url: localStorage['host'] + '/api/photo',
-		dataType: 'json',
-		success: function(data) {
-			console.log('Received protected thoughts (success).');
-			console.log(data);
-			// var user = jQuery.parseJSON(data);
-			// $('#resource_response').text(data);
-			for(photo in data) {
-				// Add photo to timeline
-				//alert(data[photo].uri);
-				addPhoto(data[photo]);
-			}
-
-			// Scroll to element
-			// x = 0;  //horizontal coord
-			// y = document.height; //vertical coord
-			// window.scroll(x,y);
-			//window.setTimeout($('html,body').animate({ scrollTop: $('#sciencekit-small-logo').offset().top }, 'slow'), 1500);
-		},
-		error: function() {
-			console.log('Failed to retreive protected resource.');
-		}
-	});
-}
-
 function getTimeline(options) {
-	console.log('Requesting protected timeline resources.');
+	console.log('getTimeline()');
+
+	//
+	// Save current state of timeline
+	//
+
+	// Save current timeline as "previous" timeline
+	var previousTimeline;
+	if ($("#narrative-list").attr("data-timeline") !== undefined) {
+		previousTimeline = $("#narrative-list").attr("data-timeline");
+	}
+
+	//
+	// Request resources for new timeline and update the timeline widget
+	//
 
 	var requestUri = localStorage['host'] + '/api/timeline';
 
@@ -619,10 +600,24 @@ function getTimeline(options) {
 
 			$('#narrative-list').html('');
 			$('#narrative-list').attr('data-timeline', data[0].timeline);
-			for(element in data) {
 
-				// Add thought to timeline
-				addTimelineWidget(data[element]);
+			// Set previous timeline (if any)
+			if (previousTimeline) {
+				$('#narrative-list').attr('data-previous-timeline', previousTimeline);
+			}
+
+			// Update timeline widget "header"
+			if (previousTimeline) {
+				$('#sciencekit-logo').hide();
+				$('#timeline-intro-text').hide();
+
+				$('#previous-timeline-widget').show();
+				$('#previous-timeline-widget').find('.link').click(function() { getTimeline(previousTimeline); });
+			}
+
+			// Add Moments to Timeline
+			for(moment in data) {
+				addTimelineWidget(data[moment]);
 			}
 		},
 		error: function() {
@@ -630,37 +625,6 @@ function getTimeline(options) {
 		}
 	});
 }
-
-// function getThoughts() {
-// 	console.log('Requesting protected timeline resources.');
-// 	$.ajax({
-// 		type: 'GET',
-// 		beforeSend: function(request) {
-// 			request.setRequestHeader('Authorization', 'Bearer ' + localStorage['token']);
-// 		},
-// 		url: localStorage['host'] + '/api/thought',
-// 		dataType: 'json',
-// 		success: function(data) {
-// 			console.log('Received protected thoughts (success).');
-// 			console.log(data);
-// 			// var user = jQuery.parseJSON(data);
-// 			// $('#resource_response').text(data);
-// 			for(thought in data) {
-// 				// Add thought to timeline
-// 				addThought(data[thought]);
-// 			}
-
-// 			// Scroll to element
-// 			// x = 0;  //horizontal coord
-// 			// y = document.height; //vertical coord
-// 			// window.scroll(x,y);
-// 			//$('html,body').animate({ scrollTop: $('#sciencekit-small-logo').offset().top }, 'slow');
-// 		},
-// 		error: function() {
-// 			console.log('Failed to retreive protected resource.');
-// 		}
-// 	});
-// }
 
 function addThoughtWidget(moment) {
 
@@ -688,7 +652,7 @@ function addThoughtWidget(moment) {
 			console.log("Could not find existing widget for thought. Creating new thought widget.");
 
 			// Clone template structure and remove 'id' element to avoid 'id' conflict
-			e = $('#narrative-element-template').clone().attr('id', 'new-element');
+			e = $('#thought-activity-template').clone().attr('id', 'volatile-activity');
 			e.removeAttr('id'); // Remove 'id' attribute
 			div = e.find('.element .text');
 		}
@@ -712,8 +676,8 @@ function addThoughtWidget(moment) {
 
 			e.appendTo('#narrative-list');
 			e.find('.element .text').blur(function() { saveThought(e); });
-			console.log("ADDING HANDLERS");
-			e.find('.element .options .timeline').click(function() { getTimeline({ moment_id: moment._id }); });
+			//e.find('.element .options .timeline').click(function() { getTimeline({ moment_id: moment._id }); });
+			e.find('.timeline').click(function() { getTimeline({ moment_id: moment._id }); });
 			e.show(); // Show element
 		}
 
@@ -722,7 +686,7 @@ function addThoughtWidget(moment) {
 		console.log("Creating new thought widget.");
 
 		// Clone template structure and remove 'id' element to avoid 'id' conflict
-		e = $('#narrative-element-template').clone().attr('id', 'new-element');
+		e = $('#thought-activity-template').clone().attr('id', 'volatile-activity');
 		e.removeAttr('id'); // Remove 'id' attribute
 		e.appendTo('#narrative-list');
 		e.find('.element .text').blur(function() { saveThought(e) });
@@ -757,7 +721,7 @@ function addTopicWidget(moment) {
 			console.log("Could not find existing widget for topic. Creating new topic widget.");
 
 			// Clone template structure and remove 'id' element to avoid 'id' conflict
-			e = $('#topic-activity-template').clone().attr('id', 'new-element');
+			e = $('#topic-activity-template').clone().attr('id', 'volatile-activity');
 			e.removeAttr('id'); // Remove 'id' attribute
 			div = e.find('.element .text');
 		}
@@ -781,7 +745,6 @@ function addTopicWidget(moment) {
 
 			e.appendTo('#narrative-list');
 			e.find('.element .text').blur(function() { saveTopic(e); });
-			console.log("ADDING HANDLERS");
 			e.find('.element .options .timeline').click(function() { getTimeline({ moment_id: moment._id }); });
 			e.show(); // Show element
 		}
@@ -791,13 +754,17 @@ function addTopicWidget(moment) {
 		console.log("Creating new topic widget.");
 
 		// Clone template structure and remove 'id' element to avoid 'id' conflict
-		e = $('#topic-activity-template').clone().attr('id', 'new-element');
+		e = $('#topic-activity-template').clone().attr('id', 'volatile-activity');
 		e.removeAttr('id'); // Remove 'id' attribute
 		e.appendTo('#narrative-list');
 		e.find('.element .text').blur(function() { saveTopic(e) });
 		// e.find('.element .options .timeline').click(function() { getTimeline({ moment_id: moment._id }); });
 		e.show(); // Show element
 	}
+}
+
+function setCurrentWidget(widget) {
+	e.find('.element .options').show();
 }
 
 function addTimelineWidget(moment) {
@@ -846,7 +813,7 @@ function addPhotoWidget(moment) {
 			console.log("Could not find existing widget for photo. Creating new photo widget.");
 
 			// Clone template structure and remove 'id' element to avoid 'id' conflict
-			e = $('#photo-template').clone().attr('id', 'new-element');
+			e = $('#photo-template').clone().attr('id', 'volatile-activity');
 			e.removeAttr('id'); // Remove 'id' attribute
 			//div = e.find('.element .text');
 		}
@@ -883,7 +850,7 @@ function addPhotoWidget(moment) {
 		console.log("Creating new photo widget.");
 
 		// Clone template structure and remove 'id' element to avoid 'id' conflict
-		e = $('#photo-template').clone().attr('id', 'new-element');
+		e = $('#photo-template').clone().attr('id', 'volatile-activity');
 		e.removeAttr('id'); // Remove 'id' attribute
 		e.appendTo('#narrative-list');
 		e.find('.element .image').click(function() { changePhoto(e) });
@@ -920,7 +887,7 @@ function addVideoWidget(moment) {
 			console.log("Could not find existing widget for video. Creating new video widget.");
 
 			// Clone template structure and remove 'id' element to avoid 'id' conflict
-			e = $('#video-activity-template').clone().attr('id', 'new-element');
+			e = $('#video-activity-template').clone().attr('id', 'volatile-activity');
 			e.removeAttr('id'); // Remove 'id' attribute
 			//div = e.find('.element .text');
 		}
@@ -957,7 +924,7 @@ function addVideoWidget(moment) {
 		console.log("Creating new video widget.");
 
 		// Clone template structure and remove 'id' element to avoid 'id' conflict
-		e = $('#video-activity-template').clone().attr('id', 'new-element');
+		e = $('#video-activity-template').clone().attr('id', 'volatile-activity');
 		e.removeAttr('id'); // Remove 'id' attribute
 		e.appendTo('#narrative-list');
 		//e.find('.element .video').click(function() { changeVideo(e) });
