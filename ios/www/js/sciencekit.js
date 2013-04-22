@@ -4,15 +4,12 @@
 // Socket connection for data streaming
 var socketio = null;
 
-$(function() {
-	delete localStorage['host'];
-	delete localStorage['client_id'];
-	delete localStorage['client_secret'];
-	delete localStorage['token'];
+var timelineStack = [];
 
-	////localStorage['host'] = 'http://10.109.90.186:3000';
-	//localStorage['client_id'] = 'abc123';
-	//localStorage['client_secret'] = 'ssh-secret';
+//
+// Set up real-time communication using web sockets (using the socket.io library).
+//
+function connectWebSocket() {
 
 	socketio = io.connect(localStorage['host']);
 
@@ -78,26 +75,7 @@ $(function() {
 			$('#incomingChatMessages').append('<li>Disconnected</li>');
 		});
 	});
-
-	// Define interaction event listeners
-
-	// Set up event listener
-	$('#outgoingChatMessage').keypress(function(event) {
-		if(event.which == 13) {
-			event.preventDefault();
-
-			// var oauthAccessToken = $('#token_response').text(); // Get access token
-			var oauthAccessToken = localStorage['token'];
-			var messageText = $('#outgoingChatMessage').val();
-			var message = JSON.stringify({ 'token': oauthAccessToken, 'message': messageText });
-
-			console.log('Sending message: ' + message);
-			socketio.send(message);
-			$('#incomingChatMessages').append($('<li></li>').text($('#outgoingChatMessage').val()));
-			$('#outgoingChatMessage').val('');
-		}
-	});
-});
+}
 
 
 
@@ -568,10 +546,15 @@ function getTimeline(options) {
 	//
 
 	// Save current timeline as "previous" timeline
-	var previousTimeline;
-	if ($("#narrative-list").attr("data-timeline") !== undefined) {
-		previousTimeline = $("#narrative-list").attr("data-timeline");
-	}
+	// var previousTimeline;
+	// if ($("#narrative-list").attr("data-timeline") !== undefined) {
+	// 	previousTimeline = $("#narrative-list").attr("data-timeline");
+	// }
+
+	// var previousTimeline = null;
+	// if (timelineStack.length > 1) {
+	// 	previousTimeline = timelineStack.pop();
+	// }
 
 	//
 	// Request resources for new timeline and update the timeline widget
@@ -599,25 +582,61 @@ function getTimeline(options) {
 			console.log(data);
 
 			$('#narrative-list').html('');
-			$('#narrative-list').attr('data-timeline', data[0].timeline);
+			$('#narrative-list').attr('data-timeline', data._id);
+			$('#narrative-list').attr('data-moment', data.moment);
 
 			// Set previous timeline (if any)
-			if (previousTimeline) {
-				$('#narrative-list').attr('data-previous-timeline', previousTimeline);
+			// if (previousTimeline) {
+			// 	$('#narrative-list').attr('data-previous-timeline', previousTimeline);
+			// }
+
+			// Add Moments to Timeline
+			for(moment in data.moments) {
+				addTimelineWidget(data.moments[moment]);
 			}
 
+			console.log('timelineStack.length = ' + timelineStack.length);
+
+			//
+			// Save Timeline on stack
+			//
+
+			var currentTimeline = {};
+			currentTimeline.timeline = data._id;
+			if (timelineStack.length > 0) {
+				currentTimeline.previousTimeline = timelineStack[timelineStack.length - 1].timeline;
+			} else {
+				currentTimeline.previousTimeline = null;
+			}
+
+			// Only add timeline if it's not already on the top of the stack (i.e., prevent duplicates)
+			if (timelineStack.length > 0) {
+				if (currentTimeline.timeline !== timelineStack[timelineStack.length - 1].timeline) {
+					timelineStack.push(currentTimeline);
+				}
+			} else {
+				timelineStack.push(currentTimeline);
+			}
+
+			//
 			// Update timeline widget "header"
-			if (previousTimeline) {
+			//
+
+			if (timelineStack.length > 1) {
 				$('#sciencekit-logo').hide();
 				$('#timeline-intro-text').hide();
 
 				$('#previous-timeline-widget').show();
-				$('#previous-timeline-widget').find('.link').click(function() { getTimeline(previousTimeline); });
-			}
+				$('#previous-timeline-widget').find('.link').off('click'); // Remove any existing 'onclick' event handler
+				$('#previous-timeline-widget').find('.link').click(function() {
+					var currentTimeline = timelineStack.pop();
+					getTimeline({ id: currentTimeline.previousTimeline });
+				});
+			} else {
+				$('#sciencekit-logo').show();
+				$('#timeline-intro-text').show();
 
-			// Add Moments to Timeline
-			for(moment in data) {
-				addTimelineWidget(data[moment]);
+				$('#previous-timeline-widget').hide();			
 			}
 		},
 		error: function() {
@@ -657,6 +676,11 @@ function addThoughtWidget(moment) {
 			div = e.find('.element .text');
 		}
 
+		// Update widget based on whether it is the timeline's "parent" Moment
+		if (moment._id === $('#narrative-list').attr('data-moment')) {
+			e.find('.timeline-branch').hide();
+		}
+
 		// Update 'li' for element
 		e.attr('id', 'thought-frame-' + thoughtFrame._id);
 		e.attr('data-id', thoughtFrame._id);
@@ -679,6 +703,94 @@ function addThoughtWidget(moment) {
 			//e.find('.element .options .timeline').click(function() { getTimeline({ moment_id: moment._id }); });
 			e.find('.timeline').click(function() { getTimeline({ moment_id: moment._id }); });
 			e.show(); // Show element
+
+			//
+			// Set up listeners for touch events on Frame widget (e.g., swipe)
+			//
+
+			var frameWidget = document.getElementById('thought-frame-' + thoughtFrame._id);
+
+			// 'touchstart' event handler
+			frameWidget.addEventListener('touchstart', function(event) {
+				//event.preventDefault();
+				var touchCount = event.targetTouches.length;
+				console.log('Touch count: ' + touchCount);
+
+				if (touchCount === 1) {
+					var touch = event.touches[0];
+					console.log(event.target + " touchstart: Touch x:" + touch.pageX + ", y:" + touch.pageY);
+					frameWidget.swipeInProgress = true;
+
+					// Store first touch point of swipe
+					frameWidget.swipeStartX = touch.pageX;
+					frameWidget.swipeStartY = touch.pageY;
+
+					// Store "previous point" of swipe (for future reference)
+					frameWidget.previousX = frameWidget.swipeStartX;
+					frameWidget.previousY = frameWidget.swipeStartY;
+				} else {
+					frameWidget.swipeInProgress = false;
+				}
+			}, false);
+
+			// 'touchmove' event handler
+			frameWidget.addEventListener('touchmove', function(event) {
+
+				//console.log("gesture in progress: " + frameWidget.swipeGestreInProgress);
+				//event.preventDefault();
+				var touch = event.touches[0];
+				var touchCount = event.touches.length;
+
+				if (touchCount > 1) {
+					frameWidget.swipeInProgress = false;
+				}
+
+				// Determine if swipe is still taking place
+				var changeX = Math.abs(touch.pageX - frameWidget.previousX);
+				var changeY = Math.abs(touch.pageY - frameWidget.previousY);
+				console.log('changeX = ' + changeX + ', ' + 'changeY = ' + changeY);
+				if (changeY >= changeX) {
+					// Abort gesture
+
+					frameWidget.swipeInProgress = false;
+					console.log("aborting gesture");
+				} else {
+					// Continue gesture
+
+					// Store "previous point"
+					frameWidget.previousX = touch.pageX;
+					frameWidget.previousY = touch.pageY;
+				}
+			}, false);
+
+			// 'touchend' event handler
+			frameWidget.addEventListener('touchend', function(event) {
+				//event.preventDefault();
+				var touch = event.changedTouches[0];
+				//var touch = event.targetTouches[0];
+				console.log(event.target + " touchend: Touch x:" + touch.pageX + ", y:" + touch.pageY);
+
+				console.log("SWIPED!");
+
+				if (frameWidget.swipeInProgress === true) {
+					// Reset swipe gesture state
+					frameWidget.swipeInProgress = false;
+
+					var swipeDistanceThreshold = 50; // Minimum required distance between start and end touch event x coordinates to be considered a swipe
+					if (frameWidget.swipeStartX > (touch.pageX + swipeDistanceThreshold)) {
+						// Fire 'swipe' event
+						getTimeline({ moment_id: moment._id });
+					}
+				}
+
+			}, false);
+
+			// touchcancel
+			frameWidget.addEventListener('touchcancel', function(event) {
+				//event.preventDefault();
+				var touch = event.touches[0];
+				console.log(event.target + " touchcancel: Touch x:" + touch.pageX + ", y:" + touch.pageY);
+			}, false);
 		}
 
 	} else {
@@ -1036,6 +1148,8 @@ function saveTopic(e) {
 function openChildBrowser() {
 	//var uri = localStorage['host'] + "/dialog/authorize?client_id=client123&client_secret=ssh-secret&response_type=code&redirect_uri=/oauth/exchange";
 	var uri = localStorage['host'] + "/dialog/authorize?client_id=" + localStorage['client_id'] + "&client_secret=" + localStorage['client_secret'] + "&response_type=code&redirect_uri=/oauth/exchange";
+
+	console.log('Opening ChildBrowser at ' + uri);
 
 	// Callback for "close" event
 	window.plugins.childBrowser.onClose = function () {

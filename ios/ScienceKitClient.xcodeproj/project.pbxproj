@@ -43,6 +43,8 @@
 		30E5649213A7FCAF007403D8 /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 30E5649113A7FCAF007403D8 /* CoreMedia.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		391CEB98C48F4BEE919F186D /* ChildBrowser.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 85D0ED457046479AA86FE811 /* ChildBrowser.bundle */; };
 		5B1594DD16A7569C00FEF299 /* AssetsLibrary.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5B1594DC16A7569C00FEF299 /* AssetsLibrary.framework */; };
+		65F15A4D1722505D005E424F /* icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 65F15A4C1722505D005E424F /* icon.png */; };
+		65F15A4F17228D74005E424F /* icon-72.png in Resources */ = {isa = PBXBuildFile; fileRef = 65F15A4E17228D74005E424F /* icon-72.png */; };
 		833B985A03A04C06826726AA /* ChildBrowserCommand.m in Sources */ = {isa = PBXBuildFile; fileRef = D15A018169514815ABE95230 /* ChildBrowserCommand.m */; };
 		AE446B5BC5C34D26ABC7B819 /* ChildBrowserViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = AA34ECB1AE8B4A8B98EEBF71 /* ChildBrowserViewController.xib */; };
 		D4A0D8761607E02300AEF8BB /* Default-568h@2x~iphone.png in Resources */ = {isa = PBXBuildFile; fileRef = D4A0D8751607E02300AEF8BB /* Default-568h@2x~iphone.png */; };
@@ -72,7 +74,7 @@
 		1D30AB110D05D00D00671497 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		1D3623240D0F684500981E51 /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		1D3623250D0F684500981E51 /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
-		1D6058910D05DD3D006BFB54 /* ScienceKitClient.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ScienceKitClient.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		1D6058910D05DD3D006BFB54 /* #sciencekit.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "#sciencekit.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		1DF5F4DF0D08C38300B7A737 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		1F766FDD13BBADB100FB74C0 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = Localizable.strings; sourceTree = "<group>"; };
 		1F766FE013BBADB100FB74C0 /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = Localizable.strings; sourceTree = "<group>"; };
@@ -110,6 +112,8 @@
 		5B1594DC16A7569C00FEF299 /* AssetsLibrary.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AssetsLibrary.framework; path = System/Library/Frameworks/AssetsLibrary.framework; sourceTree = SDKROOT; };
 		65624D15170035A2005AC4C7 /* Default-Landscape~ipad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-Landscape~ipad.png"; sourceTree = "<group>"; };
 		65624D17170035C7005AC4C7 /* Default-Portrait~ipad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-Portrait~ipad.png"; sourceTree = "<group>"; };
+		65F15A4C1722505D005E424F /* icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon.png; sourceTree = "<group>"; };
+		65F15A4E17228D74005E424F /* icon-72.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon-72.png"; sourceTree = "<group>"; };
 		6AADF211348F4F1097BA73DE /* ChildBrowserViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ChildBrowserViewController.m; sourceTree = "<group>"; };
 		85D0ED457046479AA86FE811 /* ChildBrowser.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = ChildBrowser.bundle; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* ScienceKitClient-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "ScienceKitClient-Info.plist"; path = "../ScienceKitClient-Info.plist"; plistStructureDefinitionIdentifier = "com.apple.xcode.plist.structure-definition.iphone.info-plist"; sourceTree = "<group>"; };
@@ -162,7 +166,7 @@
 		19C28FACFE9D520D11CA2CBB /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				1D6058910D05DD3D006BFB54 /* ScienceKitClient.app */,
+				1D6058910D05DD3D006BFB54 /* #sciencekit.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -186,6 +190,8 @@
 		29B97314FDCFA39411CA2CEA /* CustomTemplate */ = {
 			isa = PBXGroup;
 			children = (
+				65F15A4E17228D74005E424F /* icon-72.png */,
+				65F15A4C1722505D005E424F /* icon.png */,
 				65624D17170035C7005AC4C7 /* Default-Portrait~ipad.png */,
 				65624D15170035A2005AC4C7 /* Default-Landscape~ipad.png */,
 				F840E1F0165FE0F500CFE078 /* config.xml */,
@@ -330,7 +336,7 @@
 			);
 			name = ScienceKitClient;
 			productName = ScienceKitClient;
-			productReference = 1D6058910D05DD3D006BFB54 /* ScienceKitClient.app */;
+			productReference = 1D6058910D05DD3D006BFB54 /* #sciencekit.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -404,6 +410,8 @@
 				D4A0D8761607E02300AEF8BB /* Default-568h@2x~iphone.png in Resources */,
 				391CEB98C48F4BEE919F186D /* ChildBrowser.bundle in Resources */,
 				AE446B5BC5C34D26ABC7B819 /* ChildBrowserViewController.xib in Resources */,
+				65F15A4D1722505D005E424F /* icon.png in Resources */,
+				65F15A4F17228D74005E424F /* icon-72.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -500,7 +508,7 @@
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				INFOPLIST_FILE = "ScienceKitClient/ScienceKitClient-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
-				PRODUCT_NAME = ScienceKitClient;
+				PRODUCT_NAME = "#sciencekit";
 				PROVISIONING_PROFILE = "AB7CC413-7317-4091-9812-B46C10663561";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -519,7 +527,7 @@
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				INFOPLIST_FILE = "ScienceKitClient/ScienceKitClient-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
-				PRODUCT_NAME = ScienceKitClient;
+				PRODUCT_NAME = "#sciencekit";
 				PROVISIONING_PROFILE = "AB7CC413-7317-4091-9812-B46C10663561";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -559,6 +567,7 @@
 					"-all_load",
 					"-Obj-C",
 				);
+				PRODUCT_NAME = ScienceKit;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = NO;
 				USER_HEADER_SEARCH_PATHS = "";
@@ -599,6 +608,7 @@
 					"-all_load",
 					"-Obj-C",
 				);
+				PRODUCT_NAME = ScienceKit;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = NO;
 				USER_HEADER_SEARCH_PATHS = "";

@@ -26,7 +26,7 @@ block content
 	//
 
 	.narrative-templates(id="narrative-templates")
-	
+
 		// Template timeline widgets
 		include widget-templates
 
@@ -36,24 +36,34 @@ block content
 
 	div(style="display: table; width: 100%; margin: 0px; padding: 0px;")
 
-		// ScienceKit logo
+		//
+		// Link to "previous timeline" (if any)
+		//
+
 		div(style="display: table-row;", id="previous-timeline-widget")
 			div(style="display: table-cell; text-align: center; vertical-align: middle; width: 30px;")
 				img(src="./img/blank.png", width="50", height="50", style="padding: 0px;")
-				img(class="link", src="./img/timeline-edge-to-previous.png", width="50", height="50", style="padding: 0px;")
+				img(class="link", src="./img/timeline-edge-to-previous.png", width="50", height="100", style="padding: 0px;")
 				
 			div(style="display: table-cell; width: 100%; padding-left: 10px;")
-				| 
+				p(style="font-size: 30px; margin-top: 30px; color: #bbbbbb;")
+					| back
 
-		// ScienceKit logo
+		//
+		// ScienceKit logo (shown on "default" timeline)
+		//
+
 		div(style="display: table-row;", id="sciencekit-logo")
 			div(style="display: table-cell; text-align: center; vertical-align: middle; width: 30px;")
 				img(src="./img/blank.png", width="30", height="30", style="padding: 10px;")
 				
 			div(style="display: table-cell; width: 100%; border-left: 2px solid #f16521; padding-left: 10px;")
-				img(src="./img/sciencekit-logo.png", alt="sciencekit logo", style="margin-top: 50px;")
+				img(id="logo", src="./img/sciencekit-logo.png", alt="sciencekit logo", style="margin-top: 50px;")
 
-		// Timeline introductory text
+		//
+		// Timeline introductory text (e.g., "once upon a time")
+		//
+
 		div(style="display: table-row;", id="timeline-intro-text")
 			div(style="display: table-cell; text-align: center; vertical-align: middle; width: 30px;")
 				img(src="./img/blank.png", width="30", height="30", style="padding: 10px;")
@@ -61,7 +71,10 @@ block content
 			div(style="display: table-cell; width: 100%; border-left: 2px solid #f16521; padding-left: 10px;")
 				p(id="beginning", class="tagline") once upon a time
 
+	//
 	// Timeline interface
+	//
+
 	ul(id="narrative-list")
 
 	.edge(id="bottom", style="text-align: right; font-size: 30px; padding-right: 10px;")
@@ -78,7 +91,14 @@ block content
 			img(src="./img/video.png", width="50", height="50") 
 			img(src="./img/topic.png", width="50", height="50")
 
+	//
 	// Bottom of interface
+	//
+
+	mixin option(name, frameType, imageUri, clickEventHandler)
+		div(style='background-image: url(#{imageUri}); background-repeat:no-repeat; background-position:3px 0px; height: 100px; width: 200px; padding-left: 118px; padding-top: 34px; font-size: 30px;')
+			a(id="create-#{frameType}-button", data-artifact-type="#{frameType}", href="javascript:void(0);", onclick=#{clickEventHandler}) #{name}
+
 	div(style="display: table; width: 100%; margin: 0px; padding: 0px;")
 		div(style="display: table-row;")
 			div(style="display: table-cell; text-align: center; vertical-align: middle; width: 30px;")
@@ -93,43 +113,30 @@ block content
 
 			div(style="display: table-cell; width: 100%; border-left: 2px solid #f16521; padding-left: 10px;")
 
-				div(style='background-image: url(./img/thought.png); background-repeat:no-repeat; background-position:3px 0px; height: 100px; width: 200px; padding-left: 118px; padding-top: 34px; font-size: 30px;')
-					a(id="create-thought-button", data-artifact-type="thought", href="javascript:void(0);") thought 
+				mixin option('thought', 'thought', './img/thought.png', 'addThoughtWidget();')
+				mixin option('photo', 'photo', './img/camera.png', 'capturePhotoToURI();')
+				mixin option('video', 'video', './img/video.png', 'captureVideo2();')
+				mixin option('topic', 'topic', './img/topic.png', 'addTopicWidget();')
 
-				div(style='background-image: url(./img/camera.png); background-repeat:no-repeat; height: 100px; width: 200px; padding-left: 118px; padding-top: 34px; font-size: 30px;')
-					a(href="javascript:void(0);", data-artifact-type="camera", onclick="capturePhotoToURI();") photo
+				mixin option('avatar', 'avatar', './img/camera.png', 'captureAvatarToURI();')
 
-				div(style='background-image: url(./img/video.png); background-repeat:no-repeat; height: 100px; width: 200px; padding-left: 118px; padding-top: 34px; font-size: 30px;')
-					a(href="javascript:void(0);", data-artifact-type="camera", onclick="captureVideo2();") video
+				// question
+				// cause and effect
+				// step by step
+				// note
+				// voice
+				// collage
+				// measurement
+				// tag
+				// time
+				// compass
+				// vibration
+				// madlib
+				// 5x chat
 
-				div(style='background-image: url(./img/topic.png); background-repeat:no-repeat; background-position:3px 0px; height: 100px; width: 200px; padding-left: 118px; padding-top: 34px; font-size: 30px;')
-					a(id="create-topic-button", data-artifact-type="topic", href="javascript:void(0);") topic 
-
-				div(style='background-image: url(./img/camera.png); background-repeat:no-repeat; height: 100px; width: 200px; padding-left: 118px; padding-top: 34px; font-size: 30px;')
-					a(href="javascript:void(0);", data-artifact-type="camera", onclick="captureAvatarToURI();") avatar
-
-				//| | 
-				//a(id="create-question-button", href="javascript:void(0);") question 
-				//| | 
-				//a(id="create-cause-and-effect-button", href="javascript:void(0);") cause and effect 
-				//| | 
-				//a(id="create-step-by-step-button", href="javascript:void(0);") step by step 
-				//| | 
-				//a(id="create-note-button", href="javascript:void(0);") note 
-				//| |
-				//a(href="javascript:void(0);", onclick="uploadPhoto();") upload 
-				//| crazy game, immersive madlib | 
-				//| voice | 
-				//| collage |
-				//| measurement |
-				//| tag |
-				//| time |
-				//| compass |
-				//| vibration |
-
-				// img(src="./img/sciencekit-logo-small.png", alt="sciencekit logo", id="sciencekit-small-logo") 
-
-	// Storybook interface
+	//
+	// "Storybook" interface
+	//
 	.float-page(id="float-page")
 		.float-page-table
 			p(class="float-page-p")
@@ -137,6 +144,34 @@ block content
 
 	script
 		window.onload = function() {
+
+			// Initialize web socket connection for real-time collaboration
+			connectWebSocket();
+
+			// Define interaction event listeners
+
+			// Initialize GUI event listeners
+			$('#outgoingChatMessage').keypress(function(event) {
+				if(event.which == 13) {
+					event.preventDefault();
+
+					// var oauthAccessToken = $('#token_response').text(); // Get access token
+					var oauthAccessToken = localStorage['token'];
+					var messageText = $('#outgoingChatMessage').val();
+					var message = JSON.stringify({ 'token': oauthAccessToken, 'message': messageText });
+
+					console.log('Sending message: ' + message);
+					socketio.send(message);
+					$('#incomingChatMessages').append($('<li></li>').text($('#outgoingChatMessage').val()));
+					$('#outgoingChatMessage').val('');
+				}
+			});
+
+
+
+
+
+
 			// Initialize interface
 			$('#float-page').hide();
 
@@ -153,33 +188,6 @@ block content
 					$("html,body").stop();
 				}
 			});
-
-			// Listen for touch events
-			document.addEventListener('touchstart', function(event) {
-				//event.preventDefault();
-				var touch = event.touches[0];
-				console.log("touchstart: Touch x:" + touch.pageX + ", y:" + touch.pageY);
-			}, false);
-
-			document.addEventListener('touchmove', function(event) {
-				//event.preventDefault();
-				var touch = event.touches[0];
-				console.log("touchmove: Touch x:" + touch.pageX + ", y:" + touch.pageY);
-			}, false);
-
-			// touchend
-			document.addEventListener('touchend', function(event) {
-				//event.preventDefault();
-				var touch = event.touches[0];
-				console.log("touchend: Touch x:" + touch.pageX + ", y:" + touch.pageY);
-			}, false);
-
-			// touchcancel
-			document.addEventListener('touchcancel', function(event) {
-				//event.preventDefault();
-				var touch = event.touches[0];
-				console.log("touchcancel: Touch x:" + touch.pageX + ", y:" + touch.pageY);
-			}, false);
 
 			// orientationchange
 

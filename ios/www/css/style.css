@@ -6,7 +6,7 @@
 body {
   margin: 0px;
   padding: 0px;
-  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+  font-size: 14px;
   font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
   font-weight: 300;
   -webkit-font-smoothing: antialiased;
@@ -47,7 +47,6 @@ narrative-templates {
   display: none;
 }
 
-
 #narrative-list {
   list-style-type: none;
   margin-left: 0px;
@@ -64,7 +63,7 @@ narrative-templates {
   padding: 0px;
 }
 
-.element-widget {
+.activity-widget {
   padding: 10px 8px 10px 8px;
   margin: 13px 40px 13px 13px;
   border-width: 1px;
@@ -73,6 +72,37 @@ narrative-templates {
   font-size: 20px;
   border-radius: 8px;
 }
+
+.text-input-widget {
+  padding: 10px 8px 10px 8px;
+  margin: 4px 40px 4px 40px;
+  border-width: 1px;
+  border-color: #dddddd;
+  border-style: solid;
+  font-size: 20px;
+  border-radius: 8px;
+}
+
+.text-input-widget input[type="text"] {
+  width: 100%;
+  font-size: 35px;
+  font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+  padding: 10px;
+  margin: 5px;
+  border: 0px solid #dddddd;
+  border-radius: 8px;
+}
+
+
+
+
+
+.activity-template {
+  display: none;
+}
+
+
+
 
 
 .view-port {

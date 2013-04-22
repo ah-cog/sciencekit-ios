@@ -1,3 +1,115 @@
-<!DOCTYPE html><html><head><title>ScienceKit</title><link rel="stylesheet" href="./css/style.css"><script src="cordova-2.6.0.js"></script><script src="childbrowser.js"></script><script src="jquery.min.js"></script><script src="socket.io.min.js"></script><script src="js/sciencekit.js"></script></head><body><img src="./img/sciencekit-logo.png" alt="sciencekit logo"><p class="tagline">tell your story</p><p class="login-step">1. <a href="javascript:void(0);" onclick="openChildBrowser();">login</a></p><p class="login-step">2. <a href="./timeline.html">start</a></p><!-- h1 Authorize ScienceKit Client--><!-- h2 Request authorization grant from resource owner (human, authenticated user)--><!-- a(id="authorize_link", href="javascript:void(0);") Authorize--><!-- p Received authorization grant (identified by authorization code) 'code': 'none'--><!-- hr--><!-- h2 Exchange client's authorization grant for a client access token--><!-- a(id="auth_link", href="javascript:void(0);") Authenticate ScienceKit--><!-- p(id="token_response") no token received--><!-- hr--><!-- h2 Request Resource (on behalf of owner that granted authorization)--><!-- a(id="account-list", href="javascript:void(0);") Request resource (using access token)--><!-- p(id="resource_response") no resource received--><!-- hr--><!-- h2 Timeline (socket.io Demo)--><!-- p Micro-contribution: --><!--	input(id="outgoingChatMessage")--><!-- ul(id="incomingChatMessages")--><script>if(localStorage['token']) {
- $(location).attr('href', './timeline.html');
-}</script></body></html>
+<!DOCTYPE html><html><head><title>ScienceKit</title><link rel="stylesheet" href="./css/style.css"><script src="cordova-2.6.0.js"></script><script src="childbrowser.js"></script><script src="jquery.min.js"></script><script src="socket.io.min.js"></script><script src="js/sciencekit.js"></script></head><body><div style="margin-top: 50px; margin-left: 50px;"><img src="./img/sciencekit-logo.png" alt="sciencekit logo"></div><div id="host-settings" style="display: table; width: 100%;"><div style="margin: 0px 40px 0px 40px; font-size: 35px;">host</div><div style="display: table-row;"><div style="display: table-cell; position: relative; z-index: 0; width: 100%;"><div class="text-input-widget"><div style="display: table; width: 100%;" class="element-table"><div style="display: table-row;" class="element"><div style="display: table-cell; min-width: 100%; vertical-align: middle;" class="text"><input type="text" id="hostAddressInput"></div><div style="width: 75px; display: table-cell; text-align: right; vertical-align: middle;" class="options"><img id="hostAddressSave" src="./img/check.png" style="display: none;"><img id="hostAddressInvalid" src="./img/cross-red.png" style="display: none;"></div></div></div></div></div></div></div><div id="authorize" style="display: none;"><p class="login-step"><a href="javascript:void(0);" onclick="openChildBrowser();">connect</a></p></div><script>window.onload = function() {
+
+ // Reset localStorage
+ // localStorage['timelineStack'] = {};
+ 
+ //
+ // Set up GUI
+ //
+ 
+ $('#hostAddressInput').change(function(event) {
+  updateAddressInput();
+ });
+ 
+ $('#hostAddressInput').keyup(function(event) {
+  updateAddressInput();
+ });
+ 
+ $('#hostAddressSave').click(function() {
+  saveHostAddress();
+ });
+}
+
+function updateAddressInput() {
+ // TODO: Check if input matches regular expression
+ var hostAddress = $('input[id=hostAddressInput]').val();
+ 
+ // Matches URIs that contain a protocol, subdomain, domain, IP address, port number, path name or file name
+ var addressRegExp = /\b((([hH][tT][tT][pP][sS]?|[fF][tT][pP])\:\/\/)?([\w\.\-]+(\:[\w\.\&%\$\-]+)*@)?((([^\s\(\)\<\>\\\"\.\[\]\,@;:]+)(\.[^\s\(\)\<\>\\\"\.\[\]\,@;:]+)*(\.[a-zA-Z]{2,4}))|((([01]?\d{1,2}|2[0-4]\d|25[0-5])\.){3}([01]?\d{1,2}|2[0-4]\d|25[0-5])))(\b\:(6553[0-5]|655[0-2]\d|65[0-4]\d{2}|6[0-4]\d{3}|[1-5]\d{4}|[1-9]\d{0,3}|0)\b)?((\/[^\/][\w\.\,\?\'\\\/\+&%\$#\=~_\-@]*)*[^\.\,\?\"\'\(\)\[\]!;<>{}\s\x7F-\xFF])?)\b/;
+ 
+ if (hostAddress.match(addressRegExp) !== null) {
+  console.log(hostAddress);
+  
+  // TODO: Send "ack" request to host at valid hostAddress, then continue if it responds with an "ack" of being a ScienceKit host.
+  
+  $('#hostAddressInvalid').hide(function() {
+   $('#hostAddressSave').fadeIn(function() {
+   
+    // TODO: Add delay here...
+    
+    //saveHostAddress();
+    
+   });
+  });;
+  
+ } else {
+ 
+  // Host address is not valid, show visual feedback
+  if ($('#hostAddressSave').is(":visible")) {
+   $('#hostAddressSave').hide(0, function() {
+    $('#hostAddressInvalid').show(0, function() {
+     $('#hostAddressInvalid').fadeOut();
+    });
+   });
+  }
+ }
+}
+
+function saveHostAddress() {
+ var hostAddress = $('input[id=hostAddressInput]').val();
+ localStorage['host'] = hostAddress;
+ console.log('Stored address: ' + hostAddress);
+ 
+ // Update GUI
+ $('#host-settings').fadeOut('fast', function() {
+  saveClientProfile();
+ });
+}
+
+function saveClientProfile() {
+ // TODO: Get client_id and client_secret from server
+ localStorage['client_id'] = 'abc123';
+ localStorage['client_secret'] = 'ssh-secret';
+ 
+ openChildBrowser();
+}
+
+//delete localStorage['host'];
+//delete localStorage['client_id'];
+//delete localStorage['client_secret'];
+//delete localStorage['token'];
+
+function updateGui() {
+ if(!localStorage['host']) {
+ 
+  $('#host-settings').show();
+  
+ } else if(!localStorage['client_id'] || !localStorage['client_secret']) {
+ 
+  // TODO: Get client_id and client_secret from server
+  localStorage['client_id'] = 'abc123';
+  localStorage['client_secret'] = 'ssh-secret';
+  
+  updateGui();
+  
+ } else if(!localStorage['token']) {
+ 
+  $('#authorize').fadeIn();
+  
+ } else {
+ 
+  console.log('OAuth2 token exists.  Loading timeline.');
+  $(location).attr('href', './timeline.html');
+ }
+}
+
+//
+// Determine initial state of GUI
+//
+
+updateGui();
+
+// host
+// client_id
+// client_secret
+// token</script></body></html>
