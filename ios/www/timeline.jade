@@ -97,7 +97,7 @@ block content
 
 	mixin option(name, frameType, imageUri, clickEventHandler)
 		div(style='background-image: url(#{imageUri}); background-repeat:no-repeat; background-position:3px 0px; height: 100px; width: 200px; padding-left: 118px; padding-top: 34px; font-size: 30px;')
-			a(id="create-#{frameType}-button", data-artifact-type="#{frameType}", href="javascript:void(0);", onclick=#{clickEventHandler}) #{name}
+			a(id="create-#{frameType}-button", data-artifact-type="#{frameType}", href="javascript:void(0);", onclick='#{clickEventHandler}') #{name}
 
 	div(style="display: table; width: 100%; margin: 0px; padding: 0px;")
 		div(style="display: table-row;")
@@ -303,14 +303,14 @@ block content
 		$('#create-thought-button').click(function() {
 
 			// Add question to list immediately
-			var e = addThoughtWidget();
+			//var e = addThoughtWidget();
 
-			return false;
+			//return false;
 		});
 
 		$('#create-topic-button').click(function() {
-			var e = addTopicWidget();
-			return false;
+			//var e = addTopicWidget();
+			//return false;
 		});
 
 		$('#create-question-button').click(function() {

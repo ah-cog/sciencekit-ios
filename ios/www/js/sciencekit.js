@@ -60,14 +60,14 @@ function connectWebSocket() {
 		socketio.on('photo', function(photo) {
 			console.log('Socket: Received Photo');
 			console.log(photo);
-			
+
 			addTimelineWidget(photo);
 		});
 
 		socketio.on('video', function(video) {
 			console.log('Socket: Received Video');
 			console.log(video);
-			
+
 			addTimelineWidget(video);
 		});
 
@@ -131,13 +131,13 @@ function onAvatarURISuccess(imageURI) {
 function captureAvatarToURI() {
     // Take picture using device camera and retrieve image as base64-encoded string
     navigator.camera.getPicture(
-        onAvatarURISuccess, 
-        onPhotoFail, 
-        {
-            quality: 50, 
-            allowEdit: true,
-            destinationType: navigator.camera.DestinationType.FILE_URI 
-        });
+		onAvatarURISuccess,
+		onPhotoFail,
+		{
+			quality: 50,
+			allowEdit: true,
+			destinationType: navigator.camera.DestinationType.FILE_URI
+		});
 }
 
 // Change Photo in PhotoFrame associated with the specified widget.
@@ -184,14 +184,15 @@ function onPhotoFail(message) {
 // A button will call this function
 //
 function capturePhotoToURI() {
+	console.log("PHOTO");
     // Take picture using device camera and retrieve image as base64-encoded string
     navigator.camera.getPicture(
-        onPhotoURISuccess, 
-        onPhotoFail, 
+        onPhotoURISuccess,
+        onPhotoFail,
         {
-            quality: 50, 
+            quality: 50,
             allowEdit: true,
-            destinationType: navigator.camera.DestinationType.FILE_URI 
+            destinationType: navigator.camera.DestinationType.FILE_URI
         });
 }
 
@@ -202,15 +203,15 @@ function uploadPhoto(photoURI) {
 
 	if (lastTouchedPhotoWidget) {
 		widget  = lastTouchedPhotoWidget;
-		element = lastTouchedPhotoWidget.find('.element-widget .element');
+		element = lastTouchedPhotoWidget.find('.activity-widget .element');
 
 		// Construct JSON object for element to save
 		dataJSON = {
 			"timeline": $("#narrative-list").attr("data-timeline")
 		};
 
-		if (element.attr("data-element")) dataJSON.element   = element.attr("data-element");
-		if (element.attr("data-id"))      dataJSON.reference = element.attr("data-id"); // Set the element to the reference, since it was edited.
+		if (element.attr("data-frame")) dataJSON.frame   = element.attr("data-frame");
+		if (element.attr("data-id"))    dataJSON.reference = element.attr("data-id"); // Set the element to the reference, since it was edited.
 
 		console.log("Saving thought (JSON): ");
 		console.log(dataJSON);
@@ -222,11 +223,11 @@ function uploadPhoto(photoURI) {
         var photo = jQuery.parseJSON(response.response);
         addPhotoWidget(photo);
     }
-    
+
     function fail(error) {
         console.log("Photo upload failed: " + error.code);
     }
-    
+
     var options = new FileUploadOptions();
     options.fileKey = "myphoto"; // parameter name of file -- in POST data?
     options.fileName = photoURI.substr(photoURI.lastIndexOf('/') + 1); // name of file
@@ -234,22 +235,22 @@ function uploadPhoto(photoURI) {
 
     // Set parameters for request
     if (lastTouchedPhotoWidget && dataJSON) {
-    	options.params = dataJSON;
+		options.params = dataJSON;
     } else {
-    	var params = {};
-	    params.timeline = $("#narrative-list").attr("data-timeline");
-	    options.params = params;
+		var params = {};
+		params.timeline = $("#narrative-list").attr("data-timeline");
+		options.params = params;
     }
 
     // Set header for authentication
     var headers = {
-    	'Authorization': 'Bearer ' + localStorage['token']
+		'Authorization': 'Bearer ' + localStorage['token']
     };
 	options.headers = headers;
 
     console.log("Uploading ");
     console.log(options);
-    
+
     var requestUri = localStorage['host'] + '/api/photo';
     var ft2 = new FileTransfer();
     ft2.upload(photoURI, requestUri, success, fail, options);
@@ -266,11 +267,11 @@ function uploadAvatar(avatarURI) {
         var avatar = jQuery.parseJSON(response.response);
         // addPhoto(photo);
     }
-    
+
     function fail(error) {
         console.log("Profile avatar upload failed: " + error.code);
     }
-    
+
     var options = new FileUploadOptions();
     options.fileKey = "avatar"; // parameter name of file -- in POST data?
     options.fileName = avatarURI.substr(avatarURI.lastIndexOf('/') + 1); // name of file
@@ -278,12 +279,12 @@ function uploadAvatar(avatarURI) {
 
     // Set header for authentication
     var headers = {
-    	'Authorization': 'Bearer ' + localStorage['token']
+		'Authorization': 'Bearer ' + localStorage['token']
     };
 	options.headers = headers;
 
     console.log("Uploading " + options.fileName);
-    
+
     var requestUri = localStorage['host'] + '/api/account/avatar';
     var ft = new FileTransfer();
     ft.upload(avatarURI, requestUri, success, fail, options);
@@ -333,14 +334,14 @@ function uploadVideo(mediaFile) {
 
 	if (lastTouchedVideoWidget) {
 		widget  = lastTouchedVideoWidget;
-		element = lastTouchedVideoWidget.find('.element-widget .element');
+		element = lastTouchedVideoWidget.find('.activity-widget .element');
 
 		// Construct JSON object for element to save
 		dataJSON = {
 			"timeline": $("#narrative-list").attr("data-timeline")
 		};
 
-		if (element.attr("data-element")) dataJSON.element   = element.attr("data-element");
+		if (element.attr("data-frame")) dataJSON.frame   = element.attr("data-frame");
 		if (element.attr("data-id"))      dataJSON.reference = element.attr("data-id"); // Set the element to the reference, since it was edited.
 
 		console.log("Saving thought (JSON): ");
@@ -440,9 +441,9 @@ window.onload = function() {
 
 	// OAuth2
 	$('#auth_link').click(function() {
-		
+
 		console.log(localStorage['code']);
-		exchangeGrantForAccessToken({ 
+		exchangeGrantForAccessToken({
 			'client_id': localStorage['client_id'],
 			'client_secret': localStorage['client_secret'],
 			'code': localStorage['code'],
@@ -463,8 +464,6 @@ window.onload = function() {
 		apiLogin({});
 		return false;
 	});
-
-	
 }
 
 function apiLogin(options) {
@@ -591,7 +590,7 @@ function getTimeline(options) {
 			// }
 
 			// Add Moments to Timeline
-			for(moment in data.moments) {
+			for (moment in data.moments) {
 				addTimelineWidget(data.moments[moment]);
 			}
 
@@ -647,10 +646,10 @@ function getTimeline(options) {
 
 function addThoughtWidget(moment) {
 
-	if(moment && moment.element && moment.element._id) {
+	if(moment && moment.frame && moment.frame._id) {
 
-		var thoughtFrame        = moment.element;
-		var thought = thoughtFrame.latest; // TODO: Update this based on current view for user
+		var thoughtFrame        = moment.frame;
+		var thought = thoughtFrame.activity; // TODO: Update this based on current view for user
 
 		// Only continue if Thought element is valid
 		if (!thought) return;
@@ -687,10 +686,10 @@ function addThoughtWidget(moment) {
 		e.attr('data-timeline', thoughtFrame.timeline);
 
 		// Update element
-		var div2 = e.find('.element-widget .element');
+		var div2 = e.find('.activity-widget .element');
 		div2.attr('id', 'thought-' + thought._id);
 		div2.attr('data-id', thought._id);
-		div2.attr('data-element', thought.frame);
+		div2.attr('data-frame', thought.frame);
 		div2.attr('data-reference', thought.reference);
 		div.attr('contenteditable', 'true');
 		div.html(thought.text);
@@ -809,10 +808,10 @@ function addThoughtWidget(moment) {
 
 function addTopicWidget(moment) {
 
-	if(moment && moment.element && moment.element._id) {
+	if(moment && moment.frame && moment.frame._id) {
 
-		var topicFrame        = moment.element;
-		var topic = topicFrame.last; // TODO: Update this based on current view for user
+		var topicFrame        = moment.frame;
+		var topic = topicFrame.activity; // TODO: Update this based on current view for user
 
 		// Only continue if Thought element is valid
 		if (!topic) return;
@@ -844,10 +843,10 @@ function addTopicWidget(moment) {
 		e.attr('data-timeline', topicFrame.timeline);
 
 		// Update element
-		var div2 = e.find('.element-widget .element');
+		var div2 = e.find('.activity-widget .element');
 		div2.attr('id', 'topic-' + topic._id);
 		div2.attr('data-id', topic._id);
-		div2.attr('data-element', topic.frame);
+		div2.attr('data-frame', topic.frame);
 		div2.attr('data-reference', topic.reference);
 		div.attr('contenteditable', 'true');
 		div.html(topic.text);
@@ -882,16 +881,16 @@ function setCurrentWidget(widget) {
 function addTimelineWidget(moment) {
 
 	// Add thought to timeline
-	if(moment.elementType === 'ThoughtFrame') {
+	if(moment.frameType === 'ThoughtFrame') {
 		addThoughtWidget(moment);
 
-	} else if(moment.elementType === 'TopicFrame') {
+	} else if(moment.frameType === 'TopicFrame') {
 		addTopicWidget(moment);
 
-	} else if(moment.elementType === 'PhotoFrame') {
+	} else if(moment.frameType === 'PhotoFrame') {
 		addPhotoWidget(moment);
 
-	} else if(moment.elementType === 'VideoFrame') {
+	} else if(moment.frameType === 'VideoFrame') {
 		addVideoWidget(moment);
 	}
 }
@@ -901,19 +900,19 @@ function addPhotoWidget(moment) {
 
 	console.log(moment);
 
-	if(moment && moment.element && moment.element._id) {
+	if(moment && moment.frame && moment.frame._id) {
 
-		var frame    = moment.element;
-		var activity = frame.latest; // TODO: Update this based on current view for user
+		var frame    = moment.frame;
+		var activity = frame.activity; // TODO: Update this based on current view for user
 
-		// Only continue if Thought element is valid
+		// Only continue if Thought frame is valid
 		if (!activity) return;
 
 		var e;
 		var div;
 
 		if ($("#photo-frame-" + frame._id).length != 0) {
-			// Element exists, so update it
+			// Frame exists, so update it
 			console.log("Found existing photo widget. Updating widget.");
 
 			e = $('#photo-frame-' + frame._id); // <li> element
@@ -936,10 +935,10 @@ function addPhotoWidget(moment) {
 		e.attr('data-timeline', frame.timeline);
 
 		// Update element
-		var div2 = e.find('.element-widget .element');
+		var div2 = e.find('.activity-widget .element');
 		div2.attr('id', 'photo-' + activity._id);
 		div2.attr('data-id', activity._id);
-		div2.attr('data-element', activity.frame);
+		div2.attr('data-frame', activity.frame);
 		div2.attr('data-reference', activity.reference);
 		// div.attr('contenteditable', 'true');
 		// div.html(activity.text);
@@ -975,10 +974,10 @@ function addVideoWidget(moment) {
 
 	console.log(moment);
 
-	if(moment && moment.element && moment.element._id) {
+	if(moment && moment.frame && moment.frame._id) {
 
-		var frame    = moment.element;
-		var activity = frame.last; // TODO: Update this based on current view for user
+		var frame    = moment.frame;
+		var activity = frame.activity; // TODO: Update this based on current view for user
 
 		// Only continue if Thought element is valid
 		if (!activity) return;
@@ -1010,10 +1009,10 @@ function addVideoWidget(moment) {
 		e.attr('data-timeline', frame.timeline);
 
 		// Update element
-		var div2 = e.find('.element-widget .element');
+		var div2 = e.find('.activity-widget .element');
 		div2.attr('id', 'video-' + activity._id);
 		div2.attr('data-id', activity._id);
-		div2.attr('data-element', activity.frame);
+		div2.attr('data-frame', activity.frame);
 		div2.attr('data-reference', activity.reference);
 		// div.attr('contenteditable', 'true');
 		// div.html(activity.text);
@@ -1047,8 +1046,8 @@ function addVideoWidget(moment) {
 function saveThought(e) {
 	console.log('saveThought');
 
-	var widget  = e.find('.element-widget');
-	var element = e.find('.element-widget .element');
+	var widget  = e.find('.activity-widget');
+	var element = e.find('.activity-widget .element');
 	var text    = e.find('.element .text');
 
 	// Construct JSON object for element to save
@@ -1057,7 +1056,7 @@ function saveThought(e) {
 		"text": e.text()
 	};
 
-	if(element.attr("data-element")) dataJSON.element = element.attr("data-element");
+	if(element.attr("data-frame")) dataJSON.frame = element.attr("data-frame");
 	if(element.attr("data-id")) dataJSON.reference = element.attr("data-id"); // Set the element to the reference, since it was edited.
 
 	console.log("Saving thought (JSON): ");
@@ -1079,9 +1078,9 @@ function saveThought(e) {
 			console.log(data);
 
 			// Set element container (e.g., Thought). Only gets set once.
-			$(e).attr('id', 'thought-frame-' + data.element._id); // e.data('id', data._id);
+			$(e).attr('id', 'thought-frame-' + data.frame._id); // e.data('id', data._id);
 			addTimelineWidget(e);
-			
+
 			console.log('Updated thought element.');
 		},
 		error: function() {
@@ -1093,8 +1092,8 @@ function saveThought(e) {
 function saveTopic(e) {
 	console.log('saveTopic');
 
-	var widget  = e.find('.element-widget');
-	var element = e.find('.element-widget .element');
+	var widget  = e.find('.activity-widget');
+	var element = e.find('.activity-widget .element');
 	var text    = e.find('.element .text');
 
 	// Construct JSON object for element to save
@@ -1103,7 +1102,7 @@ function saveTopic(e) {
 		"text": e.text()
 	};
 
-	if(element.attr("data-element")) dataJSON.element = element.attr("data-element");
+	if(element.attr("data-frame")) dataJSON.frame = element.attr("data-frame");
 	if(element.attr("data-id")) dataJSON.reference = element.attr("data-id"); // Set the element to the reference, since it was edited.
 
 	console.log("Saving Topic (JSON): ");
@@ -1125,9 +1124,9 @@ function saveTopic(e) {
 			console.log(data);
 
 			// Set element container (e.g., Topic). Only gets set once.
-			$(e).attr('id', 'topic-frame-' + data.element._id); // e.data('id', data._id);
+			$(e).attr('id', 'topic-frame-' + data.frame._id); // e.data('id', data._id);
 			addTimelineWidget(e);
-			
+
 			console.log('Updated Topic.');
 		},
 		error: function() {
@@ -1158,7 +1157,7 @@ function openChildBrowser() {
 		// Open timeline page
 		//$(location).attr('href', './timeline.html');
 
-		exchangeGrantForAccessToken({ 
+		exchangeGrantForAccessToken({
 			'client_id': localStorage['client_id'],
 			'client_secret': localStorage['client_secret'],
 			'code': localStorage['code'],
@@ -1192,7 +1191,7 @@ function openChildBrowser() {
 	};
 
 	// Show web page
-	window.plugins.childBrowser.showWebPage(uri, { 
+	window.plugins.childBrowser.showWebPage(uri, {
 		showLocationBar: true
 	});
 }
