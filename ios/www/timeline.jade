@@ -11,11 +11,13 @@ block content
 	//a(id="account-list", href="javascript:void(0);") Request resource (using access token)
 	//p(id="resource_response") no resource received
 
-	.edge(id="top", style="text-align: right; font-size: 30px; padding-right: 10px;")
-		a(a(href="javscript:void(0);", onclick="generateStory();") 
-			img(src="./img/story-time.png", alt="story time")
-		a(href="javascript:void(0);", onclick="scrollTickle();") 
-			img(src="./img/search.png", alt="search") 
+	.edge(id="top", style="text-align: right; font-size: 30px; padding-right: 10px; z-index: 1000;")
+		//a(a(href="javscript:void(0);", onclick="generateStory();") 
+		//	img(src="./img/story-time.png", alt="story time")
+		//a(href="javascript:void(0);", onclick="scrollTickle();") 
+		//	img(src="./img/search.png", alt="search") 
+		a(href="javascript:void(0);", onclick="showHiddenFrames();") 
+			img(src="./img/history.png", alt="show whole story") 
 		a(href="./timeline.html") 
 			img(src="./img/refresh.png", alt="refresh") 
 		a(href="javscript:void(0);", onclick="scrollToTop();") 
@@ -34,20 +36,20 @@ block content
 	// Top of interface
 	//
 
-	div(style="display: table; width: 100%; margin: 0px; padding: 0px;")
+	div(style="display: table; width: 100%; margin: 0px; margin-top: 20px; padding: 0px;")
 
 		//
 		// Link to "previous timeline" (if any)
 		//
 
 		div(style="display: table-row;", id="previous-timeline-widget")
-			div(style="display: table-cell; text-align: center; vertical-align: middle; width: 30px;")
-				img(src="./img/blank.png", width="50", height="50", style="padding: 0px;")
-				img(class="link", src="./img/timeline-edge-to-previous.png", width="50", height="100", style="padding: 0px;")
+			div(style="display: table-cell; text-align: center; vertical-align: middle; width: 70px; background-image: url(./img/timeline-edge-to-previous.png); background-repeat: no-repeat; background-position: right bottom;")
+				img(src="./img/blank.png", width="72", height="50", style="padding: 0px;")
+				
 				
 			div(style="display: table-cell; width: 100%; padding-left: 10px;")
-				p(style="font-size: 30px; margin-top: 30px; color: #bbbbbb;")
-					| back
+				p(style="font-size: 40px; margin-top: 40px; color: #bbbbbb; margin-bottom: 35px;")
+					a(class="link", href="javascript:void(0);") go back
 
 		//
 		// ScienceKit logo (shown on "default" timeline)
@@ -55,7 +57,7 @@ block content
 
 		div(style="display: table-row;", id="sciencekit-logo")
 			div(style="display: table-cell; text-align: center; vertical-align: middle; width: 30px;")
-				img(src="./img/blank.png", width="30", height="30", style="padding: 10px;")
+				img(src="./img/blank.png", width="50", height="50", style="padding: 10px;")
 				
 			div(style="display: table-cell; width: 100%; border-left: 2px solid #f16521; padding-left: 10px;")
 				img(id="logo", src="./img/sciencekit-logo.png", alt="sciencekit logo", style="margin-top: 50px;")
@@ -89,36 +91,43 @@ block content
 			img(src="./img/thought.png", width="50", height="50") 
 			img(src="./img/camera.png", width="50", height="50") 
 			img(src="./img/video.png", width="50", height="50") 
-			img(src="./img/topic.png", width="50", height="50")
+			//img(src="./img/topic.png", width="50", height="50")
 
 	//
 	// Bottom of interface
 	//
 
 	mixin option(name, frameType, imageUri, clickEventHandler)
-		div(style='background-image: url(#{imageUri}); background-repeat:no-repeat; background-position:3px 0px; height: 100px; width: 200px; padding-left: 118px; padding-top: 34px; font-size: 30px;')
+		div(style='background-image: url(#{imageUri}); background-repeat:no-repeat; background-position:3px 0px; height: 70px; width: 110px; padding-left: 118px; padding-top: 34px; font-size: 30px;')
 			a(id="create-#{frameType}-button", data-artifact-type="#{frameType}", href="javascript:void(0);", onclick='#{clickEventHandler}') #{name}
 
-	div(style="display: table; width: 100%; margin: 0px; padding: 0px;")
+	div(style="display: table; width: 100%; margin: 0px; margin-bottom: 80px; padding: 0px;")
 		div(style="display: table-row;")
 			div(style="display: table-cell; text-align: center; vertical-align: middle; width: 30px;")
-				img(src="./img/blank.png", width="30", height="30", style="padding: 10px;")
+				img(src="./img/blank.png", width="50", height="50", style="padding: 10px;")
 				
-			div(style="display: table-cell; width: 100%; border-left: 2px solid #f16521; padding-left: 10px; padding-top: 20px;")
+			div(style="display: table-cell; width: 100%; padding-left: 10px; padding-top: 20px;")
 				p(class="tagline") ahoy there... what do you want to do?
 
 		div(style="display: table-row;")
-			div(style="display: table-cell; text-align: center; vertical-align: middle; width: 30px;")
-				img(src="./img/blank.png", width="30", height="30", style="padding: 10px;")
+			div(style="display: table-cell; text-align: center; vertical-align: middle; width: 50px;")
+				div(id="avatar-container", style="border-radius: 8px; background-image: url('./img/blank.png'); background-size: 50px 50px; margin: 10px; width: 50px; height: 50px;")
+				//img(id="kit-avatar", src="./img/blank.png", width="50", height="50", style="padding: 10px; border-radius: 8px;")
 
-			div(style="display: table-cell; width: 100%; border-left: 2px solid #f16521; padding-left: 10px;")
+			div(style="display: table-cell; width: 100%; padding-left: 10px;")
 
-				mixin option('thought', 'thought', './img/thought.png', 'addThoughtWidget();')
-				mixin option('photo', 'photo', './img/camera.png', 'capturePhotoToURI();')
-				mixin option('video', 'video', './img/video.png', 'captureVideo2();')
-				mixin option('topic', 'topic', './img/topic.png', 'addTopicWidget();')
+				div(style="display: table;")
+					div(style="display: table-row;")
+						div(style="display: table-cell;")
+							mixin option('thought', 'thought', './img/thought.png', 'addThoughtWidget();')
+						//div(style="display: table-cell;")
+						//	mixin option('topic', 'topic', './img/topic.png', 'addTopicWidget();')
+						div(style="display: table-cell;")
+							mixin option('video', 'video', './img/video.png', 'captureVideo2();')
+						div(style="display: table-cell;")
+							mixin option('photo', 'photo', './img/camera.png', 'capturePhotoToURI();')
 
-				mixin option('avatar', 'avatar', './img/camera.png', 'captureAvatarToURI();')
+				//mixin option('avatar', 'avatar', './img/camera.png', 'captureAvatarToURI();')
 
 				// question
 				// cause and effect
@@ -144,6 +153,8 @@ block content
 
 	script
 		window.onload = function() {
+
+			//localStorage['host'] = 'http://10.109.95.23:3000';
 
 			// Initialize web socket connection for real-time collaboration
 			connectWebSocket();
@@ -189,6 +200,18 @@ block content
 				}
 			});
 
+			// Set time to scroll to bottom
+			/*
+			$.data(document, 'timer', setTimeout(function() {
+				scrollToBottom();
+			}, 2000));
+			*/
+
+			// Get Account
+			getAvatar();
+
+			//scrollToBottom();
+
 			// orientationchange
 
 			// gesturestart
@@ -216,12 +239,11 @@ block content
 			}
 
 			// Update widget with focus (closest to center)
-			//if (window.scrollY)
+			/*
 			var closestWidget = null;
 			var closestDistance = -1;
 			var timelineList = $('#narrative-list li').get();
 			for(var i = 0; i < timelineList.length; i++) {
-				//$(timelineList[i]).css('background-color', 'white');
 				$(timelineList[i]).find('.element .options').css('visibility', 'hidden');
 
 				var widgetTop = Math.abs($(timelineList[i]).position().top - (currPosition + window.innerHeight / 2));
@@ -231,11 +253,8 @@ block content
 				}
 			}
 			console.log('Widget with focus: ' + $(closestWidget).attr('id'));
-			//$(closestWidget).find('.element-widget').css('height', '500px;');
-			//$(closestWidget).fadeOut();ddd
-			//$(closestWidget).css('background-color', '#ddd');
 			$(closestWidget).find('.element .options').css('visibility', 'visible');
-			//setCurrentWidget(closestWidget);
+			*/
 		}
 
 		// Scroll to element
@@ -275,7 +294,8 @@ block content
 
 		function scrollToBottom() {
 			//$('html,body').animate({ scrollTop: $('#sciencekit-small-logo').offset().top }, 1000);
-			$('html,body').animate({ scrollTop: document.body.scrollHeight }, 1000);
+			//$('html,body').animate({ scrollTop: document.body.scrollHeight }, 1000);
+			$('html,body').animate({ scrollTop: document.body.clientHeight }, 1000);
 		}
 
 		function scrollTickle() {

@@ -1,5 +1,9 @@
-<!DOCTYPE html><html><head><title>ScienceKit</title><link rel="stylesheet" href="./css/style.css"><script src="cordova-2.6.0.js"></script><script src="childbrowser.js"></script><script src="jquery.min.js"></script><script src="socket.io.min.js"></script><script src="js/sciencekit.js"></script></head><body><div style="margin-top: 50px; margin-left: 50px;"><img src="./img/sciencekit-logo.png" alt="sciencekit logo"></div><div id="host-settings" style="display: table; width: 100%;"><div style="margin: 0px 40px 0px 40px; font-size: 35px;">host</div><div style="display: table-row;"><div style="display: table-cell; position: relative; z-index: 0; width: 100%;"><div class="text-input-widget"><div style="display: table; width: 100%;" class="element-table"><div style="display: table-row;" class="element"><div style="display: table-cell; min-width: 100%; vertical-align: middle;" class="text"><input type="text" id="hostAddressInput"></div><div style="width: 75px; display: table-cell; text-align: right; vertical-align: middle;" class="options"><img id="hostAddressSave" src="./img/check.png" style="display: none;"><img id="hostAddressInvalid" src="./img/cross-red.png" style="display: none;"></div></div></div></div></div></div></div><div id="authorize" style="display: none;"><p class="login-step"><a href="javascript:void(0);" onclick="openChildBrowser();">connect</a></p></div><script>window.onload = function() {
+<!DOCTYPE html><html><head><title>ScienceKit</title><link rel="stylesheet" href="./css/style.css"><script src="cordova-2.6.0.js"></script><script src="childbrowser.js"></script><script src="jquery.min.js"></script><script src="socket.io.min.js"></script><script src="js/sciencekit.js"></script></head><body><div style="margin-top: 50px; margin-left: 50px;"><img src="./img/sciencekit-logo.png" alt="sciencekit logo"></div><div id="host-settings" style="display: table; width: 100%;"><div style="margin: 0px 40px 0px 40px; font-size: 35px;">host</div><div style="margin: 0px 40px 0px 40px; font-size: 18px;">touch the green checkmark to proceed</div><div style="display: table-row;"><div style="display: table-cell; position: relative; z-index: 0; width: 100%;"><div class="text-input-widget"><div style="display: table; width: 100%;" class="element-table"><div style="display: table-row;" class="element"><div style="display: table-cell; min-width: 100%; vertical-align: middle;" class="text"><input type="text" id="hostAddressInput"></div><div style="width: 75px; display: table-cell; text-align: right; vertical-align: middle;" class="options"><img id="hostAddressSave" src="./img/check.png" style="display: none;"><img id="hostAddressInvalid" src="./img/cross-red.png" style="display: none;"></div></div></div></div></div></div></div><div id="authorize" style="display: none;"><p class="login-step"><a href="javascript:void(0);" onclick="openChildBrowser();">connect</a></p></div><script>window.onload = function() {
 
+ // DEBUG: Hack for Kidsteam
+ $('#hostAddressInput').val('http://129.2.101.49:3000');
+ updateAddressInput();
+ 
  // Reset localStorage
  // localStorage['timelineStack'] = {};
  
@@ -74,7 +78,7 @@ function saveClientProfile() {
  openChildBrowser();
 }
 
-//delete localStorage['host'];
+delete localStorage['host'];
 //delete localStorage['client_id'];
 //delete localStorage['client_secret'];
 //delete localStorage['token'];

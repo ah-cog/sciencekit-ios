@@ -1,25 +1,49 @@
 ul(id="narrative-list-template")
-	li(id="thought-activity-template", class="activity-template", data-id="", data-timeline="")
+	li(id="thought-activity-template", class="activity-template", data-activity-type="thought", data-id="", data-timeline="")
 		div(style="display: table; width: 100%;")
+
 			div(style="display: table-row;")
 				div(style="display: table-cell; text-align: center; vertical-align: middle;")
-					img(src="./img/thought.png", width="30", height="30", style="padding: 10px;")
+					img(src="./img/blank.png", width="50", height="0", style="padding: 10px;")
+				div(class="account", style="display: table-cell; position: relative; z-index: 0; width: 100%; border-left: 2px solid #f16521; vertical-align: middle; padding-left: 22px; padding-top: 40px; font-size: 20px; color: #666666;")
+					| &nbsp;
+
+			div(style="display: table-row;")
+				div(style="display: table-cell; text-align: center; vertical-align: middle;")
+					img(src="./img/thought.png", width="50", height="50", style="padding: 10px;")
 
 				div(style="display: table-cell; position: relative; z-index: 0; width: 100%; border-left: 2px solid #f16521;")
 
 					div(class="activity-widget")
 						div(class="element-table", style="display: table; width: 100%;")
 
-
+								// Core activity
 								div(class="element", style="display: table-row;")
 									div(class="text", style="display: table-cell; min-width: 100%; vertical-align: middle;", contenteditable="true")
+										| -
+
+									div(class="options", style="width: 150px; display: table-cell; text-align: right; vertical-align: top;")
+										//img(class="open", src="./img/open.png")
+										img(class="hide", src="./img/cross-gray.png")
+
+								// Divider
+								div(style="display: table-row;")
+									div(class="divider", style="display: table-cell;")
+										hr(style='margin-bottom: 8px; height: 1px; border: none; background-color: #dddddd;')
+									div(class="divider", style="display: table-cell;")
+										hr(style='margin-bottom: 8px; height: 1px; border: none; background-color: #dddddd;')
+
+								// Tags
+								div(style="display: table-row;")
+									div(class="tags", contenteditable="true", style="display: table-cell; min-width: 100%; vertical-align: middle; font-size: 20px; color: #666666; padding-left: 40px; background-image: url(./img/topic.png); background-size: 30px 30px; background-repeat: no-repeat; height: 30px;")
+										//img(src="./img/topic.png", width="30", height="30", style="padding: 0px 8px 0px 0px; margin: 0px; vertical-align: middle;")
 										| &nbsp;
 
-									div(class="options", style="width: 150px; display: table-cell; text-align: right;")
-										img(src="./img/love-red.png")
-										img(src="./img/cross.png")
+									div(class="options", style="width: 150px; display: table-cell; text-align: left;")
+										| &nbsp;
 
-					div(class="timeline-branch", style="position: absolute; width: 100%; top: 43px; z-index: -1000;")
+
+					div(class="timeline-branch", style="position: absolute; width: 100%; bottom: -50px; z-index: -1000;")
 						div(style="display: table; width: 100%;")
 							div(style="display: table-row;")
 								div(style="display: table-cell; min-width: 100px; height: 100px; background-image: url('./img/timeline-branch-right.png'); background-repeat: no-repeat;")
@@ -30,64 +54,141 @@ ul(id="narrative-list-template")
 									//div(style="position: absolute; width: 30px; height: 30px; background-color: red; bottom: 60px; right: 10px; -webkit-transform: rotate(20deg); border-radius: 8px;")
 									//|
 
-	li(id="topic-activity-template", class="activity-template", data-id="", data-timeline="")
+	li(id="topic-activity-template", class="activity-template", data-activity-type="topic", data-id="", data-timeline="")
 		div(style="display: table; width: 100%;")
 			div(style="display: table-row;")
 				div(style="display: table-cell; text-align: center; vertical-align: middle;")
-					img(src="./img/topic.png", width="30", height="30", style="padding: 10px;")
+					img(src="./img/topic.png", width="50", height="50", style="padding: 10px;")
 
-				div(style="display: table-cell; width: 100%; border-left: 2px solid #00a14b;")
+				div(style="display: table-cell; position: relative; z-index: 0; width: 100%; border-left: 2px solid #00a14b;")
 
 					div(class="activity-widget")
 						div(class="element-table", style="display: table; width: 100%;")
 
-
+								// Core activity
 								div(class="element", style="display: table-row;")
 									div(class="text", style="display: table-cell; vertical-align: middle;", contenteditable="true")
-										| -
+										| &nbsp;
 
-									div(class="options", style="width: 120px; display: table-cell; text-align: right;")
-										img(src="./img/love.png")
-										img(src="./img/cross.png")
-										img(src="./img/time-clock.png", class="timeline")
+									div(class="options", style="width: 120px; display: table-cell; text-align: right; vertical-align: top;")
+										//img(class="open", src="./img/open.png")
+										img(class="hide", src="./img/cross-gray.png")
 
-	li(id="photo-template", class="activity-template", data-id="", data-timeline="")
+					div(class="timeline-branch", style="position: absolute; width: 100%; top: 43px; z-index: -1000;")
+						div(style="display: table; width: 100%;")
+							div(style="display: table-row;")
+								div(style="display: table-cell; min-width: 100px; height: 100px; background-image: url('./img/timeline-branch-right-green.png'); background-repeat: no-repeat;")
+								| 
+								div(style="display: table-cell; background-image: url('./img/timeline-line-horizontal-green.png'); background-repeat: repeat-x; width: 100%;")
+								| 
+								div(class="timeline", style="position: relative; display: table-cell; min-width: 100px; background-image: url('./img/timeline-line-horizontal-green.png'); background-repeat: no-repeat;")
+									//div(style="position: absolute; width: 30px; height: 30px; background-color: red; bottom: 60px; right: 10px; -webkit-transform: rotate(20deg); border-radius: 8px;")
+									//|
+
+	li(id="photo-template", class="activity-template", data-activity-type="photo", data-id="", data-timeline="")
 		div(style="display: table; width: 100%;")
+
 			div(style="display: table-row;")
 				div(style="display: table-cell; text-align: center; vertical-align: middle;")
-					img(src="./img/camera.png", width="30", height="30", style="padding: 10px;")
+					img(src="./img/blank.png", width="50", height="0", style="padding: 10px;")
+				div(class="account", style="display: table-cell; position: relative; z-index: 0; width: 100%; border-left: 2px solid #f16521; vertical-align: middle; padding-left: 22px; padding-top: 40px; font-size: 20px; color: #666666;")
+					| &nbsp;
 
-				div(style="display: table-cell; width: 100%; border-left: 2px solid #7e3f98;")
+			div(style="display: table-row;")
+				div(style="display: table-cell; text-align: center; vertical-align: middle;")
+					img(src="./img/camera.png", width="50", height="50", style="padding: 10px;")
+
+				div(style="display: table-cell; position: relative; z-index: 0; width: 100%; border-left: 2px solid #7e3f98;")
 
 					div(class="activity-widget")
 						div(class="element-table", style="display: table; width: 100%;")
 
 
+								// Core activity
 								div(class="element", style="display: table-row;")
-									img(class="image", src="./img/camera.png", width="150", height="150")
+									img(class="image", src="./img/camera.png", width="250", height="250")
 
-									div(class="options", style="width: 120px; display: table-cell; text-align: right;")
-										img(src="./img/love.png")
-										img(src="./img/cross.png")
-										img(src="./img/time-clock.png", class="timeline")
+									div(class="options", style="width: 120px; display: table-cell; text-align: right; vertical-align: top;")
+										//img(class="open", src="./img/open.png")
+										img(class="hide", src="./img/cross-gray.png")
 
-	li(id="video-activity-template", class="activity-template", data-id="", data-timeline="")
+								// Divider
+								div(style="display: table-row;")
+									div(class="divider", style="display: table-cell;")
+										hr(style='margin-bottom: 8px; height: 1px; border: none; background-color: #dddddd;')
+									div(class="divider", style="display: table-cell;")
+										hr(style='margin-bottom: 8px; height: 1px; border: none; background-color: #dddddd;')
+
+								// Tags
+								div(style="display: table-row;")
+									div(class="tags", contenteditable="true", style="display: table-cell; min-width: 100%; vertical-align: middle; font-size: 20px; color: #666666; padding-left: 40px; background-image: url(./img/topic.png); background-size: 30px 30px; background-repeat: no-repeat; height: 30px;")
+										//img(src="./img/topic.png", width="30", height="30", style="padding: 0px 8px 0px 0px; margin: 0px; vertical-align: middle;")
+										| &nbsp;
+
+									div(class="options", style="width: 150px; display: table-cell; text-align: left;")
+										| &nbsp;
+
+					div(class="timeline-branch", style="position: absolute; width: 100%; bottom: -50px; z-index: -1000;")
+						div(style="display: table; width: 100%;")
+							div(style="display: table-row;")
+								div(style="display: table-cell; min-width: 100px; height: 100px; background-image: url('./img/timeline-branch-right-purple.png'); background-repeat: no-repeat;")
+								| 
+								div(style="display: table-cell; background-image: url('./img/timeline-line-horizontal-purple.png'); background-repeat: repeat-x; width: 100%;")
+								| 
+								div(class="timeline", style="position: relative; display: table-cell; min-width: 100px; background-image: url('./img/timeline-line-horizontal-purple.png'); background-repeat: no-repeat;")
+									//div(style="position: absolute; width: 30px; height: 30px; background-color: red; bottom: 60px; right: 10px; -webkit-transform: rotate(20deg); border-radius: 8px;")
+									//|
+
+	li(id="video-activity-template", class="activity-template", data-activity-type="video", data-id="", data-timeline="")
 		div(style="display: table; width: 100%;")
+
 			div(style="display: table-row;")
 				div(style="display: table-cell; text-align: center; vertical-align: middle;")
-					img(src="./img/video.png", width="30", height="30", style="padding: 10px;")
+					img(src="./img/blank.png", width="50", height="0", style="padding: 10px;")
+				div(class="account", style="display: table-cell; position: relative; z-index: 0; width: 100%; border-left: 2px solid #f16521; vertical-align: middle; padding-left: 22px; padding-top: 40px; font-size: 20px; color: #666666;")
+					| &nbsp;
 
-				div(style="display: table-cell; width: 100%; border-left: 2px solid #7e3f98;")
+			div(style="display: table-row;")
+				div(style="display: table-cell; text-align: center; vertical-align: middle;")
+					img(src="./img/video.png", width="50", height="50", style="padding: 10px;")
+
+				div(style="display: table-cell; position: relative; z-index: 0; width: 100%; border-left: 2px solid #ed1c24;")
 
 					div(class="activity-widget")
 						div(class="element-table", style="display: table; width: 100%;")
 
-
+								// Core activity
 								div(class="element", style="display: table-row;")
 									video(class="video", width="320", height="240", controls)
 										source(class="source", src="")
 
-									div(class="options", style="width: 120px; display: table-cell; text-align: right;")
-										img(src="./img/love.png")
-										img(src="./img/cross.png")
-										img(src="./img/time-clock.png", class="timeline")
+									div(class="options", style="width: 120px; display: table-cell; text-align: right; vertical-align: top;")
+										//img(class="open", src="./img/open.png")
+										img(class="hide", src="./img/cross-gray.png")
+
+								// Divider
+								div(style="display: table-row;")
+									div(class="divider", style="display: table-cell;")
+										hr(style='margin-bottom: 8px; height: 1px; border: none; background-color: #dddddd;')
+									div(class="divider", style="display: table-cell;")
+										hr(style='margin-bottom: 8px; height: 1px; border: none; background-color: #dddddd;')
+
+								// Tags
+								div(style="display: table-row;")
+									div(class="tags", contenteditable="true", style="display: table-cell; min-width: 100%; vertical-align: middle; font-size: 20px; color: #666666; padding-left: 40px; background-image: url(./img/topic.png); background-size: 30px 30px; background-repeat: no-repeat; height: 30px;")
+										//img(src="./img/topic.png", width="30", height="30", style="padding: 0px 8px 0px 0px; margin: 0px; vertical-align: middle;")
+										| &nbsp;
+
+									div(class="options", style="width: 150px; display: table-cell; text-align: left;")
+										| &nbsp;
+
+					div(class="timeline-branch", style="position: absolute; width: 100%; bottom: -50px; z-index: -1000;")
+						div(style="display: table; width: 100%;")
+							div(style="display: table-row;")
+								div(style="display: table-cell; min-width: 100px; height: 100px; background-image: url('./img/timeline-branch-right-red.png'); background-repeat: no-repeat;")
+								| 
+								div(style="display: table-cell; background-image: url('./img/timeline-line-horizontal-red.png'); background-repeat: repeat-x; width: 100%;")
+								| 
+								div(class="timeline", style="position: relative; display: table-cell; min-width: 100px; background-image: url('./img/timeline-line-horizontal-red.png'); background-repeat: no-repeat;")
+									//div(style="position: absolute; width: 30px; height: 30px; background-color: red; bottom: 60px; right: 10px; -webkit-transform: rotate(20deg); border-radius: 8px;")
+									//|
