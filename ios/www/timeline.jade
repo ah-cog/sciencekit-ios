@@ -151,6 +151,33 @@ block content
 			p(class="float-page-p")
 				| once upon a time
 
+	//
+	// Photo page interface
+	//
+	.float-page(id="photo-page")
+		.float-page-table
+
+			.float-page-row
+				.float-page-cell(style='text-align: right; vertical-align: middle; padding-right: 30px;')
+					img(class="hide", src="./img/cross-gray.png")
+
+			p(class="float-page-p")
+				img(class="photo", src="./img/camera.png", width="900", height="900")
+
+	//
+	// Video page interface
+	//
+	.float-page(id="video-page")
+		.float-page-table
+			
+			.float-page-row
+				.float-page-cell(style='text-align: right; vertical-align: middle; padding-right: 30px;')
+					img(class="hide", src="./img/cross-gray.png")
+
+			.float-page-row
+				p(class="float-page-p")
+					video(class="video", width="640", height="480", source="", controls)
+
 	script
 		window.onload = function() {
 
@@ -185,6 +212,8 @@ block content
 
 			// Initialize interface
 			$('#float-page').hide();
+			$('#photo-page').hide();
+			$('#video-page').hide();
 
 			$('#previous-timeline-widget').hide();
 
@@ -208,7 +237,7 @@ block content
 			*/
 
 			// Get Account
-			getAvatar();
+			// getAvatar();
 
 			//scrollToBottom();
 
@@ -284,6 +313,38 @@ block content
 			// Show full-screen
 			// Show controls for "next" and "previous" page
 			// Let interact with page/timeline
+		}
+
+		function generatePhotoPage(event) {
+
+			// Set image
+			var imageUri = $(event.target).attr('src');
+			$('#photo-page').find('.photo').attr('src', imageUri);
+
+			// Show the introduction
+			$('#photo-page').fadeIn();
+
+			// Set up event handlers
+			$('#photo-page').find('.hide').off('click');
+			$('#photo-page').find('.hide').click(function () {
+				$('#photo-page').fadeOut();
+			});
+		}
+
+		function generateVideoPage(event) {
+
+			// Set video
+			var videoUri = $(event.target).find('.source').attr('src');
+			$('#video-page').find('.video').attr('src', videoUri);
+
+			// Show the introduction
+			$('#video-page').fadeIn();
+
+			// Set up event handlers
+			$('#video-page').find('.hide').off('click');
+			$('#video-page').find('.hide').click(function () {
+				$('#video-page').fadeOut();
+			});
 		}
 
 		

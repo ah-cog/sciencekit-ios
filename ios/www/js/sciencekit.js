@@ -1083,11 +1083,15 @@ function addPhotoWidget(moment) {
 		var image = e.find('.element .image');
 		image.attr('src', '' + localStorage['host'] + activity.uri + '');
 
+		image.click(function (event) { 
+			generatePhotoPage(event);
+		});
+
 		if ($("#photo-frame-" + frame._id).length != 0) {
 		} else {
 
 			e.appendTo('#narrative-list');
-			e.find('.element .image').click(function() { changePhoto(e) });
+			//e.find('.element .image').click(function() { changePhoto(e) });
 			e.find('.element .options .timeline').click(function() { getTimeline({ moment_id: moment._id }); });
 			e.show(); // Show element
 		}
@@ -1174,6 +1178,10 @@ function addVideoWidget(moment) {
 		// Set video
 		var video = e.find('.element .video .source');
 		video.attr('src', '' + localStorage['host'] + activity.uri + '');
+
+		e.find('.element .video').click(function (event) { 
+			generateVideoPage(event);
+		});
 
 		// Add Tags
 		e.find('.tags').off('blur');
@@ -1577,6 +1585,7 @@ function saveTags(e) {
 		var dataJSON = {
 			//"timeline": $("#narrative-list").attr("data-timeline"),
 			"frame": element.attr("data-frame"),
+			"frameType": e.attr("data-activity-type"),
 			"text": uniqueTags[i]
 		};
 

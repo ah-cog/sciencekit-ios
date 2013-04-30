@@ -229,17 +229,26 @@ narrative-templates {
 }
 
 .float-page-table {
+    display: table;
+
 	bottom: 0;
 	right: 0;
 	width: 100%;
 	height: 100%;
 	z-index: 1000;
+}
 
-	display: table;
+.float-page-row {
+    display: table-row;
+}
+
+.float-page-cell {
+  display: table-cell;
 }
 
 .float-page-p {
   display: table-cell;
+
   vertical-align: middle;
   text-align: center;
 

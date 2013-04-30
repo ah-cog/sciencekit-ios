@@ -5,9 +5,9 @@ block content
 			img(src="./img/sciencekit-logo.png", alt="sciencekit logo")
 
 	div(id="host-settings", style="display: table; width: 100%;")
-		div(style='margin: 0px 40px 0px 40px; font-size: 35px;')
-			| host
-		div(style='margin: 0px 40px 0px 40px; font-size: 18px;')
+		p(style='margin: 4px 40px 4px 40px; font-size: 35px; color: #444444;')
+			| where's the server?
+		p(style='margin: 4px 40px 4px 40px; font-size: 18px; color: #777777;')
 			| touch the green checkmark to proceed
 
 		div(style="display: table-row;")
@@ -110,7 +110,7 @@ block content
 			openChildBrowser();
 		}
 
-		delete localStorage['host'];
+		//delete localStorage['host'];
 		//delete localStorage['client_id'];
 		//delete localStorage['client_secret'];
 		//delete localStorage['token'];
