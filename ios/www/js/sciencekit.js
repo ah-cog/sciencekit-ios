@@ -999,16 +999,16 @@ function setCurrentWidget(widget) {
 function addTimelineWidget(moment) {
 
 	// Add thought to timeline
-	if(moment.frameType === 'ThoughtFrame') {
+	if(moment.frameType === 'Thought') {
 		addThoughtWidget(moment);
 
-	} else if(moment.frameType === 'TopicFrame') {
+	} else if(moment.frameType === 'Topic') {
 		addTopicWidget(moment);
 
-	} else if(moment.frameType === 'PhotoFrame') {
+	} else if(moment.frameType === 'Photo') {
 		addPhotoWidget(moment);
 
-	} else if(moment.frameType === 'VideoFrame') {
+	} else if(moment.frameType === 'Video') {
 		addVideoWidget(moment);
 	}
 }
