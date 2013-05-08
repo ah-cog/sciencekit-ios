@@ -85,10 +85,9 @@ function connectWebSocket() {
 			console.log('Socket: Received Tag');
 			console.log(tag);
 
-			if ($("#tag-" + tag.tag.frame).length != 0) {
-				var e = $('#tag-' + tag.frame);
+			if ($("#frame-" + tag.tag.frame).length != 0) {
+				var e = $('#frame-' + tag.tag.frame);
 				getTags(e);
-				//addTimelineWidget(video);
 			}
 		});
 
@@ -843,7 +842,7 @@ function saveMotion(e) {
 			console.log(data);
 
 			// Set element container (e.g., Thought). Only gets set once.
-			// $(e).attr('id', 'motion-frame-' + data.frame._id); // e.data('id', data._id);
+			// $(e).attr('id', 'frame-' + data.frame._id); // e.data('id', data._id);
 			addTimelineWidget(e);
 			//addMotionWidget();
 
@@ -1074,7 +1073,7 @@ function saveSketch() {
 			console.log(data);
 
 			// Set element container (e.g., Thought). Only gets set once.
-			// $(e).attr('id', 'sketch-frame-' + data.frame._id); // e.data('id', data._id);
+			// $(e).attr('id', 'frame-' + data.frame._id); // e.data('id', data._id);
 			addTimelineWidget(e);
 			//addSketchWidget();
 
@@ -1383,11 +1382,11 @@ function addThoughtWidget(moment) {
 		// to it.  If not, create the widget and store a reference to it.
 		//
 
-		if ($("#thought-frame-" + thoughtFrame._id).length != 0) {
+		if ($("#frame-" + thoughtFrame.frame).length != 0) {
 			// Element exists, so update it
 			console.log("Found existing thought widget. Updating widget.");
 
-			e = $('#thought-frame-' + thoughtFrame._id); // <li> element
+			e = $('#frame-' + thoughtFrame.frame); // <li> element
 			div = e.find('.element .text');
 
 		} else {
@@ -1411,8 +1410,8 @@ function addThoughtWidget(moment) {
 		}
 
 		// Update 'li' for element
-		e.attr('id', 'thought-frame-' + thoughtFrame._id);
-		e.attr('data-id', thoughtFrame._id);
+		e.attr('id', 'frame-' + thoughtFrame.frame);
+		e.attr('data-id', thoughtFrame.frame);
 		e.attr('data-timeline', thoughtFrame.timeline);
 
 		// Update element
@@ -1443,7 +1442,7 @@ function addThoughtWidget(moment) {
 
 		options.find('.open').click(function() { getNextThought(e); });
 
-		if ($("#thought-frame-" + thoughtFrame._id).length != 0) {
+		if ($("#frame-" + thoughtFrame.frame).length != 0) {
 		} else {
 
 			//
@@ -1463,7 +1462,7 @@ function addThoughtWidget(moment) {
 			// Set up listeners for TOUCH EVENTS on the widget (e.g., swipe)
 			//
 
-			var frameWidget = document.getElementById('thought-frame-' + thoughtFrame._id);
+			var frameWidget = document.getElementById('frame-' + thoughtFrame.frame);
 
 			// 'touchstart' event handler
 			frameWidget.addEventListener('touchstart', function(event) {
@@ -1726,11 +1725,11 @@ function addTopicWidget(moment) {
 		var e;
 		var div;
 
-		if ($("#topic-frame-" + topicFrame._id).length != 0) {
+		if ($("#frame-" + topicFrame.frame).length != 0) {
 			// Element exists, so update it
 			console.log("Found existing topic widget. Updating widget.");
 
-			e = $('#topic-frame-' + topicFrame._id); // <li> element
+			e = $('#frame-' + topicFrame.frame); // <li> element
 			div = e.find('.element .text');
 
 		} else {
@@ -1746,8 +1745,8 @@ function addTopicWidget(moment) {
 		}
 
 		// Update 'li' for element
-		e.attr('id', 'topic-frame-' + topicFrame._id);
-		e.attr('data-id', topicFrame._id);
+		e.attr('id', 'frame-' + topicFrame.frame);
+		e.attr('data-id', topicFrame.frame);
 		e.attr('data-timeline', topicFrame.timeline);
 
 		// Update element
@@ -1759,7 +1758,7 @@ function addTopicWidget(moment) {
 		div.attr('contenteditable', 'true');
 		div.html(topic.text);
 
-		if ($("#topic-frame-" + topicFrame._id).length != 0) {
+		if ($("#frame-" + topicFrame.frame).length != 0) {
 		} else {
 
 			e.appendTo('#narrative-list');
@@ -1860,8 +1859,8 @@ function addPhotoWidget(moment) {
 
 	if(moment && moment.frame && moment.frame._id) {
 
-		var frame    = moment.frame;
-		var activity = frame.activity; // TODO: Update this based on current view for user
+		var perspective    = moment.frame;
+		var activity = perspective.activity; // TODO: Update this based on current view for user
 
 		// Only continue if Thought frame is valid
 		if (!activity) return;
@@ -1869,11 +1868,11 @@ function addPhotoWidget(moment) {
 		var e;
 		var div;
 
-		if ($("#photo-frame-" + frame._id).length != 0) {
+		if ($("#frame-" + perspective.frame).length != 0) {
 			// Frame exists, so update it
 			console.log("Found existing photo widget. Updating widget.");
 
-			e = $('#photo-frame-' + frame._id); // <li> element
+			e = $('#frame-' + perspective.frame); // <li> element
 			//div = e.find('.element .text');
 
 		} else {
@@ -1889,9 +1888,9 @@ function addPhotoWidget(moment) {
 		}
 
 		// Update 'li' for element
-		e.attr('id', 'photo-frame-' + frame._id);
-		e.attr('data-id', frame._id);
-		e.attr('data-timeline', frame.timeline);
+		e.attr('id', 'frame-' + perspective.frame);
+		e.attr('data-id', perspective.frame);
+		e.attr('data-timeline', perspective.timeline);
 
 		// Update element
 		var div2 = e.find('.activity-widget .element');
@@ -1920,7 +1919,7 @@ function addPhotoWidget(moment) {
 			generatePhotoPage(event);
 		});
 
-		if ($("#photo-frame-" + frame._id).length != 0) {
+		if ($("#frame-" + perspective.frame).length != 0) {
 		} else {
 
 			e.appendTo('#narrative-list');
@@ -1969,11 +1968,11 @@ function addVideoWidget(moment) {
 		var e;
 		var div;
 
-		if ($("#video-frame-" + frame._id).length != 0) {
+		if ($("#frame-" + frame.frame).length != 0) {
 			// Element exists, so update it
 			console.log("Found existing Video widget. Updating widget.");
 
-			e = $('#video-frame-' + frame._id); // <li> element
+			e = $('#frame-' + frame.frame); // <li> element
 			//div = e.find('.element .text');
 
 		} else {
@@ -1989,8 +1988,8 @@ function addVideoWidget(moment) {
 		}
 
 		// Update 'li' for element
-		e.attr('id', 'video-frame-' + frame._id);
-		e.attr('data-id', frame._id);
+		e.attr('id', 'frame-' + frame.frame);
+		e.attr('data-id', frame.frame);
 		e.attr('data-timeline', frame.timeline);
 
 		// Update element
@@ -2020,7 +2019,7 @@ function addVideoWidget(moment) {
 		e.find('.tags').off('blur');
 		e.find('.tags').blur(function() { saveTags(e); });
 
-		if ($("#video-frame-" + frame._id).length != 0) {
+		if ($("#frame-" + frame.frame).length != 0) {
 		} else {
 
 			e.appendTo('#narrative-list');
@@ -2069,11 +2068,11 @@ function addMotionWidget(moment) {
 		var e;
 		var div;
 
-		if ($("#motion-frame-" + frame._id).length != 0) {
+		if ($("#frame-" + frame.frame).length != 0) {
 			// Frame exists, so update it
 			console.log("Found existing Motion widget. Updating widget.");
 
-			e = $('#motion-frame-' + frame._id); // <li> element
+			e = $('#frame-' + frame.frame); // <li> element
 			//div = e.find('.element .canvas');
 
 		} else {
@@ -2089,8 +2088,8 @@ function addMotionWidget(moment) {
 		}
 
 		// Update 'li' for element
-		e.attr('id', 'motion-frame-' + frame._id);
-		e.attr('data-id', frame._id);
+		e.attr('id', 'frame-' + frame.frame);
+		e.attr('data-id', frame.frame);
 		e.attr('data-timeline', frame.timeline);
 
 		// Update element
@@ -2126,7 +2125,7 @@ function addMotionWidget(moment) {
 		// 	generatePhotoPage(event);
 		// });
 
-		if ($("#motion-frame-" + frame._id).length != 0) {
+		if ($("#frame-" + frame.frame).length != 0) {
 		} else {
 
 			e.appendTo('#narrative-list');
@@ -2188,11 +2187,11 @@ function addSketchWidget(moment) {
 		var e;
 		var div;
 
-		if ($("#sketch-frame-" + frame._id).length != 0) {
+		if ($("#frame-" + frame.frame).length != 0) {
 			// Frame exists, so update it
 			console.log("Found existing sketch widget. Updating widget.");
 
-			e = $('#sketch-frame-' + frame._id); // <li> element
+			e = $('#frame-' + frame.frame); // <li> element
 			//div = e.find('.element .text');
 
 		} else {
@@ -2208,8 +2207,8 @@ function addSketchWidget(moment) {
 		}
 
 		// Update 'li' for element
-		e.attr('id', 'sketch-frame-' + frame._id);
-		e.attr('data-id', frame._id);
+		e.attr('id', 'frame-' + frame.frame);
+		e.attr('data-id', frame.frame);
 		e.attr('data-timeline', frame.timeline);
 
 		// Update element
@@ -2239,7 +2238,7 @@ function addSketchWidget(moment) {
 		// 	generatePhotoPage(event);
 		// });
 
-		if ($("#sketch-frame-" + frame._id).length != 0) {
+		if ($("#frame-" + frame.frame).length != 0) {
 		} else {
 
 			e.appendTo('#narrative-list');
@@ -2335,7 +2334,7 @@ function getNextThought(e) {
 
 			//e.fadeIn();
 			// Set element container (e.g., Thought). Only gets set once.
-			//$(e).attr('id', 'thought-frame-' + data.frame._id); // e.data('id', data._id);
+			//$(e).attr('id', 'frame-' + data.frame._id); // e.data('id', data._id);
 			//addTimelineWidget(e);
 
 			console.log('Updated ThoughtFrameWidget.');
@@ -2383,7 +2382,7 @@ function putThought(jsonData) {
 
 			// e.fadeIn();
 			// Set element container (e.g., Thought). Only gets set once.
-			//$(e).attr('id', 'thought-frame-' + data.frame._id); // e.data('id', data._id);
+			//$(e).attr('id', 'frame-' + data.frame._id); // e.data('id', data._id);
 			//addTimelineWidget(e);
 
 			// console.log('Updated thought element.');
@@ -2434,7 +2433,7 @@ function showThought(e) {
 			$(e).find('.hide').click(function() { hideThought(e); });
 			e.fadeIn();
 			// Set element container (e.g., Thought). Only gets set once.
-			//$(e).attr('id', 'thought-frame-' + data.frame._id); // e.data('id', data._id);
+			//$(e).attr('id', 'frame-' + data.frame._id); // e.data('id', data._id);
 			//addTimelineWidget(e);
 
 			console.log('Updated thought element.');
@@ -2486,7 +2485,7 @@ function hideThought(e) {
 			$(e).find('.hide').off('click');
 			$(e).find('.hide').click(function() { showThought(e); });
 			// Set element container (e.g., Thought). Only gets set once.
-			//$(e).attr('id', 'thought-frame-' + data.frame._id); // e.data('id', data._id);
+			//$(e).attr('id', 'frame-' + data.frame._id); // e.data('id', data._id);
 			//addTimelineWidget(e);
 
 			console.log('Updated thought element.');
@@ -2532,7 +2531,7 @@ function saveThought(e) {
 			console.log(data);
 
 			// Set element container (e.g., Thought). Only gets set once.
-			$(e).attr('id', 'thought-frame-' + data.frame._id); // e.data('id', data._id);
+			$(e).attr('id', 'frame-' + data.frame._id); // e.data('id', data._id);
 			addTimelineWidget(e);
 
 			console.log('Updated thought element.');
@@ -2563,18 +2562,17 @@ function getTags(e) {
 			for (tag in data) {
 				$(e).find('.tags').append('<span id="tag-' + data[tag].tag._id + '" style="display:inline-block;" contenteditable="false"><a href="javascript:getTimeline({ id: \'' + data[tag].timeline._id + '\' });">' + data[tag].tag.text + '</a></span> ');
 
-				continue;
+				// NOTE: The following code doesn't work for some reason.  Not sure why.  The above is a hacky replacement for what the following was intended to accomplish.
 
+				// var tagWidget = $('<span></span>');
+				// tagWidget.appendTo( $(e).find('.tags') );
 
-				var tagWidget = $('<span></span>');
-				tagWidget.appendTo( $(e).find('.tags') );
+				// tagWidget.attr('id', 'tag-' + data[tag]._id);
+				// var tagText = data[tag].text + ' ';
+				// tagWidget.text(tagText);
 
-				tagWidget.attr('id', 'tag-' + data[tag]._id);
-				var tagText = data[tag].text + ' ';
-				tagWidget.text(tagText);
-
-				$('#tag-' + data[tag]._id).off('click');
-				$('#tag-' + data[tag]._id + '').click(function() { getTimeline({ frameId: data[tag]._id }); });
+				// $('#tag-' + data[tag]._id).off('click');
+				// $('#tag-' + data[tag]._id + '').click(function() { getTimeline({ frameId: data[tag]._id }); });
 			}
 
 			//$(e).find('.tags').text();
@@ -2665,7 +2663,7 @@ function saveTags(e) {
 
 				// Set element container (e.g., Thought). Only gets set once.
 				//$(e).find('.tags')
-				//.attr('id', 'thought-frame-' + data.frame._id); // e.data('id', data._id);
+				//.attr('id', 'frame-' + data.frame._id); // e.data('id', data._id);
 
 				// TODO: Only update necessary tags
 				getTags(e);
@@ -2718,7 +2716,7 @@ function saveTopic(e) {
 			console.log(data);
 
 			// Set element container (e.g., Topic). Only gets set once.
-			$(e).attr('id', 'topic-frame-' + data.frame._id); // e.data('id', data._id);
+			$(e).attr('id', 'frame-' + data.frame._id); // e.data('id', data._id);
 			addTimelineWidget(e);
 
 			console.log('Updated Topic.');
