@@ -32,6 +32,9 @@ block content
 		// Template timeline widgets
 		include widget-templates
 
+
+
+		
 	//
 	// Top of interface
 	//
@@ -98,7 +101,7 @@ block content
 	//
 
 	mixin option(name, frameType, imageUri, clickEventHandler)
-		div(style='background-image: url(#{imageUri}); background-repeat:no-repeat; background-position:3px 0px; height: 70px; width: 110px; padding-left: 118px; padding-top: 34px; font-size: 30px;')
+		div(style='background-image: url(#{imageUri}); background-repeat:no-repeat; background-position:3px 0px; height: 70px; padding-left: 118px; padding-top: 34px; font-size: 30px;')
 			a(id="create-#{frameType}-button", data-artifact-type="#{frameType}", href="javascript:void(0);", onclick='#{clickEventHandler}') #{name}
 
 	div(style="display: table; width: 100%; margin: 0px; margin-bottom: 80px; padding: 0px;")
@@ -107,7 +110,7 @@ block content
 				img(src="./img/blank.png", width="50", height="50", style="padding: 10px;")
 				
 			div(style="display: table-cell; width: 100%; padding-left: 10px; padding-top: 20px;")
-				p(class="tagline") ahoy there... what do you want to do?
+				p(class="tagline") and now <strong>you</strong> do something
 
 		div(style="display: table-row;")
 			div(style="display: table-cell; text-align: center; vertical-align: middle; width: 50px;")
@@ -116,14 +119,20 @@ block content
 
 			div(style="display: table-cell; width: 100%; padding-left: 10px;")
 
-				div(style="display: table;")
+				div(style="display: table; width: 100%;")
 					div(style="display: table-row;")
 						div(style="display: table-cell;")
 							mixin option('thought', 'thought', './img/thought.png', 'addThoughtWidget();')
-						//div(style="display: table-cell;")
-						//	mixin option('topic', 'topic', './img/topic.png', 'addTopicWidget();')
 						div(style="display: table-cell;")
 							mixin option('video', 'video', './img/video.png', 'captureVideo2();')
+						div(style="display: table-cell;")
+							mixin option('motion', 'motion', './img/graph.png', 'captureMotion();')
+						
+						//div(style="display: table-cell;")
+						//	mixin option('topic', 'topic', './img/topic.png', 'addTopicWidget();')
+					div(style="display: table-row;")
+						div(style="display: table-cell;")
+							mixin option('sketch', 'sketch', './img/palette.png', 'openSketchTool();')
 						div(style="display: table-cell;")
 							mixin option('photo', 'photo', './img/camera.png', 'capturePhotoToURI();')
 
@@ -178,10 +187,87 @@ block content
 				p(class="float-page-p")
 					video(class="video", width="640", height="480", source="", controls)
 
+	//
+	// "Motion" tool interface
+	//
+	.tool-widget(id="motion-tool")
+		.tool-table
+
+			//
+			// Header
+			//
+
+			.tool-table-row
+				.tool-table-cell(style='text-align: right; vertical-align: middle; padding-right: 30px; padding-top: 30px;')
+					img(class="close", src="./img/cross-gray.png")
+
+			//
+			// Body
+			//
+			.tool-table-row
+				.tool-table-cell(style="vertical-align: middle; text-align: center; height: 100%; width: 100%;")
+					canvas(class="canvas", width="768", height="512", style="background-color: #ffffff;")
+					// script to initialize canvas, graph event handlers
+					// - set up handler to grab buffered data upon close, format it, send it to the server, get response, create new element
+
+			//
+			// Footer
+			//
+
+			.tool-table-row
+				.tool-table-cell
+					| &nbsp;
+
+	//
+	// "Sketch" tool interface
+	//
+	.tool-widget(id="sketch-tool")
+		.tool-table
+
+			//
+			// Header
+			//
+
+			.tool-table-row
+				.tool-table-cell(style='text-align: right; vertical-align: middle; padding-right: 30px; padding-top: 30px;')
+					img(class="close", src="./img/cross-gray.png")
+
+			//
+			// Body
+			//
+			.tool-table-row
+				.tool-table-cell(style="vertical-align: middle; text-align: center; height: 100%; width: 100%;")
+					canvas(class="canvas", width="768", height="512", style="background-color: #ffffff;")
+					// script to initialize canvas, graph event handlers
+					// - set up handler to grab buffered data upon close, format it, send it to the server, get response, create new element
+
+			//
+			// Footer
+			//
+
+			.tool-table-row
+				.tool-table-cell
+					| &nbsp;
+
+
+
+
+		
+
+
+
+
+
+
+
+
 	script
 		window.onload = function() {
 
-			//localStorage['host'] = 'http://10.109.95.23:3000';
+			// Set up PhoneGap event listeners
+			document.addEventListener("deviceready", onDeviceReady, false);
+
+			//localStorage['host'] = 'http://192.168.1.41:3000';
 
 			// Initialize web socket connection for real-time collaboration
 			connectWebSocket();
@@ -214,6 +300,8 @@ block content
 			$('#float-page').hide();
 			$('#photo-page').hide();
 			$('#video-page').hide();
+			$('#motion-tool').hide();
+			$('#sketch-tool').hide();
 
 			$('#previous-timeline-widget').hide();
 

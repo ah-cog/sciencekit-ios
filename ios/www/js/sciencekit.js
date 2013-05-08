@@ -67,6 +67,20 @@ function connectWebSocket() {
 			addTimelineWidget(video);
 		});
 
+		socketio.on('motion', function(motion) {
+			console.log('Socket: Received Motion');
+			console.log(motion);
+
+			addTimelineWidget(motion);
+		});
+
+		socketio.on('sketch', function(sketch) {
+			console.log('Socket: Received Sketch');
+			console.log(sketch);
+
+			addTimelineWidget(sketch);
+		});
+
 		socketio.on('tag', function(tag) {
 			console.log('Socket: Received Tag');
 			console.log(tag);
@@ -111,7 +125,7 @@ var destinationType; // sets the format of returned value
 //
 function onDeviceReady() {
     pictureSource = navigator.camera.PictureSourceType;
-    destinationType = navigator.camera.DestinationType;
+    destinationType = navigator.camera.DestinationType;    
 
     // Set up database for local storage
     // var db = window.openDatabase("Database", "1.0", "SINQLocalDatabase", 200000);
@@ -123,16 +137,73 @@ function onDeviceReady() {
     // document.addEventListener("online", onDeviceOnline, false);
     // document.addEventListener("offline", onDeviceOffline, false);
     // document.addEventListener("resume", onResume, false);
+
+    console.log('Device is ready for PhoneGap.');
 }
+
+
+
+
+//var accelerometerWatchData = { values:[ { x: 0, y: 0, z: 0, timestamp: 0 } ]};
+var accelerometerWatchData = { values:[] };
+
+// The watch id references the current `watchAcceleration`
+var watchId = null;
+
+// Start watching the acceleration
+//
+function startWatch() {
+	console.log('Starting accelerometer watch.');
+
+	// Update acceleration every 3 seconds
+	var options = { frequency: 300 };
+
+	watchId = navigator.accelerometer.watchAcceleration(onWatchSuccess, onWatchError, options);
+}
+
+// Stop watching the acceleration
+//
+function stopWatch () {
+	console.log('Stopping accelerometer watch.');
+
+	if (watchId) {
+		navigator.accelerometer.clearWatch(watchId);
+		watchId = null;
+	}
+}
+
+// onSuccess: Get a snapshot of the current acceleration
+//
+function onWatchSuccess (acceleration) {
+
+	// Add data to graph points
+	console.log(acceleration.timestamp);
+	var dataPoint = { x: acceleration.x, y: acceleration.y, z: acceleration.z, t: acceleration.timestamp };
+	accelerometerWatchData.values.push(dataPoint);
+
+	// Update the graph
+	drawGraph($('#motion-tool').find('.canvas'), accelerometerWatchData.values, 10);
+}
+
+// onError: Failed to get the acceleration
+//
+function onWatchError() {
+	alert('onError!');
+}
+
+
+
+
+
 
 // Called when a photo is successfully retrieved
 //
-function onAvatarURISuccess(imageURI) {
+function onAvatarURISuccess (imageUri) {
     // Uncomment to view the image file URI
-    console.log("Took photo: " + imageURI);
+    console.log("Took photo: " + imageUri);
 
     // Upload the photo
-    uploadAvatar(imageURI);
+    uploadAvatar(imageUri);
 }
 
 function captureAvatarToURI() {
@@ -447,8 +518,8 @@ function uploadVideo(mediaFile) {
 
 window.onload = function() {
 
-	// Set up PhoneGap event listeners
-	document.addEventListener("deviceready", onDeviceReady, false);
+	// // Set up PhoneGap event listeners
+	// document.addEventListener("deviceready", onDeviceReady, false);
 
 
 
@@ -695,11 +766,610 @@ function getTimeline(options) {
 	});
 }
 
+
+
+
+//
+// "Motion" Capture Tool
+//
+
+function captureMotion() {
+
+	// Initialize
+	// accelerometerWatchData = { values:[] };
+
+	// Show
+
+	$('#motion-tool').fadeIn();
+
+	// Set up event handlers
+
+	startWatch();
+
+	$('#motion-tool').find('.close').click(function() {
+
+		// Shut off accelerometer (stop collecting data)
+		stopWatch();
+
+		// Get buffered data
+		console.log(accelerometerWatchData);
+
+		// Format data
+
+		// Send data to server
+		saveMotion();
+
+		// Receive response
+
+		// Add widget to story
+
+		// Close widget
+		$('#motion-tool').fadeOut();
+	});
+}
+
+function saveMotion(e) {
+	console.log('saveMotion');
+
+	// var widget  = e.find('.activity-widget');
+	// var element = e.find('.activity-widget .element');
+	// var text    = e.find('.element .text');
+
+	// Construct JSON object for element to save
+	var dataJSON = {
+		"timeline": $("#narrative-list").attr("data-timeline"),
+		"points": accelerometerWatchData.values
+	};
+
+	// if(element.attr("data-frame")) dataJSON.frame = element.attr("data-frame");
+	// if(element.attr("data-id")) dataJSON.reference = element.attr("data-id"); // Set the element to the reference, since it was edited.
+
+	console.log("Saving Motion (JSON): ");
+	console.log(dataJSON);
+	// POST the JSON object
+
+	$.ajax({
+		type: 'POST',
+		beforeSend: function(request) {
+			request.setRequestHeader('Authorization', 'Bearer ' + localStorage['token']);
+		},
+		url: localStorage['host'] + '/api/motion',
+		dataType: 'json',
+		contentType: 'application/json; charset=utf-8',
+		data: JSON.stringify(dataJSON),
+		processData: false,
+		success: function(data) {
+			console.log('Saved Motion: ');
+			console.log(data);
+
+			// Set element container (e.g., Thought). Only gets set once.
+			// $(e).attr('id', 'motion-frame-' + data.frame._id); // e.data('id', data._id);
+			addTimelineWidget(e);
+			//addMotionWidget();
+
+			console.log('Updated Motion element.');
+		},
+		error: function() {
+			console.log('Failed to save Motion.');
+		}
+	});
+}
+
+
+//var graph;
+var xPadding = 8;
+var yPadding = 8;
+
+function getMaxY(data) {
+	var max = 0;
+
+	for(var i = 0; i < data.length; i ++) {
+		if(Math.abs(data[i].x) > max) {
+			max = data[i].x;
+		}
+
+		if(Math.abs(data[i].y) > max) {
+			max = data[i].y;
+		}
+
+		if(Math.abs(data[i].z) > max) {
+			max = data[i].z;
+		}
+	}
+
+	max += 10 - max % 10;
+	return max;
+}
+
+function getXPixel(graph, data, value, maxPointCount) {
+
+	//var graph = $('#motion-tool').find('.canvas');
+
+	var xRange = (data.length > maxPointCount ? maxPointCount : data.length);
+
+	return ((graph.width() - xPadding) / xRange) * value + (xPadding * 1.5);
+	//return ((graph.width() - xPadding) / data.length) * value + (xPadding * 1.5);
+}
+
+function getYPixel(graph, data, point) {
+
+	//var graph = $('#motion-tool').find('.canvas');
+
+	var originVertical = Math.floor(graph.height() / 2);
+	var scalingFactor  = graph.height() / (2 * getMaxY(data));
+	var point = point * scalingFactor;
+	var canvasPoint = originVertical + point;
+	return canvasPoint;
+}
+
+function drawGraph (graph, data, maxPointCount) {
+
+	// Get graph element
+	//var graph = $('#motion-tool').find('.canvas');
+	var context = graph[0].getContext('2d'); // Get canvas rendering context
+
+	// Update canvas element dimensions
+	//graph.attr('width', window.innerWidth); // Update size
+	graph.attr('width', $(graph).parent().width()); // Update size
+
+	// Check if there's at least one point
+	if (data.length < 1) {
+		return;
+	}
+
+	// Check if maximum point count is defined
+	if (maxPointCount === undefined) {
+		maxPointCount = data.length;
+	}
+
+	//
+	// Clear canvas
+	//
+	context.clearRect(0, 0, graph[0].width, graph[0].height);
+
+	// context.fillStyle = '#CC5422';
+	// context.fillRect(0, 0, graph[0].width, graph[0].height);  // now fill the canvas
+
+	//
+	// Draw middle point(s) for axes
+	//
+	context.strokeStyle = '#dddddd';
+	context.beginPath();
+	context.moveTo(0, graph.height() / 2);
+	context.lineTo(graph.width(), graph.height() / 2);
+	context.stroke();
+
+	//
+	// Draw X graph lines
+	//
+
+	var sampleStartIndex = 1;
+	if (data.length > maxPointCount) {
+		sampleStartIndex = data.length - maxPointCount;
+	}
+
+	var i = (data.length > maxPointCount ? data.length - maxPointCount : 1);
+
+	context.strokeStyle = '#ed1c24';
+	context.beginPath();
+	context.moveTo(getXPixel(graph, data, 0, maxPointCount), getYPixel(graph, data, data[i - 1].x));
+
+	for(j = 1; i < data.length; i++, j++) {
+		context.lineTo(getXPixel(graph, data, j, maxPointCount), getYPixel(graph, data, data[i].x));
+	}
+	context.stroke();
+
+	//
+	// Draw Y graph lines
+	//
+
+	var i = (data.length > maxPointCount ? data.length - maxPointCount : 1);
+
+	context.strokeStyle = '#00a14b';
+	context.beginPath();
+	context.moveTo(getXPixel(graph, data, 0, maxPointCount), getYPixel(graph, data, data[i - 1].y));
+
+	for(j = 1; i < data.length; i++, j++) {
+		context.lineTo(getXPixel(graph, data, j, maxPointCount), getYPixel(graph, data, data[i].y));
+	}
+	context.stroke();
+
+	//
+	// Draw Z graph lines
+	//
+
+	var i = (data.length > maxPointCount ? data.length - maxPointCount : 1);
+
+	context.strokeStyle = '#213f99';
+	context.beginPath();
+	context.moveTo(getXPixel(graph, data, 0, maxPointCount), getYPixel(graph, data, data[i - 1].z));
+
+	for(j = 1; i < data.length; i++, j++) {
+		context.lineTo(getXPixel(graph, data, j, maxPointCount), getYPixel(graph, data, data[i].z));
+	}
+	context.stroke();
+}
+
+
+
+
+//
+// "Sketch" Tool
+//
+
+function openSketchTool() {
+	console.log('openSketchTool');
+
+	// Initialize
+	//initializeSketchTool();
+
+	// Show
+
+	$('#sketch-tool').fadeIn();
+
+	initializeSketchTool();
+
+	// Set up event handlers
+
+	$('#sketch-tool').find('.close').click(function() {
+
+		// Disable sketching I/O
+
+		// Get buffered data
+
+		// Format data
+
+		// Send data to server
+		saveSketch();
+
+		// Receive response
+
+		// Add widget to story
+
+		// Close widget
+		$('#sketch-tool').fadeOut();
+	});
+}
+
+function saveSketch() {
+	console.log('saveSketch');
+
+	// Save canvas to image
+	var c = $('#sketch-tool').find('.canvas');
+	var oImgPNG = Canvas2Image.saveAsPNG(c[0], true);
+	$(oImgPNG).attr('id', 'sketch-tool-result');
+
+	// Send image to server
+	var base64ImageData = $(oImgPNG).attr('src');
+
+	// var widget  = e.find('.activity-widget');
+	// var element = e.find('.activity-widget .element');
+	// var text    = e.find('.element .text');
+
+	// Construct JSON object for element to save
+	var dataJSON = {
+		"timeline": $("#narrative-list").attr("data-timeline"),
+		"imageData": base64ImageData
+	};
+
+	// if(element.attr("data-frame")) dataJSON.frame = element.attr("data-frame");
+	// if(element.attr("data-id")) dataJSON.reference = element.attr("data-id"); // Set the element to the reference, since it was edited.
+
+	console.log("Saving Sketch (JSON): ");
+	console.log(dataJSON);
+	// POST the JSON object
+
+	$.ajax({
+		type: 'POST',
+		beforeSend: function(request) {
+			request.setRequestHeader('Authorization', 'Bearer ' + localStorage['token']);
+		},
+		url: localStorage['host'] + '/api/sketch',
+		dataType: 'json',
+		contentType: 'application/json; charset=utf-8',
+		data: JSON.stringify(dataJSON),
+		processData: false,
+		success: function(data) {
+			console.log('Saved Sketch: ');
+			console.log(data);
+
+			// Set element container (e.g., Thought). Only gets set once.
+			// $(e).attr('id', 'sketch-frame-' + data.frame._id); // e.data('id', data._id);
+			addTimelineWidget(e);
+			//addSketchWidget();
+
+			console.log('Updated Sketch element.');
+		},
+		error: function() {
+			console.log('Failed to save Sketch.');
+		}
+	});
+}
+
+var sketchCanvas;
+var sketchCanvasShape;
+var stage;
+var oldPt;
+var oldMidPt;
+var title;
+var color;
+var stroke;
+var paletteColors;
+var index;
+
+// Brushes of various sizes
+var brushSizeOptions = [];
+
+// Canvas model
+var sketchStrokePaths = [];
+
+// Drawing tools (color palette and brush size)
+var paletteX = 10;
+var paletteY = 10;
+var currentPaletteColor = "#000000";
+var currentPalleteSize = 10;
+var padding = 5;
+var width = 65;
+var height = 65;
+var colorPaletteRectangleRadius = 5;
+var cols = 15;
+
+// Initialize the canvas
+function initializeSketchTool() {
+	if (window.top != window) {
+		document.getElementById("header").style.display = "none";
+	}
+	sketchCanvas = $('#sketch-tool').find('canvas').get(0); // Get "raw" DOM element wrapped by jQuery selector
+	index = 0;
+	paletteColors = ["#828b20", "#b0ac31", "#cbc53d", "#fad779", "#f9e4ad", "#faf2db", "#563512", "#9b4a0b", "#d36600", "#fe8a00", "#f9a71f"];
+
+	// Update canvas geometry
+	$(sketchCanvas).attr('width', $(sketchCanvas).parent().width()); // Update size
+	$(sketchCanvas).attr('height', $(sketchCanvas).parent().height()); // Update size
+
+	// "A stage is the root level Container for a display list. Each time its 
+	// Stage/tick method is called, it will render its display list to its target 
+	// canvas." [http://www.createjs.com/Docs/EaselJS/classes/Stage.html]
+	stage = new createjs.Stage(sketchCanvas);
+	stage.autoClear = true; // NOTE: Setting this to false will prevent the canvas from being cleared (previous states are kept)
+	stage.enableDOMEvents(true);
+	stage.enableMouseOver(10); // Enable for mouseover event
+	createjs.Touch.enable(stage);
+
+	// TODO: Check to see if we are running in a browser with touch support
+	createjs.Ticker.setFPS(24);
+
+	sketchCanvasShape = new createjs.Shape();
+
+	stage.addEventListener("stagemousedown", handleMouseDown);
+	stage.addEventListener("stagemouseup", handleMouseUp);
+
+	// Center instructions on the sketching canvas
+	title = new createjs.Text("touch here to draw", "36px Quicksand", "#777777");
+	title.x = ($(sketchCanvas).width() - title.getMeasuredWidth()) / 2;
+	title.y = $(sketchCanvas).height() / 2;
+	stage.addChild(title);
+
+	stage.addChild(sketchCanvasShape);
+
+
+
+	//
+	// Render brush color palette options
+	//
+	for (var i = 0; i < 11; i++) {
+		var s = new createjs.Shape(); // Create color swatch (i.e., a "button" for the color)
+		s.overColor = "#3281FF";
+		s.outColor = paletteColors[i];
+		//s.graphics.beginFill(s.outColor).drawRect(0, 0, width, height).endFill();
+		s.graphics.beginFill(s.outColor).drawRoundRect(0, 0, width, height, colorPaletteRectangleRadius).endFill();
+		s.x = paletteX + (width + padding) * (i % cols);
+		//s.y = paletteY + (height + padding) * (i / cols | 0);
+		s.y = paletteY + (height + padding) * (i / cols | 0);
+
+		// Set up events to make the shape interactive
+		s.addEventListener("mouseover", handleMouseOver);
+		s.addEventListener("click", handleMouseClick);
+		s.addEventListener("mouseout", handleMouseOut);
+		stage.addChild(s);
+	}
+
+	//
+	// Render brush size options
+	//
+	for (var i = 0; i < 5; i++) {
+		var s = new createjs.Shape(); // Create "button"
+		s.overColor = "#3281FF";
+		s.outColor = paletteColors[i];
+		s.radius = 10 + 3 * i;
+		s.graphics.beginFill(s.outColor).drawCircle(0, 0, 10 + 3 * i).endFill();
+		s.x = 50 + (width + padding) * (i % cols);
+		s.y = $(sketchCanvas).height() - (height + padding) - 50;
+
+		// Set up events to make the shape interactive
+		s.onMouseOver = handleMouseOverBrush;
+		s.onMouseOut = handleMouseOutBrush;
+
+		brushSizeOptions.push(s);
+		stage.addChild(s);
+	}
+
+	// Initialize color palette state
+	currentPaletteColor = paletteColors[0];
+
+	// Initialize brush size options state (based on initial state of color palette)
+	for (i in brushSizeOptions) {
+		var brushSizeOption = brushSizeOptions[i];
+		brushSizeOption.graphics.clear().beginFill(currentPaletteColor).drawCircle(0, 0, brushSizeOption.radius).endFill();
+	}
+
+	//createjs.Ticker.addListener(stage);
+	createjs.Ticker.addEventListener("tick", handleTick);
+
+	// "Each time the update method is called, the stage will tick any descendants exposing a tick method (ex. BitmapAnimation) and render its entire display list to the canvas. Any parameters passed to update will be passed on to any onTick handlers." [http://www.createjs.com/Docs/EaselJS/classes/Stage.html]
+	//stage.update();
+}
+
+// Handler for mouseover event for color option in the palette
+function handleMouseOver(event) {
+	var target = event.target;
+	target.graphics.clear().beginFill(target.outColor).drawRoundRect(-10, -10, width + 20, height + 20, colorPaletteRectangleRadius).endFill();
+
+	// Update color of brush options
+	for(i in brushSizeOptions) {
+		var brushSizeOption = brushSizeOptions[i];
+		brushSizeOption.graphics.clear().beginFill(target.outColor).drawCircle(0, 0, brushSizeOption.radius).endFill();
+	}
+}
+
+// Handler for click event on color palette
+function handleMouseClick(event) {
+	var target = event.target;
+	currentPaletteColor = target.outColor; // Update palette color
+
+	// Update color of brush options
+	for(i in brushSizeOptions) {
+		var brushSizeOption = brushSizeOptions[i];
+		brushSizeOption.graphics.clear().beginFill(currentPaletteColor).drawCircle(0, 0, brushSizeOption.radius).endFill();
+	}
+}
+
+// Handler for mouseout event for color option in the palette
+function handleMouseOut(event) {
+	var target = event.target;
+	target.graphics.clear().beginFill(target.outColor).drawRoundRect(0, 0, width, height, colorPaletteRectangleRadius).endFill();
+
+	// Update color of brush options
+	for(i in brushSizeOptions) {
+		var brushSizeOption = brushSizeOptions[i];
+		brushSizeOption.graphics.clear().beginFill(currentPaletteColor).drawCircle(0, 0, brushSizeOption.radius).endFill();
+	}
+}
+
+// Handler for mouseover event for color option in the palette
+function handleMouseOverBrush(event) {
+	var target = event.target;
+	currentPalleteSize = target.radius * 2; // Update palette color
+	target.graphics.clear().beginFill(currentPaletteColor).drawCircle(0, 0, target.radius).endFill();
+}
+
+// Handler for mouseout event for color option in the palette
+function handleMouseOutBrush(event) {
+	var target = event.target;
+	target.graphics.clear().beginFill(currentPaletteColor).drawCircle(0, 0, target.radius).endFill();
+}
+
+// Tool
+function handleMouseClickTool(event) {
+	//alert("Tool! Photo? Camera? Audio?");
+	// load the source image:
+	var image = new Image();
+	image.src = "images/daisy.png";
+	image.onload = handleImageLoad;
+}
+
+function handleTick() {
+	stage.update();
+}
+
+// Painting. Handle mouse down event.
+function handleMouseDown(event) {
+
+// Make sure no object is under the brush.  Only paint when there's nothing under the brush.
+var object = stage.getObjectUnderPoint(stage.mouseX, stage.mouseY);
+	if (object != null) {
+		return;
+	}
+	//alert(object);
+
+	if (stage.contains(title)) { 
+		stage.clear(); stage.removeChild(title);
+	}
+	//color = colors[(index++)%colors.length];
+	color = currentPaletteColor;
+	//stroke = Math.random()*30 + 10 | 0;
+	stroke = currentPalleteSize;
+	oldPt = new createjs.Point(stage.mouseX, stage.mouseY);
+	oldMidPt = oldPt;
+
+	// Add event listener for mouse movement.
+	// i.e., Start listening for mouse movements.
+	stage.addEventListener("stagemousemove" , handleMouseMove);
+}
+
+// Painting. Handle mouse move event.
+function handleMouseMove(event) {
+
+	var midPt = new createjs.Point(oldPt.x + stage.mouseX >> 1, oldPt.y + stage.mouseY >> 1);
+
+	//sketchCanvasShape.graphics.clear().setStrokeStyle(stroke, 'round', 'round').beginStroke(color).moveTo(midPt.x, midPt.y).curveTo(oldPt.x, oldPt.y, oldMidPt.x, oldMidPt.y);
+
+	var s = new createjs.Shape();
+	s.graphics.clear().setStrokeStyle(stroke, 'round', 'round').beginStroke(color).moveTo(midPt.x, midPt.y).curveTo(oldPt.x, oldPt.y, oldMidPt.x, oldMidPt.y);
+	//s.graphics.beginFill("#333333").drawRect(stage.mouseX , stage.mouseY, width, height).endFill();
+	//s.cache(s.x, midPt.y, 100, 100, 100);
+	stage.addChild(s);
+
+	// Store stroke in array
+	// TODO: Store user that created the stroke
+	// TODO: Send stroke data to server and others on canvas via socket.io message
+	// TODO: Draw user avatar next to their current strokes (show them when the stroke is active or actively being rendered)
+	var strokePath = {};
+	// Store stroke path (from, midpoint, to)
+	strokePath['from'] = {};
+	strokePath['from'].x = midPt.x;
+	strokePath['from'].y = midPt.y;
+	strokePath['midpoint'] = {};
+	strokePath['midpoint'].x = oldPt.x;
+	strokePath['midpoint'].y = oldPt.y;
+	strokePath['to'] = {};
+	strokePath['to'].x = oldMidPt.x;
+	strokePath['to'].y = oldMidPt.y;
+	// Store color and size of stroke
+	strokePath['color'] = currentPaletteColor;
+	strokePath['size'] = currentPalleteSize;
+	// Store timestamp of stroke
+	strokePath['timestamp'] = new Date().getTime();
+	//sketchStrokePaths.push(strokePath);
+
+	// Update points for future strokes
+	oldPt.x = stage.mouseX;
+	oldPt.y = stage.mouseY;
+
+	oldMidPt.x = midPt.x;
+	oldMidPt.y = midPt.y;
+
+	//var jsonString = JSON.stringify(strokePath);
+	//iosocket.send(jsonString);
+
+	// Update the stage
+	stage.update();
+}
+
+// Painting.  Handle mouse up event.
+function handleMouseUp(event) {
+	// Remove event listener for mousement.
+	// i.e., Stop listening for mouse movements.
+	stage.removeEventListener("stagemousemove" , handleMouseMove);
+}
+
+//-----------------------------------------------------------------------------
+
+function addWidget(moment) {
+	// factor common code, then set up callback for different widget types
+}
+
 function addThoughtWidget(moment) {
+
+	var type = 'thought';
+
+	//
+	// Make sure that the Moment has a sound structure.
+	//
 
 	if(moment && moment.frame && moment.frame._id) {
 
-		var thoughtFrame        = moment.frame;
+		var thoughtFrame = moment.frame;
 		var thought = thoughtFrame.activity; // TODO: Update this based on current view for user
 
 		// Only continue if Thought element is valid
@@ -707,6 +1377,11 @@ function addThoughtWidget(moment) {
 
 		var e;
 		var div;
+
+		//
+		// Check if a widget for the Activity already exists. If so, store a reference 
+		// to it.  If not, create the widget and store a reference to it.
+		//
 
 		if ($("#thought-frame-" + thoughtFrame._id).length != 0) {
 			// Element exists, so update it
@@ -727,7 +1402,10 @@ function addThoughtWidget(moment) {
 			div = e.find('.element .text');
 		}
 
+		//
 		// Update widget based on whether it is the timeline's "parent" Moment
+		//
+
 		if (moment._id === $('#narrative-list').attr('data-moment')) {
 			e.find('.timeline-branch').hide();
 		}
@@ -743,6 +1421,7 @@ function addThoughtWidget(moment) {
 		div2.attr('data-id', thought._id);
 		div2.attr('data-frame', thought.frame);
 		div2.attr('data-reference', thought.reference);
+		div2.attr('data-text', thought.text);
 		div.attr('contenteditable', 'true');
 		div.html(thought.text);
 
@@ -752,12 +1431,13 @@ function addThoughtWidget(moment) {
 			console.log(thought.author.username);
 		//}
 
+		// Update options for widget
 		var options = e.find('.activity-widget .element .options');
 		if (thoughtFrame.visible === true) {
-			console.log("HIDE");
+			console.log("Hiding widget");
 			options.find('.hide').click(function() { hideThought(e); });
 		} else {
-			console.log("SHOW");
+			console.log("Showing widget");
 			options.find('.hide').click(function() { showThought(e); });
 		}
 
@@ -766,9 +1446,13 @@ function addThoughtWidget(moment) {
 		if ($("#thought-frame-" + thoughtFrame._id).length != 0) {
 		} else {
 
+			//
+			// Set up Widget event handlers.
+			//
+
 			e.appendTo('#narrative-list');
-			e.find('.element .text').off('blur');
-			e.find('.element .text').blur(function() { saveThought(e); });
+			//e.find('.element .text').off('blur');
+			//e.find('.element .text').blur(function() { saveThought(e); });
 			e.find('.tags').off('blur');
 			e.find('.tags').blur(function() { saveTags(e); });
 			//e.find('.element .options .timeline').click(function() { getTimeline({ moment_id: moment._id }); });
@@ -776,7 +1460,7 @@ function addThoughtWidget(moment) {
 			e.show(); // Show element
 
 			//
-			// Set up listeners for touch events on Frame widget (e.g., swipe)
+			// Set up listeners for TOUCH EVENTS on the widget (e.g., swipe)
 			//
 
 			var frameWidget = document.getElementById('thought-frame-' + thoughtFrame._id);
@@ -863,7 +1547,10 @@ function addThoughtWidget(moment) {
 				console.log(event.target + " touchcancel: Touch x:" + touch.pageX + ", y:" + touch.pageY);
 			}, false);
 
+			//
 			// Request Tags from server
+			//
+
 			getTags(e);
 		}
 
@@ -874,18 +1561,155 @@ function addThoughtWidget(moment) {
 			$(e).hide();
 		}
 
+		setupThoughtWidget();
+
 	} else {
 
-		console.log("Creating new thought widget.");
+		//
+		// Widget does not exist for the Activity.  Create new Widget.
+		//
+
+		console.log("Creating new Widget for Thought.");
 
 		// Clone template structure and remove 'id' element to avoid 'id' conflict
 		e = $('#thought-activity-template').clone().attr('id', 'volatile-activity');
 		e.addClass('activity-frame');
 		e.removeAttr('id'); // Remove 'id' attribute
 		e.appendTo('#narrative-list');
-		e.find('.element .text').blur(function() { saveThought(e) });
 		// e.find('.element .options .timeline').click(function() { getTimeline({ moment_id: moment._id }); });
-		e.show(); // Show element
+
+		setupThoughtWidget();
+
+		// Show the Widget
+		e.show();
+	}
+
+	//
+	// Setup Thought Widget
+	//
+
+	function setupThoughtWidget() {
+
+		//
+		// Set up Widget-specific event handlers
+		//
+		var options = {};
+		options['default'] = 'touch'; // Set parameters
+
+		if (!e.find('.element').attr('data-text')) {
+			e.find('.element .text').text(options['default']); // Initialize with default text
+			e.find('.element .text').css('color', '#333333'); // Set color of text
+		} else {
+			e.find('.element .text').css('color', '#000000'); // Set color of text
+		}
+
+		// Set up click handler
+		e.off('click');
+		e.find('.element .text').click(function () {
+
+			// Get the text currently in the widget
+			var currentText = e.find('.element .text').text();
+			console.log(currentText);
+			console.log(e.find('.element').attr('data-text'));
+
+			// Check if the text is the default text.  If so, empty the input widget.
+			if (currentText === options['default'] && e.find('.element').attr('data-text') !== options['default']) {
+				e.find('.element .text').text('');
+			}
+		});
+
+		e.off('keydown');
+		e.find('.element .text').keydown(function(event) {
+			var currentText = e.find('.element .text').text();
+
+			if (currentText === options['default']) {
+				if (event.keyCode !== 8) {
+					e.find('.element .text').text('');
+					e.find('.element .text').css('color', '#000000'); // Set color of text
+				}
+
+			}
+		});
+
+		// Set up typing handler
+		e.off('keyup');
+		e.find('.element .text').keyup(function(event) {
+			var currentText = e.find('.element .text').text();
+
+			// Get current caret position
+			// var currentSelectRange = window.getSelection().getRangeAt(0);
+			// currentSelectRange.startOffset += 1;
+			// currentSelectRange.endOffset = currentSelectRange.startOffset;
+
+			// Clean up input
+			var updatedText = currentText.replace(/^\s+/, ''); // Trim whitespace from the beginning text
+
+			// Check input
+			if (updatedText === '') {
+
+				//if (event.keyCode !== 8) {
+
+					// Set default text
+					updatedText = options['default'];
+
+					e.find('.element .text').text(updatedText);
+				//}
+
+				if (!e.find('.element').attr('data-text')) {
+					e.find('.element .text').text(options['default']); // Initialize with default text
+					e.find('.element .text').css('color', '#333333'); // Set color of text
+
+				} else {
+					e.find('.element .text').css('color', '#000000'); // Set color of text
+				}
+
+			} else if (currentText === options['default']) {
+				if (event.keyCode !== 8) {
+					e.find('.element .text').text('');
+					e.find('.element .text').css('color', '#000000'); // Set color of text
+				}
+
+			} else {
+				e.find('.element .text').css('color', '#000000'); // Set color of text
+			}
+
+			// Update text
+			// e.find('.element .text').text(updatedText);
+
+			// Restore range
+			// window.getSelection().removeAllRanges();
+			// window.getSelection().addRange(currentSelectRange);
+		});
+
+		// Save if changes exist
+		e.find('.element .text').blur(function() {
+
+			// Get the text currently in the widget
+			var currentText = e.find('.element .text').text();
+
+			// If no text is entered but text is saved, revert to original text
+			if (currentText === '') {
+				if (e.find('.element').attr('data-text')) {
+					e.find('.element .text').text(e.find('.element').attr('data-text'));
+				}
+			}
+
+			// Get current text (after any pre-processing done above)
+			currentText = e.find('.element .text').text(); // Update current text
+
+			// Get saved text
+			var savedText = null;
+			if (e.find('.element').attr('data-text')) {
+				savedText = e.find('.element').attr('data-text');
+			}
+
+			console.log('changes: %s , %s', currentText, savedText);
+
+			// Save only if changed
+			if (currentText !== savedText) {
+				saveThought(e);
+			}
+		});
 	}
 }
 
@@ -998,6 +1822,9 @@ function setCurrentWidget(widget) {
 
 function addTimelineWidget(moment) {
 
+
+	console.log(moment.frameType);
+
 	// Add thought to timeline
 	if(moment.frameType === 'Thought') {
 		addThoughtWidget(moment);
@@ -1010,6 +1837,12 @@ function addTimelineWidget(moment) {
 
 	} else if(moment.frameType === 'Video') {
 		addVideoWidget(moment);
+
+	} else if(moment.frameType === 'Motion') {
+		addMotionWidget(moment);
+
+	} else if(moment.frameType === 'Sketch') {
+		addSketchWidget(moment);
 	}
 }
 
@@ -1071,7 +1904,7 @@ function addPhotoWidget(moment) {
 
 		// Update Account that authored the contribution
 		//if (thought.author && thought.username) {
-			e.find('.account').html('<strong>' + activity.author.username + '</strong>' + ' had a snapped a photo');
+			e.find('.account').html('<strong>' + activity.author.username + '</strong>' + ' snapped a photo');
 			console.log(activity.author.username);
 		//}
 
@@ -1209,6 +2042,225 @@ function addVideoWidget(moment) {
 		e.removeAttr('id'); // Remove 'id' attribute
 		e.appendTo('#narrative-list');
 		//e.find('.element .video').click(function() { changeVideo(e) });
+		e.show(); // Show element
+	}
+}
+
+
+
+
+//
+// Motion
+//
+
+function addMotionWidget(moment) {
+	console.log("addMotionWidget");
+
+	console.log(moment);
+
+	if(moment && moment.frame && moment.frame._id) {
+
+		var frame    = moment.frame;
+		var activity = frame.activity; // TODO: Update this based on current view for user
+
+		// Only continue if Thought frame is valid
+		if (!activity) return;
+
+		var e;
+		var div;
+
+		if ($("#motion-frame-" + frame._id).length != 0) {
+			// Frame exists, so update it
+			console.log("Found existing Motion widget. Updating widget.");
+
+			e = $('#motion-frame-' + frame._id); // <li> element
+			//div = e.find('.element .canvas');
+
+		} else {
+
+			// Widget does not exist for element does not exist, so create it
+			console.log("Could not find existing widget for Motion. Creating new Motion widget.");
+
+			// Clone template structure and remove 'id' element to avoid 'id' conflict
+			e = $('#motion-activity-template').clone().attr('id', 'volatile-activity');
+			e.addClass('activity-frame');
+			e.removeAttr('id'); // Remove 'id' attribute
+			//div = e.find('.element .canvas');
+		}
+
+		// Update 'li' for element
+		e.attr('id', 'motion-frame-' + frame._id);
+		e.attr('data-id', frame._id);
+		e.attr('data-timeline', frame.timeline);
+
+		// Update element
+		var div2 = e.find('.activity-widget .element');
+		div2.attr('id', 'motion-' + activity._id);
+		div2.attr('data-id', activity._id);
+		div2.attr('data-frame', activity.frame);
+		div2.attr('data-reference', activity.reference);
+		// div.attr('contenteditable', 'true');
+		// div.html(activity.text);
+
+
+		
+		// TODO: Render graph
+
+
+
+		// Update Account that authored the contribution
+		//if (thought.author && thought.username) {
+			e.find('.account').html('<strong>' + activity.author.username + '</strong>' + ' captured motion');
+			//console.log(activity.author.username);
+		//}
+
+		// Add Tags
+		e.find('.tags').off('blur');
+		e.find('.tags').blur(function() { saveTags(e); });
+
+		// Set image
+		// var image = e.find('.element .image');
+		// image.attr('src', '' + localStorage['host'] + activity.uri + '');
+
+		// image.click(function (event) {
+		// 	generatePhotoPage(event);
+		// });
+
+		if ($("#motion-frame-" + frame._id).length != 0) {
+		} else {
+
+			e.appendTo('#narrative-list');
+			//e.find('.element .image').click(function() { changePhoto(e) });
+			e.find('.element .options .timeline').click(function() { getTimeline({ moment_id: moment._id }); });
+			e.show(); // Show element
+		}
+
+		// Request Tags from server
+		getTags(e);
+
+		//
+		// Render plot.  Plot points on the canvas.
+		// NOTE: This should be done after adding the plot to the curation UI and making the plot visible.
+		//
+
+		if (activity.hasOwnProperty('points')) {
+
+			var graph = e.find('.element .canvas');
+			var context = graph[0].getContext('2d'); // Get canvas rendering context
+
+			drawGraph(graph, activity.points);
+		}
+
+	} else {
+
+		console.log("Creating new Motion widget.");
+
+		// Clone template structure and remove 'id' element to avoid 'id' conflict
+		e = $('#motion-activity-template').clone().attr('id', 'volatile-activity');
+		e.addClass('activity-frame');
+		e.removeAttr('id'); // Remove 'id' attribute
+		e.appendTo('#narrative-list');
+		//e.find('.element .image').click(function() { changePhoto(e) });
+		e.show(); // Show element
+	}
+}
+
+
+
+
+//
+// Sketch
+//
+
+function addSketchWidget(moment) {
+	console.log("addSketchWidget");
+
+	console.log(moment);
+
+	if(moment && moment.frame && moment.frame._id) {
+
+		var frame    = moment.frame;
+		var activity = frame.activity; // TODO: Update this based on current view for user
+
+		// Only continue if Thought frame is valid
+		if (!activity) return;
+
+		var e;
+		var div;
+
+		if ($("#sketch-frame-" + frame._id).length != 0) {
+			// Frame exists, so update it
+			console.log("Found existing sketch widget. Updating widget.");
+
+			e = $('#sketch-frame-' + frame._id); // <li> element
+			//div = e.find('.element .text');
+
+		} else {
+
+			// Widget does not exist for element does not exist, so create it
+			console.log("Could not find existing widget for sketch. Creating new sketch widget.");
+
+			// Clone template structure and remove 'id' element to avoid 'id' conflict
+			e = $('#sketch-activity-template').clone().attr('id', 'volatile-activity');
+			e.addClass('activity-frame');
+			e.removeAttr('id'); // Remove 'id' attribute
+			//div = e.find('.element .text');
+		}
+
+		// Update 'li' for element
+		e.attr('id', 'sketch-frame-' + frame._id);
+		e.attr('data-id', frame._id);
+		e.attr('data-timeline', frame.timeline);
+
+		// Update element
+		var div2 = e.find('.activity-widget .element');
+		div2.attr('id', 'sketch-' + activity._id);
+		div2.attr('data-id', activity._id);
+		div2.attr('data-frame', activity.frame);
+		div2.attr('data-reference', activity.reference);
+		// div.attr('contenteditable', 'true');
+		// div.html(activity.text);
+
+		// Update Account that authored the contribution
+		//if (thought.author && thought.username) {
+			e.find('.account').html('<strong>' + activity.author.username + '</strong>' + ' made a sketch');
+			console.log(activity.author.username);
+		//}
+
+		// Add Tags
+		e.find('.tags').off('blur');
+		e.find('.tags').blur(function() { saveTags(e); });
+
+		// Set image
+		var image = e.find('.element .image');
+		image.attr('src', activity.imageData);
+
+		// image.click(function (event) { 
+		// 	generatePhotoPage(event);
+		// });
+
+		if ($("#sketch-frame-" + frame._id).length != 0) {
+		} else {
+
+			e.appendTo('#narrative-list');
+			//e.find('.element .image').click(function() { changeSketch(e) });
+			e.find('.element .options .timeline').click(function() { getTimeline({ moment_id: moment._id }); });
+			e.show(); // Show element
+		}
+
+		// Request Tags from server
+		getTags(e);
+
+	} else {
+
+		console.log("Creating new Sketch widget.");
+
+		// Clone template structure and remove 'id' element to avoid 'id' conflict
+		e = $('#sketch-activity-template').clone().attr('id', 'volatile-activity');
+		e.addClass('activity-frame');
+		e.removeAttr('id'); // Remove 'id' attribute
+		e.appendTo('#narrative-list');
+		//e.find('.element .image').click(function() { changeSketch(e) });
 		e.show(); // Show element
 	}
 }
@@ -1505,7 +2557,7 @@ function getTags(e) {
 		dataType: 'json',
 		success: function(data) {
 			// console.log('Received protected thoughts (success).');
-			console.log(data);
+			// console.log(data);
 
 			$(e).find('.tags').html('');
 			for (tag in data) {
@@ -1579,6 +2631,7 @@ function saveTags(e) {
 	// Save each tag
 	var uniqueTagCount = uniqueTags.length;
 	console.log('unique: ' + uniqueTagCount);
+
 	for (var i = 0; i < uniqueTagCount; i++) {
 
 		// Construct JSON object for element to save
@@ -1620,7 +2673,7 @@ function saveTags(e) {
 				console.log('Updated Tags.');
 			},
 			error: function() {
-				console.log('Failed to save Tags for .');
+				console.log('Failed to save Tags.');
 			}
 		});
 	}

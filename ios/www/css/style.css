@@ -215,8 +215,11 @@ narrative-templates {
   font-weight:100;
 }
 
-.float-page {
+/* "Tool" widget style */
+
+.tool-widget {
   position: fixed;
+
   bottom: 0;
   right: 0;
   width: 100%;
@@ -224,12 +227,41 @@ narrative-templates {
   background: #ffffff;
   color: #000000;
   z-index: 1000;
+}
 
-  
+.tool-table {
+	display: table;
+
+	bottom: 0;
+	right: 0;
+	width: 100%;
+	height: 100%;
+	z-index: 1000;
+}
+
+.tool-table-row {
+    display: table-row;
+}
+
+.tool-table-cell {
+	display: table-cell;
+}
+
+/* "Page" widget style */
+
+.float-page {
+	position: fixed;
+	bottom: 0;
+	right: 0;
+	width: 100%;
+	height: 100%;
+	background: #ffffff;
+	color: #000000;
+	z-index: 1000;
 }
 
 .float-page-table {
-    display: table;
+	display: table;
 
 	bottom: 0;
 	right: 0;
@@ -239,21 +271,21 @@ narrative-templates {
 }
 
 .float-page-row {
-    display: table-row;
+	display: table-row;
 }
 
 .float-page-cell {
-  display: table-cell;
+	display: table-cell;
 }
 
 .float-page-p {
-  display: table-cell;
+	display: table-cell;
 
-  vertical-align: middle;
-  text-align: center;
+	vertical-align: middle;
+	text-align: center;
 
-  font-family: HelvNeue;
-  font-weight: 100;
-  
-  font-size: 50pt;
+	font-family: HelvNeue;
+	font-weight: 100;
+
+	font-size: 50pt;
 }

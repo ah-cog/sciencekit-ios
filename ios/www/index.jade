@@ -6,9 +6,10 @@ block content
 
 	div(id="host-settings", style="display: table; width: 100%;")
 		p(style='margin: 4px 40px 4px 40px; font-size: 35px; color: #444444;')
-			| where's the server?
+			| where's the story?
 		p(style='margin: 4px 40px 4px 40px; font-size: 18px; color: #777777;')
-			| touch the green checkmark to proceed
+			| 1. enter sciencekit server address<br />
+			| 2. touch the green checkmark to proceed
 
 		div(style="display: table-row;")
 
@@ -143,7 +144,28 @@ block content
 		// Determine initial state of GUI
 		//
 
-		updateGui();
+		function verifyServer() {
+			if (localStorage['host'] !== undefined && localStorage['host'] !== null) {
+				$.ajax({
+					type: 'GET',
+					url: localStorage['host'] + '/api/status',
+					dataType: 'json',
+					timeout: 4000,
+					success: function(data) {
+
+						// Success
+						updateGui();
+					},
+					error: function(x, t, m) {
+
+						delete localStorage['host'];
+						updateGui();
+					},
+				});
+			}
+		}
+
+		verifyServer();
 
 		// host
 		// client_id
