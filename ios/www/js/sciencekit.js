@@ -752,6 +752,8 @@ function getTimeline(options) {
 				//$('#narrative-list').get(0).find('.timeline-branch').css('display', 'none');
 				$($('#narrative-list li').get(0)).find('.timeline-branch').css('visibility', 'hidden');
 
+				scrollToTop();
+
 			} else {
 				$('#sciencekit-logo').show();
 				$('#timeline-intro-text').show();
@@ -1612,7 +1614,7 @@ function addThoughtWidget(moment) {
 		// Set up Widget-specific event handlers
 		//
 		var options = {};
-		options['default'] = 'touch'; // Set parameters
+		options['default'] = 'touch here to add thought'; // Set parameters
 
 		if (!e.find('.element').attr('data-text')) {
 			e.find('.element .text').text(options['default']); // Initialize with default text
@@ -1861,6 +1863,9 @@ function addTimelineWidget(moment) {
 
 	} else if(moment.frameType === 'Sketch') {
 		addSketchWidget(moment);
+
+	} else if(moment.frameType === 'Narration') {
+		addNarrationWidget(moment);
 	}
 }
 
@@ -1892,6 +1897,7 @@ function addPhotoWidget(moment) {
 			console.log("Found existing photo widget. Updating widget.");
 
 			e = $('#frame-' + perspective.frame); // <li> element
+			e.find('.timeline').click(function() { getTimeline({ moment_id: moment._id }); });
 			//div = e.find('.element .text');
 
 		} else {
@@ -1950,7 +1956,7 @@ function addPhotoWidget(moment) {
 		}
 
 		// Update Frame based on FrameView for current user's Account
-		if (frame.visible === false) {
+		if (perspective.visible === false) {
 			$(e).addClass('hidden')
 			$(e).find('.hide').attr('src', './img/plus-red.png');
 			$(e).hide();
@@ -2001,6 +2007,8 @@ function addVideoWidget(moment) {
 			console.log("Found existing Video widget. Updating widget.");
 
 			e = $('#frame-' + frame.frame); // <li> element
+
+			e.find('.timeline').click(function() { getTimeline({ moment_id: moment._id }); });
 			//div = e.find('.element .text');
 
 		} else {
@@ -2110,6 +2118,8 @@ function addMotionWidget(moment) {
 			console.log("Found existing Motion widget. Updating widget.");
 
 			e = $('#frame-' + frame.frame); // <li> element
+
+			e.find('.timeline').click(function() { getTimeline({ moment_id: moment._id }); });
 			//div = e.find('.element .canvas');
 
 		} else {
@@ -2249,6 +2259,8 @@ function addSketchWidget(moment) {
 			e = $('#sketch-activity-template').clone().attr('id', 'volatile-activity');
 			e.addClass('activity-frame');
 			e.removeAttr('id'); // Remove 'id' attribute
+
+			e.find('.timeline').click(function() { getTimeline({ moment_id: moment._id }); });
 			//div = e.find('.element .text');
 		}
 
@@ -2328,6 +2340,166 @@ function addSketchWidget(moment) {
 		//e.find('.element .image').click(function() { changeSketch(e) });
 		e.show(); // Show element
 	}
+}
+
+
+
+
+//
+// Narration
+//
+
+function addNarrationWidget(moment) {
+	console.log("addNarrationWidget");
+
+	console.log(moment);
+
+	if(moment && moment.frame && moment.frame._id) {
+
+		var perspective    = moment.frame;
+		var activity = perspective.activity; // TODO: Update this based on current view for user
+
+		// Only continue if Thought frame is valid
+		if (!activity) return;
+
+		var e;
+		var div;
+
+		if ($("#frame-" + perspective.frame).length != 0) {
+			// Frame exists, so update it
+			console.log("Found existing photo widget. Updating widget.");
+
+			
+			e.find('.timeline').click(function() { getTimeline({ moment_id: moment._id }); });
+
+			e = $('#frame-' + perspective.frame); // <li> element
+			div = e.find('.text');
+
+		} else {
+
+			// Widget does not exist for element does not exist, so create it
+			console.log("Could not find existing widget for photo. Creating new photo widget.");
+
+			// Clone template structure and remove 'id' element to avoid 'id' conflict
+			e = $('#narration-activity-template').clone().attr('id', 'volatile-activity');
+			e.addClass('activity-frame');
+			e.removeAttr('id'); // Remove 'id' attribute
+			div = e.find('.text');
+		}
+
+		// Update 'li' for element
+		e.attr('id', 'frame-' + perspective.frame);
+		e.attr('data-id', perspective.frame);
+		e.attr('data-timeline', perspective.timeline);
+
+		// Update element
+		var div2 = e.find('.activity-widget .element');
+		div2.attr('id', 'photo-' + activity._id);
+		div2.attr('data-id', activity._id);
+		div2.attr('data-frame', activity.frame);
+		div2.attr('data-reference', activity.reference);
+		div.attr('contenteditable', 'true');
+		div.html(activity.text);
+
+		// Update Account that authored the contribution
+		//if (thought.author && thought.username) {
+			e.find('.account').html('<strong>' + activity.author.username + '</strong>' + ' says');
+			console.log(activity.author.username);
+		//}
+
+		// Add Tags
+		e.find('.tags').off('blur');
+		e.find('.tags').blur(function() { saveTags(e); });
+
+		// Set image
+		// var image = e.find('.element .image');
+		// image.attr('src', '' + localStorage['host'] + activity.uri + '');
+
+		// image.click(function (event) { 
+		// 	generatePhotoPage(event);
+		// });
+
+		if ($("#frame-" + perspective.frame).length != 0) {
+		} else {
+
+			e.appendTo('#narrative-list');
+			//e.find('.element .image').click(function() { changePhoto(e) });
+			e.find('.element .options .timeline').click(function() { getTimeline({ moment_id: moment._id }); });
+			e.find('.hide').click(function() { toggleWidget(e); });
+			e.find('.text').blur(function() { saveNarration(e); });
+
+			e.show(); // Show element
+		}
+
+		// Update Frame based on FrameView for current user's Account
+		if (perspective.visible === false) {
+			$(e).addClass('hidden');
+			$(e).find('.hide').attr('src', './img/plus-red.png');
+			$(e).hide();
+		}
+
+		// Request Tags from server
+		getTags(e);
+
+	} else {
+
+		console.log("Creating new photo widget.");
+
+		// Clone template structure and remove 'id' element to avoid 'id' conflict
+		e = $('#narration-activity-template').clone().attr('id', 'volatile-activity');
+		e.addClass('activity-frame');
+		e.removeAttr('id'); // Remove 'id' attribute
+		e.appendTo('#narrative-list');
+		//e.find('.element .image').click(function() { changePhoto(e) });
+		e.find('.text').blur(function() { saveNarration(e); });
+		e.show(); // Show element
+	}
+}
+
+function saveNarration(e) {
+	console.log('saveNarration');
+
+	var widget  = e.find('.activity-widget');
+	var element = e.find('.activity-widget .element');
+	var text    = e.find('.element .text');
+
+	// Construct JSON object for element to save
+	var dataJSON = {
+		"timeline": $("#narrative-list").attr("data-timeline"),
+		"text": e.find('.text').text()
+	};
+
+	if(element.attr("data-frame")) dataJSON.frame = element.attr("data-frame");
+	if(element.attr("data-id")) dataJSON.reference = element.attr("data-id"); // Set the element to the reference, since it was edited.
+
+	console.log("Saving Narration (JSON): ");
+	console.log(dataJSON);
+	// POST the JSON object
+
+	$.ajax({
+		type: 'POST',
+		beforeSend: function(request) {
+			request.setRequestHeader('Authorization', 'Bearer ' + localStorage['token']);
+		},
+		url: localStorage['host'] + '/api/narration',
+		dataType: 'json',
+		contentType: 'application/json; charset=utf-8',
+		data: JSON.stringify(dataJSON),
+		processData: false,
+		success: function(data) {
+			console.log('Saved Narration: ');
+			console.log(data);
+
+			// Set element container (e.g., Narration). Only gets set once.
+			$(e).attr('id', 'frame-' + data.frame._id); // e.data('id', data._id);
+			addTimelineWidget(e);
+
+			console.log('Updated Narration element.');
+		},
+		error: function() {
+			console.log('Failed to save Narration.');
+		}
+	});
 }
 
 
