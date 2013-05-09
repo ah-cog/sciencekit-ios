@@ -110,7 +110,8 @@ block content
 				img(src="./img/blank.png", width="50", height="50", style="padding: 10px;")
 				
 			div(style="display: table-cell; width: 100%; padding-left: 10px; padding-top: 20px;")
-				p(class="tagline") and now <strong>you</strong> do something
+				//p(class="tagline") and now <strong>you</strong> do something
+				p(class="tagline") and then what happened?
 
 		div(style="display: table-row;")
 			div(style="display: table-cell; text-align: center; vertical-align: middle; width: 50px;")
@@ -135,6 +136,8 @@ block content
 							mixin option('sketch', 'sketch', './img/palette.png', 'openSketchTool();')
 						div(style="display: table-cell;")
 							mixin option('photo', 'photo', './img/camera.png', 'capturePhotoToURI();')
+						div(style="display: table-cell;")
+							mixin option('narrate', 'narrate', './img/typewriter.png', 'openNarrateTool();')
 
 				//mixin option('avatar', 'avatar', './img/camera.png', 'captureAvatarToURI();')
 

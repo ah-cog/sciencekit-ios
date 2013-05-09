@@ -1033,6 +1033,11 @@ function openSketchTool() {
 function saveSketch() {
 	console.log('saveSketch');
 
+	// Hide palette tools
+	hidePaletteTools();
+
+	console.log('saving canvas');
+
 	// Save canvas to image
 	var c = $('#sketch-tool').find('.canvas');
 	var oImgPNG = Canvas2Image.saveAsPNG(c[0], true);
@@ -1040,6 +1045,8 @@ function saveSketch() {
 
 	// Send image to server
 	var base64ImageData = $(oImgPNG).attr('src');
+	var imageWidth = $(c).width();
+	var imageHeight = $(c).height();
 
 	// var widget  = e.find('.activity-widget');
 	// var element = e.find('.activity-widget .element');
@@ -1048,7 +1055,9 @@ function saveSketch() {
 	// Construct JSON object for element to save
 	var dataJSON = {
 		"timeline": $("#narrative-list").attr("data-timeline"),
-		"imageData": base64ImageData
+		"imageData": base64ImageData,
+		"imageWidth": imageWidth,
+		"imageHeight": imageHeight
 	};
 
 	// if(element.attr("data-frame")) dataJSON.frame = element.attr("data-frame");
@@ -1074,7 +1083,7 @@ function saveSketch() {
 
 			// Set element container (e.g., Thought). Only gets set once.
 			// $(e).attr('id', 'frame-' + data.frame._id); // e.data('id', data._id);
-			addTimelineWidget(e);
+			addTimelineWidget(data);
 			//addSketchWidget();
 
 			console.log('Updated Sketch element.');
@@ -1102,6 +1111,10 @@ var brushSizeOptions = [];
 // Canvas model
 var sketchStrokePaths = [];
 
+// Sketch tool paremters
+var renderPaletteTools = true;
+var paletteTools = [];
+
 // Drawing tools (color palette and brush size)
 var paletteX = 10;
 var paletteY = 10;
@@ -1112,6 +1125,14 @@ var width = 65;
 var height = 65;
 var colorPaletteRectangleRadius = 5;
 var cols = 15;
+
+function hidePaletteTools() {
+	for(var i in paletteTools) {
+		paletteTools[i].alpha = 0;
+		//stage.removeChild(paletteTools[i]);
+	}
+	stage.update();
+}
 
 // Initialize the canvas
 function initializeSketchTool() {
@@ -1163,7 +1184,6 @@ function initializeSketchTool() {
 		//s.graphics.beginFill(s.outColor).drawRect(0, 0, width, height).endFill();
 		s.graphics.beginFill(s.outColor).drawRoundRect(0, 0, width, height, colorPaletteRectangleRadius).endFill();
 		s.x = paletteX + (width + padding) * (i % cols);
-		//s.y = paletteY + (height + padding) * (i / cols | 0);
 		s.y = paletteY + (height + padding) * (i / cols | 0);
 
 		// Set up events to make the shape interactive
@@ -1171,6 +1191,8 @@ function initializeSketchTool() {
 		s.addEventListener("click", handleMouseClick);
 		s.addEventListener("mouseout", handleMouseOut);
 		stage.addChild(s);
+
+		paletteTools.push(s);
 	}
 
 	//
@@ -1180,17 +1202,22 @@ function initializeSketchTool() {
 		var s = new createjs.Shape(); // Create "button"
 		s.overColor = "#3281FF";
 		s.outColor = paletteColors[i];
-		s.radius = 10 + 3 * i;
+		s.radius = 5 + 3 * i;
 		s.graphics.beginFill(s.outColor).drawCircle(0, 0, 10 + 3 * i).endFill();
 		s.x = 50 + (width + padding) * (i % cols);
 		s.y = $(sketchCanvas).height() - (height + padding) - 50;
 
 		// Set up events to make the shape interactive
-		s.onMouseOver = handleMouseOverBrush;
-		s.onMouseOut = handleMouseOutBrush;
+		// s.onMouseOver = handleMouseOverBrush;
+		// s.onMouseOut = handleMouseOutBrush;
+		//s.addEventListener("mouseover", handleMouseOverBrush);
+		s.addEventListener("click", handleMouseOverBrush);
+		//s.addEventListener("mouseout", handleMouseOutBrush);
 
 		brushSizeOptions.push(s);
 		stage.addChild(s);
+
+		paletteTools.push(s);
 	}
 
 	// Initialize color palette state
@@ -1274,25 +1301,22 @@ function handleTick() {
 // Painting. Handle mouse down event.
 function handleMouseDown(event) {
 
-// Make sure no object is under the brush.  Only paint when there's nothing under the brush.
-var object = stage.getObjectUnderPoint(stage.mouseX, stage.mouseY);
-	if (object != null) {
-		return;
-	}
-	//alert(object);
+	// Make sure no object is under the brush.  Only paint when there's nothing under the brush.
+	var object = stage.getObjectUnderPoint(stage.mouseX, stage.mouseY);
+	// if (object !== null) {
+	// 	return;
+	// }
 
-	if (stage.contains(title)) { 
+	if (stage.contains(title)) {
 		stage.clear(); stage.removeChild(title);
 	}
-	//color = colors[(index++)%colors.length];
 	color = currentPaletteColor;
-	//stroke = Math.random()*30 + 10 | 0;
 	stroke = currentPalleteSize;
 	oldPt = new createjs.Point(stage.mouseX, stage.mouseY);
 	oldMidPt = oldPt;
 
-	// Add event listener for mouse movement.
-	// i.e., Start listening for mouse movements.
+	// Add event listener for mouse movement
+	// i.e., Start listening for mouse movements
 	stage.addEventListener("stagemousemove" , handleMouseMove);
 }
 
@@ -1432,14 +1456,6 @@ function addThoughtWidget(moment) {
 
 		// Update options for widget
 		var options = e.find('.activity-widget .element .options');
-		if (thoughtFrame.visible === true) {
-			console.log("Hiding widget");
-			options.find('.hide').click(function() { hideThought(e); });
-		} else {
-			console.log("Showing widget");
-			options.find('.hide').click(function() { showThought(e); });
-		}
-
 		options.find('.open').click(function() { getNextThought(e); });
 
 		if ($("#frame-" + thoughtFrame.frame).length != 0) {
@@ -1456,6 +1472,9 @@ function addThoughtWidget(moment) {
 			e.find('.tags').blur(function() { saveTags(e); });
 			//e.find('.element .options .timeline').click(function() { getTimeline({ moment_id: moment._id }); });
 			e.find('.timeline').click(function() { getTimeline({ moment_id: moment._id }); });
+			e.find('.hide').click(function() { toggleWidget(e); });
+		
+
 			e.show(); // Show element
 
 			//
@@ -1764,7 +1783,7 @@ function addTopicWidget(moment) {
 			e.appendTo('#narrative-list');
 			e.find('.element .text').blur(function() { saveTopic(e); });
 			e.find('.element .options .timeline').click(function() { getTimeline({ moment_id: moment._id }); });
-			e.find('.hide').click(function() { toggleTopic(e); });
+			e.find('.hide').click(function() { toggleWidget(e); });
 
 			e.show(); // Show element
 		}
@@ -1925,7 +1944,16 @@ function addPhotoWidget(moment) {
 			e.appendTo('#narrative-list');
 			//e.find('.element .image').click(function() { changePhoto(e) });
 			e.find('.element .options .timeline').click(function() { getTimeline({ moment_id: moment._id }); });
+			e.find('.hide').click(function() { toggleWidget(e); });
+
 			e.show(); // Show element
+		}
+
+		// Update Frame based on FrameView for current user's Account
+		if (frame.visible === false) {
+			$(e).addClass('hidden')
+			$(e).find('.hide').attr('src', './img/plus-red.png');
+			$(e).hide();
 		}
 
 		// Request Tags from server
@@ -2025,7 +2053,16 @@ function addVideoWidget(moment) {
 			e.appendTo('#narrative-list');
 			//e.find('.element .video').click(function() { changeVideo(e) });
 			e.find('.element .options .timeline').click(function() { getTimeline({ moment_id: moment._id }); });
+			e.find('.hide').click(function() { toggleWidget(e); });
+
 			e.show(); // Show element
+		}
+
+		// Update Frame based on FrameView for current user's Account
+		if (frame.visible === false) {
+			$(e).addClass('hidden')
+			$(e).find('.hide').attr('src', './img/plus-red.png');
+			$(e).hide();
 		}
 
 		// Request Tags from server
@@ -2131,7 +2168,16 @@ function addMotionWidget(moment) {
 			e.appendTo('#narrative-list');
 			//e.find('.element .image').click(function() { changePhoto(e) });
 			e.find('.element .options .timeline').click(function() { getTimeline({ moment_id: moment._id }); });
+			e.find('.hide').click(function() { toggleWidget(e); });
+
 			e.show(); // Show element
+		}
+
+		// Update Frame based on FrameView for current user's Account
+		if (frame.visible === false) {
+			$(e).addClass('hidden')
+			$(e).find('.hide').attr('src', './img/plus-red.png');
+			$(e).hide();
 		}
 
 		// Request Tags from server
@@ -2244,11 +2290,31 @@ function addSketchWidget(moment) {
 			e.appendTo('#narrative-list');
 			//e.find('.element .image').click(function() { changeSketch(e) });
 			e.find('.element .options .timeline').click(function() { getTimeline({ moment_id: moment._id }); });
+			e.find('.hide').click(function() { toggleWidget(e); });
+		
+
 			e.show(); // Show element
+		}
+		
+		// Update Frame based on FrameView for current user's Account
+		if (frame.visible === false) {
+			$(e).addClass('hidden')
+			$(e).find('.hide').attr('src', './img/plus-red.png');
+			$(e).hide();
 		}
 
 		// Request Tags from server
 		getTags(e);
+
+		// Update the Widget (updates that can only happen after displaying the widget)
+		if (activity.hasOwnProperty('imageWidth') && activity.hasOwnProperty('imageHeight')) {
+			var ratio = activity.imageWidth / activity.imageHeight;
+			var adjustedImageWidth = $(image).parent().width();
+			var adjustedImageHeight = Math.floor(adjustedImageWidth / ratio);
+			console.log('adjustedWidth/Height: ' + ratio + ', ' + adjustedImageWidth + ', ' + adjustedImageHeight);
+			image.attr('width', adjustedImageWidth);
+			image.attr('height', adjustedImageHeight);
+		}
 
 	} else {
 
@@ -2727,12 +2793,14 @@ function saveTopic(e) {
 	});
 }
 
-function toggleTopic(e) {
-	console.log('toggleTopic');
+function toggleWidget(e) {
+	console.log('toggleWidget');
 
 	var widget  = e.find('.activity-widget');
 	var element = e.find('.activity-widget .element');
 	var text    = e.find('.element .text');
+
+	var activityType = e.attr('data-activity-type');
 
 	// Construct JSON object for element to save
 	var dataJSON = {
@@ -2751,7 +2819,7 @@ function toggleTopic(e) {
 	//if(element.attr("data-frame")) dataJSON.frame = element.attr("data-frame");
 	//if(element.attr("data-id")) dataJSON.reference = element.attr("data-id"); // Set the element to the reference, since it was edited.
 
-	console.log("Toggling Topic (JSON): ");
+	console.log("Toggling Widget (JSON): ");
 	console.log(dataJSON);
 	// POST the JSON object
 
@@ -2766,7 +2834,7 @@ function toggleTopic(e) {
 		data: JSON.stringify(dataJSON),
 		processData: false,
 		success: function(data) {
-			console.log('Updated Topic: ');
+			console.log('Updated Widget: ');
 			console.log(data);
 
 			if (data.visible) {
@@ -2774,19 +2842,19 @@ function toggleTopic(e) {
 				e.fadeIn();
 				$(e).find('.hide').attr('src', './img/cross-gray.png');
 				$(e).find('.hide').off('click');
-				$(e).find('.hide').click(function() { hideThought(e); });
+				$(e).find('.hide').click(function() { toggleWidget(e); });
 			} else {
 				e.addClass('hidden');
 				e.fadeOut();
 				$(e).find('.hide').attr('src', './img/plus-red.png');
 				$(e).find('.hide').off('click');
-				$(e).find('.hide').click(function() { showThought(e); });
+				$(e).find('.hide').click(function() { toggleWidget(e); });
 			}
 
-			console.log('Updated Topic element.');
+			console.log('Updated Widget element.');
 		},
 		error: function() {
-			console.log('Failed to PUT Topic.');
+			console.log('Failed to PUT Widget.');
 		}
 	});
 }
