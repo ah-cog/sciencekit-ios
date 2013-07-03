@@ -2,7 +2,8 @@
 2. touch the green checkmark to proceed</p><div style="display: table-row;"><div style="display: table-cell; position: relative; z-index: 0; width: 100%;"><div class="text-input-widget"><div style="display: table; width: 100%;" class="element-table"><div style="display: table-row;" class="element"><div style="display: table-cell; min-width: 100%; vertical-align: middle;" class="text"><input type="text" id="hostAddressInput"></div><div style="width: 75px; display: table-cell; text-align: right; vertical-align: middle;" class="options"><img id="hostAddressSave" src="./img/check.png" style="display: none;"><img id="hostAddressInvalid" src="./img/cross-red.png" style="display: none;"></div></div></div></div></div></div></div><div id="authorize" style="display: none;"><p class="login-step"><a href="javascript:void(0);" onclick="openChildBrowser();">connect</a></p></div><script>window.onload = function() {
 
  // DEBUG: Hack for Kidsteam
- $('#hostAddressInput').val('http://129.2.101.49:3000');
+ //$('#hostAddressInput').val('http://129.2.101.49:3000');
+ $('#hostAddressInput').val('http://10.109.80.85:3000');
  updateAddressInput();
  
  // Reset localStorage

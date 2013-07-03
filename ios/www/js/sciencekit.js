@@ -710,7 +710,7 @@ function getTimeline(options) {
 				addTimelineWidget(data.moments[moment]);
 			}
 
-			console.log('timelineStack.length = ' + timelineStack.length);
+			//console.log('timelineStack.length = ' + timelineStack.length);
 
 			//
 			// Save Timeline on stack
@@ -2100,7 +2100,7 @@ function addVideoWidget(moment) {
 function addMotionWidget(moment) {
 	console.log("addMotionWidget");
 
-	console.log(moment);
+	//console.log(moment);
 
 	if(moment && moment.frame && moment.frame._id) {
 
@@ -2369,7 +2369,7 @@ function addNarrationWidget(moment) {
 			// Frame exists, so update it
 			console.log("Found existing photo widget. Updating widget.");
 
-			
+
 			e.find('.timeline').click(function() { getTimeline({ moment_id: moment._id }); });
 
 			e = $('#frame-' + perspective.frame); // <li> element
