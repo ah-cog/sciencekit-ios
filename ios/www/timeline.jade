@@ -11,17 +11,61 @@ block content
 	//a(id="account-list", href="javascript:void(0);") Request resource (using access token)
 	//p(id="resource_response") no resource received
 
+	.edge(id="logo", style="position: fixed; left: 80px; top: 0px; text-align: right; font-size: 30px; padding-right: 10px; z-index: 1001;")
+		img(id="logo", src="./img/sciencekit-logo.png", alt="sciencekit logo", style="margin-top: 0px; width: 230px;")
+
 	.edge(id="top", style="text-align: right; font-size: 30px; padding-right: 10px; z-index: 1000;")
 		//a(a(href="javscript:void(0);", onclick="generateStory();") 
 		//	img(src="./img/story-time.png", alt="story time")
-		//a(href="javascript:void(0);", onclick="scrollTickle();") 
-		//	img(src="./img/search.png", alt="search") 
-		a(href="javascript:void(0);", onclick="showHiddenFrames();") 
-			img(src="./img/history.png", alt="show whole story") 
+		a(href="javascript:void(0);", onclick="scrollTickle();") 
+			img(src="./img/search.png", alt="search") 
+		//a(href="javascript:void(0);", onclick="showHiddenFrames();") 
+		//	img(src="./img/history.png", alt="show whole story") 
 		a(href="./timeline.html") 
 			img(src="./img/refresh.png", alt="refresh") 
 		a(href="javscript:void(0);", onclick="scrollToTop();") 
 			img(src="./img/up-arrow.png", alt="top")
+
+	.edge(id="toolkit-options", style="position: fixed; right: 0px; top: 100px; text-align: right; font-size: 30px; padding-right: 10px; z-index: 1000;")
+		a(href="javascript:void(0);", onclick="openQuestionTool();") 
+			img(src="./img/question.png", width="50px", alt="question")
+		br
+
+		a(href="javascript:void(0);", onclick="openSketchTool();") 
+			img(src="./img/cause-and-effect.png", width="50px", alt="observation")
+		br
+
+		a(href="javascript:void(0);", onclick="openSketchTool();") 
+			img(src="./img/step-by-step.png", width="50px", alt="sequence")
+		br
+
+		a(href="javascript:void(0);", onclick="addThoughtWidget();scrollToBottom();") 
+			img(src="./img/thought.png", width="50px", alt="thought")
+		br
+
+		a(href="javascript:void(0);", onclick="capturePhotoToURI();") 
+			img(src="./img/camera.png", width="50px", alt="image")
+		br
+
+		a(href="javascript:void(0);", onclick="captureVideo2();scrollToBottom();") 
+			img(src="./img/video.png", width="50px", alt="video")
+		br
+
+		a(href="javascript:void(0);", onclick="openSketchTool();") 
+			img(src="./img/palette.png", width="50px", alt="sketch")
+		br
+
+		a(href="javascript:void(0);", onclick="addThoughtWidget();scrollToBottom();") 
+			img(src="./img/story.png", width="50px", alt="story")
+
+	.edge(id="toolkit-tool-options", style="position: fixed; right: 0px; top: 100px; text-align: right; font-size: 30px; padding-right: 10px; z-index: 1000;")
+		a(href="javascript:void(0);", onclick="cancelTool();") 
+			img(src="./img/cross-red.png", width="50px", alt="cancel")
+		br
+
+		a(href="javascript:void(0);", onclick="saveTool();") 
+			img(src="./img/check.png", width="50px", alt="done")
+
 
 	//
 	// Templates for Timeline Widgets (this is not visible)
@@ -39,20 +83,7 @@ block content
 	// Top of interface
 	//
 
-	div(style="display: table; width: 100%; margin: 0px; margin-top: 20px; padding: 0px;")
-
-		//
-		// Link to "previous timeline" (if any)
-		//
-
-		div(style="display: table-row;", id="previous-timeline-widget")
-			div(style="display: table-cell; text-align: center; vertical-align: middle; width: 70px; background-image: url(./img/timeline-edge-to-previous.png); background-repeat: no-repeat; background-position: right bottom;")
-				img(src="./img/blank.png", width="72", height="50", style="padding: 0px;")
-				
-				
-			div(style="display: table-cell; width: 100%; padding-left: 10px;")
-				p(style="font-size: 40px; margin-top: 40px; color: #bbbbbb; margin-bottom: 35px;")
-					a(class="link", href="javascript:void(0);") go back
+	div(style="display: table; width: 100%; margin: 0px; margin-top: 0px; padding: 0px;")
 
 		//
 		// ScienceKit logo (shown on "default" timeline)
@@ -62,19 +93,159 @@ block content
 			div(style="display: table-cell; text-align: center; vertical-align: middle; width: 30px;")
 				img(src="./img/blank.png", width="50", height="50", style="padding: 10px;")
 				
-			div(style="display: table-cell; width: 100%; border-left: 2px solid #f16521; padding-left: 10px;")
-				img(id="logo", src="./img/sciencekit-logo.png", alt="sciencekit logo", style="margin-top: 50px;")
+			div(style="display: table-cell; width: 100%; border-left: 0px solid #f16521; padding-left: 10px;")
+				&nbsp;
 
 		//
 		// Timeline introductory text (e.g., "once upon a time")
 		//
 
-		div(style="display: table-row;", id="timeline-intro-text")
-			div(style="display: table-cell; text-align: center; vertical-align: middle; width: 30px;")
-				img(src="./img/blank.png", width="30", height="30", style="padding: 10px;")
+		//div(style="display: table-row;", id="timeline-intro-text")
+		//	div(style="display: table-cell; text-align: center; vertical-align: middle; width: 30px;")
+		//		img(src="./img/blank.png", width="30", height="30", style="padding: 10px;")
 
-			div(style="display: table-cell; width: 100%; border-left: 2px solid #f16521; padding-left: 10px;")
-				p(id="beginning", class="tagline") once upon a time
+		//	div(style="display: table-cell; width: 100%; border-left: 2px solid #f16521; padding-left: 10px;")
+		//		p(id="beginning", class="tagline") all inquiry data
+
+	//
+	// Toolkit tool interfaces
+	//
+
+	ul(id="toolkit-list")
+		li(id="thought-activity-template", class="tool-template")
+			div(style="display: table; width: 100%;")
+
+				//
+				// Think/Do (Science/Art)
+				//
+
+				div(style="display: table-row;")
+					div(style="display: table-cell; text-align: center; vertical-align: middle;")
+						img(src="./img/blank.png", width="50", height="0", style="padding: 10px;")
+					div(class="account", style="display: table-cell; position: relative; z-index: 0; width: 100%; border-left: 0px solid #f16521; vertical-align: middle; padding-left: 22px; padding-top: 10px; font-size: 20px; color: #666666;")
+						| What do you <strong>wonder</strong>? (Type/Create)
+
+				div(style="display: table-row;")
+					div(style="display: table-cell; text-align: center; vertical-align: middle;")
+						img(src="./img/thought.png", width="50", height="50", style="padding: 10px;")
+
+					div(style="display: table-cell; position: relative; z-index: 0; width: 100%; border-left: 0px solid #f16521;")
+
+						div(class="tool-section")
+							div(class="text-input-widget")
+								div(class="element-table", style="display: table; width: 100%;")
+
+										div(class="element", style="display: table-row;")
+											div(class="text", style="display: table-cell; min-width: 100%; vertical-align: middle;")
+												input(type='text', id='questionText')
+
+											div(class="options", style="width: 75px; display: table-cell; text-align: right; vertical-align: middle;")
+												img(id="hostAddressSave", src="./img/check.png", style="display: none;")
+												img(id="hostAddressInvalid", src="./img/cross-red.png", style="display: none;")
+
+		li(id="tool-extra-options", class="tool-template")
+			div(style="display: table; width: 100%;")
+
+				div(style="display: table-row;")
+					div(style="display: table-cell; text-align: center; vertical-align: middle;")
+						img(src="./img/blank.png", width="50", height="0", style="padding: 0px;")
+					div(style="display: table-cell; position: relative; z-index: 0; width: 100%; border-left: 0px solid #f16521; vertical-align: middle; padding-left: 0px; padding-top: 10px; font-size: 20px; color: #666666;")
+						hr(style='margin-bottom: 14px; margin-top: 14px; margin-right: 70px; height: 1px; border: none; background-color: #dddddd;')
+
+				//
+				// Collaborate
+				//
+
+				div(style="display: table-row;")
+					div(style="display: table-cell; text-align: center; vertical-align: middle;")
+						img(src="./img/blank.png", width="50", height="0", style="padding: 10px;")
+					div(class="account", style="display: table-cell; position: relative; z-index: 0; width: 100%; border-left: 0px solid #f16521; vertical-align: middle; padding-left: 22px; padding-top: 10px; font-size: 20px; color: #666666;")
+						| Who else helped you with this just now? (Select everyone)
+
+				div(style="display: table-row;")
+					div(style="display: table-cell; text-align: center; vertical-align: middle;")
+						img(src="./img/blank.png", width="50", height="50", style="padding: 10px;")
+
+					div(style="display: table-cell; position: relative; z-index: 0; width: 100%; border-left: 0px solid #f16521;")
+
+						div(class="activity-widget")
+							div(class="element-table", style="display: table; width: 100%;")
+
+									// Core activity
+									div(class="element", style="display: table-row;")
+										div(id="collaborator-options", class="text", style="display: table-cell; min-width: 100%; vertical-align: middle;")
+
+				//
+				// Feel
+				//
+
+				div(style="display: table-row;")
+					div(style="display: table-cell; text-align: center; vertical-align: middle;")
+						img(src="./img/blank.png", width="50", height="0", style="padding: 10px;")
+					div(class="account", style="display: table-cell; position: relative; z-index: 0; width: 100%; border-left: 0px solid #f16521; vertical-align: middle; padding-left: 22px; padding-top: 10px; font-size: 20px; color: #666666;")
+						| How do you <strong>feel</strong>? (Choose one)
+						
+				div(style="display: table-row;")
+					div(style="display: table-cell; text-align: center; vertical-align: middle;")
+						img(src="./img/blank.png", width="50", height="50", style="padding: 10px;")
+
+					div(style="display: table-cell; position: relative; z-index: 0; width: 100%; border-left: 0px solid #f16521;")
+
+						div(class="activity-widget")
+							div(class="element-table", style="display: table; width: 100%;")
+
+									// Core activity
+									div(class="element", style="display: table-row;")
+										div(class="text", style="display: table-cell; min-width: 100%; vertical-align: middle;")
+
+											input(name="identity-options", id="scientist-option", value="scientist", type="radio")
+											label(for="scientist") scientist
+											hr(style="margin-bottom: 14px; margin-top: 14px; margin-right: 0px; height: 1px; border: none; background-color: #dddddd;")
+
+											input(name="identity-options", id="scientist-option", value="scientist", type="radio")
+											label(for="scientist") artist
+											hr(style="margin-bottom: 14px; margin-top: 14px; margin-right: 0px; height: 1px; border: none; background-color: #dddddd;")
+
+											input(name="identity-options", id="scientist-option", value="scientist", type="radio")
+											label(for="scientist") explorer
+											hr(style="margin-bottom: 14px; margin-top: 14px; margin-right: 0px; height: 1px; border: none; background-color: #dddddd;")
+
+											input(name="identity-options", id="scientist-option", value="scientist", type="radio")
+											label(for="scientist") maker
+											hr(style="margin-bottom: 14px; margin-top: 14px; margin-right: 0px; height: 1px; border: none; background-color: #dddddd;")
+
+											input(name="identity-options", id="scientist-option", value="scientist", type="radio")
+											label(for="scientist") dancer
+											hr(style="margin-bottom: 14px; margin-top: 14px; margin-right: 0px; height: 1px; border: none; background-color: #dddddd;")
+
+											input(name="identity-options", id="scientist-option", value="scientist", type="radio")
+											label(for="scientist") happy
+											hr(style="margin-bottom: 14px; margin-top: 14px; margin-right: 0px; height: 1px; border: none; background-color: #dddddd;")
+
+											input(name="identity-options", id="scientist-option", value="scientist", type="radio")
+											label(for="scientist") excited
+											hr(style="margin-bottom: 14px; margin-top: 14px; margin-right: 0px; height: 1px; border: none; background-color: #dddddd;")
+
+											input(name="identity-options", id="scientist-option", value="scientist", type="radio")
+											label(for="scientist") intense
+											hr(style="margin-bottom: 14px; margin-top: 14px; margin-right: 0px; height: 1px; border: none; background-color: #dddddd;")
+
+											input(name="identity-options", id="scientist-option", value="scientist", type="radio")
+											label(for="scientist") reflective
+											hr(style="margin-bottom: 14px; margin-top: 14px; margin-right: 0px; height: 1px; border: none; background-color: #dddddd;")
+
+											input(name="identity-options", id="scientist-option", value="scientist", type="radio")
+											label(for="scientist") tired
+											hr(style="margin-bottom: 14px; margin-top: 14px; margin-right: 0px; height: 1px; border: none; background-color: #dddddd;")
+
+											input(name="identity-options", id="scientist-option", value="scientist", type="radio")
+											label(for="scientist") confused
+											hr(style="margin-bottom: 14px; margin-top: 14px; margin-right: 0px; height: 1px; border: none; background-color: #dddddd;")
+
+											input(name="identity-options", id="scientist-option", value="scientist", type="radio")
+											label(for="scientist") ambitious
+
+
 
 	//
 	// Timeline interface
@@ -84,31 +255,7 @@ block content
 
 	.edge(id="bottom", style="text-align: right; font-size: 30px; padding-right: 10px;")
 		a(href="javscript:void(0);", onclick="scrollToBottom();") 
-			img(src="./img/down-arrow.png", alt="bottom", style="position: absolute; bottom: 0px; right: 0px;") 
-
-	.float-action(id="footer", style="height: 300px;")
-		.float-action-edge
-			a(href="javscript:void(0);", onclick="scrollToBottom();") 
-				img(src="./img/down-arrow.png", alt="bottom", style="position: absolute; bottom: 0px; right: 0px;") 
-		.float-action-body
-			div(style="display: table; width: 100%;")
-				div(style="display: table-row;")
-					div(style="display: table-cell;")
-						mixin option('thought', 'thought', './img/thought.png', 'addThoughtWidget();scrollToBottom();')
-					div(style="display: table-cell;")
-						mixin option('video', 'video', './img/video.png', 'captureVideo2();scrollToBottom();')
-					div(style="display: table-cell;")
-						mixin option('motion', 'motion', './img/graph.png', 'captureMotion();scrollToBottom();')
-					
-					//div(style="display: table-cell;")
-					//	mixin option('topic', 'topic', './img/topic.png', 'addTopicWidget();')
-				div(style="display: table-row;")
-					div(style="display: table-cell;")
-						mixin option('sketch', 'sketch', './img/palette.png', 'openSketchTool();')
-					div(style="display: table-cell;")
-						mixin option('photo', 'photo', './img/camera.png', 'capturePhotoToURI();')
-					div(style="display: table-cell;")
-						mixin option('narrate', 'narrate', './img/typewriter.png', 'addNarrationWidget();')
+			img(src="./img/down-arrow.png", alt="bottom", style="position: absolute; bottom: 0px; right: 0px;")
 
 	//
 	// Bottom of interface
@@ -118,59 +265,12 @@ block content
 		div(style='background-image: url(#{imageUri}); background-repeat:no-repeat; background-position:3px 0px; height: 70px; padding-left: 118px; padding-top: 34px; font-size: 30px;')
 			a(id="create-#{frameType}-button", data-artifact-type="#{frameType}", href="javascript:void(0);", onclick='#{clickEventHandler}') #{name}
 
-	div(style="display: table; width: 100%; margin: 0px; margin-bottom: 80px; padding: 0px;")
-		div(style="display: table-row;")
+	div(style="display: table-row;", id="timeline-intro-text")
 			div(style="display: table-cell; text-align: center; vertical-align: middle; width: 30px;")
-				img(src="./img/blank.png", width="50", height="50", style="padding: 10px;")
-				
-			div(style="display: table-cell; width: 100%; padding-left: 10px; padding-top: 20px;")
-				//p(class="tagline") and now <strong>you</strong> do something
-				//div(style="position: relative;")
-				//	img(src="./img/timeline-spark.png", width="100", height="100", style="padding: 0px; position: absolute; left: -59px; top: -20px;")
-				p(class="tagline")
-					| and then what happened?
+				img(src="./img/blank.png", width="50", height="15", style="padding: 10px;")
 
-		div(style="display: table-row; visibility: hidden;")
-			div(style="display: table-cell; text-align: center; vertical-align: middle; width: 50px;")
-				div(id="avatar-container", style="border-radius: 8px; background-image: url('./img/blank.png'); background-size: 50px 50px; margin: 10px; width: 50px; height: 50px;")
-				//img(id="kit-avatar", src="./img/blank.png", width="50", height="50", style="padding: 10px; border-radius: 8px;")
-
-			div(style="display: table-cell; width: 100%; padding-left: 10px;")
-
-				div(style="display: table; width: 100%;")
-					div(style="display: table-row;")
-						div(style="display: table-cell;")
-							mixin option('thought', 'thought', './img/thought.png', 'addThoughtWidget();')
-						div(style="display: table-cell;")
-							mixin option('video', 'video', './img/video.png', 'captureVideo2();')
-						div(style="display: table-cell;")
-							mixin option('motion', 'motion', './img/graph.png', 'captureMotion();')
-						
-						//div(style="display: table-cell;")
-						//	mixin option('topic', 'topic', './img/topic.png', 'addTopicWidget();')
-					div(style="display: table-row;")
-						div(style="display: table-cell;")
-							mixin option('sketch', 'sketch', './img/palette.png', 'openSketchTool();')
-						div(style="display: table-cell;")
-							mixin option('photo', 'photo', './img/camera.png', 'capturePhotoToURI();')
-						//div(style="display: table-cell;")
-						//	mixin option('narrate', 'narrate', './img/typewriter.png', 'openNarrateTool();')
-
-				//mixin option('avatar', 'avatar', './img/camera.png', 'captureAvatarToURI();')
-
-				// question
-				// cause and effect
-				// step by step
-				// note
-				// voice
-				// collage
-				// measurement
-				// tag
-				// time
-				// compass
-				// vibration
-				// madlib
-				// 5x chat
+			div(style="display: table-cell; width: 100%; border-left: 0px solid #f16521; padding-left: 10px;")
+				p(id="beginning", class="tagline") &nbsp;
 
 	//
 	// "Storybook" interface
@@ -320,28 +420,41 @@ block content
 			$('#float-page').hide();
 			$('#photo-page').hide();
 			$('#video-page').hide();
+			$('#question-tool').hide();
 			$('#motion-tool').hide();
 			$('#sketch-tool').hide();
+
+			$('#toolkit-list').hide();
+			$('#toolkit-tool-options').hide();
 
 			$('#previous-timeline-widget').hide();
 
 			// Populate timeline
 			getTimeline();
 
+			// Synchronize Accounts
+			getAccounts({}, function(accounts) {
+				for(var i = 0; i < accounts.length; i++) {
+					var option =
+						'<input name="collaborators" id="account-' + accounts[i]._id + '" value="' + accounts[i]._id + '" type="checkbox" />' + 
+						'<label for="account-' + accounts[i]._id + '">' + accounts[i].username + '</label>';
+					if (i < accounts.length - 1) {
+						option += '<hr style="margin-bottom: 14px; margin-top: 14px; margin-right: 0px; height: 1px; border: none; background-color: #dddddd;" />';
+					}
+
+					$('#collaborator-options').append(option);
+				}
+			});
+
 			// Add handler for interrupting automatic scrolling
 			$('body,html').bind("scroll mousedown DOMMouseScroll mousewheel keyup", function(e) {
 				if ( e.which > 0 || e.type === "mousedown" || e.type === "mousewheel") {
 					console.log('Canceling autoscrolling animation.');
-					clearTimeout($.data(document, 'timer'));
 					$("html,body").stop();
 				}
 			});
 
-			// Set time to scroll to bottom
-			
-			$.data(document, 'timer', setTimeout(function() {
-				scrollToBottom();
-			}, 2000));
+			$("#footer").slideUp();
 			
 
 			// Get Account
@@ -369,6 +482,7 @@ block content
 			//console.log(delta);
 
 			// Show or hide bottom shortcuts
+			/*
 			if(window.pageYOffset >= (document.height - window.innerHeight - 100)) {
 				$("#footer").slideDown();
 			} else if(delta > 10) {
@@ -376,6 +490,7 @@ block content
 			} else if (delta < -10) {
 				$("#footer").slideDown();
 			}
+			*/
 
 			// Update widget with focus (closest to center)
 			/*

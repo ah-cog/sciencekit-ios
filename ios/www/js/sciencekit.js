@@ -85,8 +85,8 @@ function connectWebSocket() {
 			console.log('Socket: Received Tag');
 			console.log(tag);
 
-			if ($("#frame-" + tag.tag.frame).length != 0) {
-				var e = $('#frame-' + tag.tag.frame);
+			if ($("#frame-" + tag.entry).length != 0) {
+				var e = $('#frame-' + tag.entry);
 				getTags(e);
 			}
 		});
@@ -651,6 +651,39 @@ function apiGetUser(options) {
 	});
 }
 
+var accounts = [];
+function getAccounts(options, fn) {
+	console.log('getAccounts()');
+
+	var requestUri = localStorage['host'] + '/api/account';
+
+	if (typeof options !== "undefined") {
+		// TODO: process options
+	}
+
+	$.ajax({
+		type: 'GET',
+		beforeSend: function(request) {
+			request.setRequestHeader('Authorization', 'Bearer ' + localStorage['token']);
+		},
+		url: requestUri,
+		dataType: 'json',
+		success: function(data) {
+			console.log('Received Accounts.');
+
+			// Store Accounts in global array
+			for (account in data) {
+				accounts.push(data[account]);
+			}
+
+			fn(accounts);
+		},
+		error: function() {
+			console.log('Failed to retreive Accounts.');
+		}
+	});
+}
+
 function getTimeline(options) {
 	console.log('getTimeline()');
 
@@ -995,6 +1028,59 @@ function drawGraph (graph, data, maxPointCount) {
 
 
 //
+// Question Tool
+//
+
+function setupQuestionTool() {
+
+}
+
+function openQuestionTool() {
+
+	$('#logo').fadeOut();
+	$('#top').fadeOut();
+	$('#bottom').fadeOut();
+	
+	$('#toolkit-options').fadeOut(function() {
+		$('#toolkit-tool-options').fadeIn();
+	});
+
+	$('#narrative-list').fadeOut(function() {
+		$('#toolkit-list').fadeIn();
+	});
+}
+
+function saveTool() {
+	// TODO: Check which tool is currently open, save work, reset form.
+
+	closeTool();
+}
+
+function cancelTool() {
+	// TODO: Check which tool is currently open, save work, reset form.
+
+	closeTool();
+}
+
+function closeTool() {
+
+	$('#toolkit-list').fadeOut(function() {
+		$('#narrative-list').fadeIn();
+	});
+
+	$('#toolkit-tool-options').fadeOut(function() {
+		$('#toolkit-options').fadeIn(function() {
+			$('#top').fadeIn();
+			$('#bottom').fadeIn();
+			$('#logo').fadeIn();
+		});
+	});
+}
+
+
+
+
+//
 // "Sketch" Tool
 //
 
@@ -1056,7 +1142,7 @@ function saveSketch() {
 
 	// Construct JSON object for element to save
 	var dataJSON = {
-		"timeline": $("#narrative-list").attr("data-timeline"),
+		//"timeline": $("#narrative-list").attr("data-timeline"),
 		"imageData": base64ImageData,
 		"imageWidth": imageWidth,
 		"imageHeight": imageHeight
@@ -1380,11 +1466,7 @@ function handleMouseUp(event) {
 
 //-----------------------------------------------------------------------------
 
-function addWidget(moment) {
-	// factor common code, then set up callback for different widget types
-}
-
-function addThoughtWidget(moment) {
+function addThoughtWidget(entry) {
 
 	var type = 'thought';
 
@@ -1392,10 +1474,9 @@ function addThoughtWidget(moment) {
 	// Make sure that the Moment has a sound structure.
 	//
 
-	if(moment && moment.frame && moment.frame._id) {
+	if(entry && entry.entry && entry.entry._id) {
 
-		var thoughtFrame = moment.frame;
-		var thought = thoughtFrame.activity; // TODO: Update this based on current view for user
+		var thought = entry.entry; // TODO: Update this based on current view for user
 
 		// Only continue if Thought element is valid
 		if (!thought) return;
@@ -1408,11 +1489,11 @@ function addThoughtWidget(moment) {
 		// to it.  If not, create the widget and store a reference to it.
 		//
 
-		if ($("#frame-" + thoughtFrame.frame).length != 0) {
+		if ($("#frame-" + entry._id).length != 0) {
 			// Element exists, so update it
 			console.log("Found existing thought widget. Updating widget.");
 
-			e = $('#frame-' + thoughtFrame.frame); // <li> element
+			e = $('#frame-' + entry._id); // <li> element
 			div = e.find('.element .text');
 
 		} else {
@@ -1431,36 +1512,36 @@ function addThoughtWidget(moment) {
 		// Update widget based on whether it is the timeline's "parent" Moment
 		//
 
-		if (moment._id === $('#narrative-list').attr('data-moment')) {
+		if (entry._id === $('#narrative-list').attr('data-entry')) {
 			e.find('.timeline-branch').hide();
 		}
 
 		// Update 'li' for element
-		e.attr('id', 'frame-' + thoughtFrame.frame);
-		e.attr('data-id', thoughtFrame.frame);
-		e.attr('data-timeline', thoughtFrame.timeline);
+		e.attr('id', 'frame-' + entry._id);
+		e.attr('data-id', entry._id);
+		e.attr('data-timeline', entry.timeline);
 
 		// Update element
 		var div2 = e.find('.activity-widget .element');
 		div2.attr('id', 'thought-' + thought._id);
 		div2.attr('data-id', thought._id);
-		div2.attr('data-frame', thought.frame);
-		div2.attr('data-reference', thought.reference);
+		div2.attr('data-entry', entry._id);
+		//div2.attr('data-reference', thought.reference);
 		div2.attr('data-text', thought.text);
-		div.attr('contenteditable', 'true');
+		div.attr('contenteditable', 'false');
 		div.html(thought.text);
 
 		// Update Account that authored the contribution
 		//if (thought.author && thought.username) {
-			e.find('.account').html('<strong>' + thought.author.username + '</strong>' + ' had a thought');
-			console.log(thought.author.username);
+			e.find('.account').html('<strong>' + entry.author.username + '</strong>' + ' had a thought');
+			console.log(entry.author.username);
 		//}
 
 		// Update options for widget
 		var options = e.find('.activity-widget .element .options');
 		options.find('.open').click(function() { getNextThought(e); });
 
-		if ($("#frame-" + thoughtFrame.frame).length != 0) {
+		if ($("#frame-" + entry._id).length != 0) {
 		} else {
 
 			//
@@ -1472,100 +1553,14 @@ function addThoughtWidget(moment) {
 			//e.find('.element .text').blur(function() { saveThought(e); });
 			e.find('.tags').off('blur');
 			e.find('.tags').blur(function() { saveTags(e); });
-			//e.find('.element .options .timeline').click(function() { getTimeline({ moment_id: moment._id }); });
-			e.find('.timeline').click(function() { getTimeline({ moment_id: moment._id }); });
+			//e.find('.element .options .timeline').click(function() { getTimeline({ moment_id: entry._id }); });
+			e.find('.timeline').click(function() { getTimeline({ moment_id: entry._id }); });
 			e.find('.hide').click(function() { toggleWidget(e); });
+
+			e.find('.bump').click(function() { bumpEntry(e); });
 		
 
 			e.show(); // Show element
-
-			//
-			// Set up listeners for TOUCH EVENTS on the widget (e.g., swipe)
-			//
-
-			var frameWidget = document.getElementById('frame-' + thoughtFrame.frame);
-
-			// 'touchstart' event handler
-			frameWidget.addEventListener('touchstart', function(event) {
-				//event.preventDefault();
-				var touchCount = event.targetTouches.length;
-				console.log('Touch count: ' + touchCount);
-
-				if (touchCount === 1) {
-					var touch = event.touches[0];
-					console.log(event.target + " touchstart: Touch x:" + touch.pageX + ", y:" + touch.pageY);
-					frameWidget.swipeInProgress = true;
-
-					// Store first touch point of swipe
-					frameWidget.swipeStartX = touch.pageX;
-					frameWidget.swipeStartY = touch.pageY;
-
-					// Store "previous point" of swipe (for future reference)
-					frameWidget.previousX = frameWidget.swipeStartX;
-					frameWidget.previousY = frameWidget.swipeStartY;
-				} else {
-					frameWidget.swipeInProgress = false;
-				}
-			}, false);
-
-			// 'touchmove' event handler
-			frameWidget.addEventListener('touchmove', function(event) {
-
-				//console.log("gesture in progress: " + frameWidget.swipeGestreInProgress);
-				//event.preventDefault();
-				var touch = event.touches[0];
-				var touchCount = event.touches.length;
-
-				if (touchCount > 1) {
-					frameWidget.swipeInProgress = false;
-				}
-
-				// Determine if swipe is still taking place
-				var changeX = Math.abs(touch.pageX - frameWidget.previousX);
-				var changeY = Math.abs(touch.pageY - frameWidget.previousY);
-				console.log('changeX = ' + changeX + ', ' + 'changeY = ' + changeY);
-				if (changeY >= changeX) {
-					// Abort gesture
-
-					frameWidget.swipeInProgress = false;
-					console.log("aborting gesture");
-				} else {
-					// Continue gesture
-
-					// Store "previous point"
-					frameWidget.previousX = touch.pageX;
-					frameWidget.previousY = touch.pageY;
-				}
-			}, false);
-
-			// 'touchend' event handler
-			frameWidget.addEventListener('touchend', function(event) {
-				//event.preventDefault();
-				var touch = event.changedTouches[0];
-				//var touch = event.targetTouches[0];
-				console.log(event.target + " touchend: Touch x:" + touch.pageX + ", y:" + touch.pageY);
-
-				console.log("SWIPED!");
-
-				if (frameWidget.swipeInProgress === true) {
-					// Reset swipe gesture state
-					frameWidget.swipeInProgress = false;
-
-					var swipeDistanceThreshold = 50; // Minimum required distance between start and end touch event x coordinates to be considered a swipe
-					if (frameWidget.swipeStartX > (touch.pageX + swipeDistanceThreshold)) {
-						// Fire 'swipe' event
-						getTimeline({ moment_id: moment._id });
-					}
-				}
-
-			}, false);
-
-			// touchcancel
-			frameWidget.addEventListener('touchcancel', function(event) {
-				//event.preventDefault();
-				var touch = event.touches[0];
-				console.log(event.target + " touchcancel: Touch x:" + touch.pageX + ", y:" + touch.pageY);
-			}, false);
 
 			//
 			// Request Tags from server
@@ -1575,7 +1570,7 @@ function addThoughtWidget(moment) {
 		}
 
 		// Update Frame based on FrameView for current user's Account
-		if (thoughtFrame.visible === false) {
+		if (entry.visible === false) {
 			$(e).addClass('hidden')
 			$(e).find('.hide').attr('src', './img/plus-red.png');
 			$(e).hide();
@@ -1840,32 +1835,32 @@ function setCurrentWidget(widget) {
 // Timeline
 //
 
-function addTimelineWidget(moment) {
+function addTimelineWidget(entry) {
 
 
-	console.log(moment.frameType);
+	console.log(entry.entryType);
 
 	// Add thought to timeline
-	if(moment.frameType === 'Thought') {
-		addThoughtWidget(moment);
+	if(entry.entryType === 'Thought') {
+		addThoughtWidget(entry);
 
-	} else if(moment.frameType === 'Topic') {
-		addTopicWidget(moment);
+	} else if(entry.entryType === 'Topic') {
+		addTopicWidget(entry);
 
-	} else if(moment.frameType === 'Photo') {
-		addPhotoWidget(moment);
+	} else if(entry.entryType === 'Photo') {
+		addPhotoWidget(entry);
 
-	} else if(moment.frameType === 'Video') {
-		addVideoWidget(moment);
+	} else if(entry.entryType === 'Video') {
+		addVideoWidget(entry);
 
-	} else if(moment.frameType === 'Motion') {
-		addMotionWidget(moment);
+	} else if(entry.entryType === 'Motion') {
+		addMotionWidget(entry);
 
-	} else if(moment.frameType === 'Sketch') {
-		addSketchWidget(moment);
+	} else if(entry.entryType === 'Sketch') {
+		addSketchWidget(entry);
 
-	} else if(moment.frameType === 'Narration') {
-		addNarrationWidget(moment);
+	} else if(entry.entryType === 'Narration') {
+		addNarrationWidget(entry);
 	}
 }
 
@@ -1876,28 +1871,27 @@ function addTimelineWidget(moment) {
 // Photos
 //
 
-function addPhotoWidget(moment) {
+function addPhotoWidget(entry) {
 	console.log("addPhotoWidget");
 
-	console.log(moment);
+	console.log(entry);
 
-	if(moment && moment.frame && moment.frame._id) {
+	if(entry && entry.entry && entry.entry._id) {
 
-		var perspective    = moment.frame;
-		var activity = perspective.activity; // TODO: Update this based on current view for user
+		var photo = entry.entry; // TODO: Update this based on current view for user
 
 		// Only continue if Thought frame is valid
-		if (!activity) return;
+		if (!photo) return;
 
 		var e;
 		var div;
 
-		if ($("#frame-" + perspective.frame).length != 0) {
+		if ($("#frame-" + entry._id).length != 0) {
 			// Frame exists, so update it
 			console.log("Found existing photo widget. Updating widget.");
 
-			e = $('#frame-' + perspective.frame); // <li> element
-			e.find('.timeline').click(function() { getTimeline({ moment_id: moment._id }); });
+			e = $('#frame-' + entry._id); // <li> element
+			e.find('.timeline').click(function() { getTimeline({ moment_id: entry._id }); });
 			//div = e.find('.element .text');
 
 		} else {
@@ -1913,23 +1907,23 @@ function addPhotoWidget(moment) {
 		}
 
 		// Update 'li' for element
-		e.attr('id', 'frame-' + perspective.frame);
-		e.attr('data-id', perspective.frame);
-		e.attr('data-timeline', perspective.timeline);
+		e.attr('id', 'frame-' + entry._id);
+		e.attr('data-id', entry._id);
+		e.attr('data-timeline', entry.timeline);
 
 		// Update element
 		var div2 = e.find('.activity-widget .element');
-		div2.attr('id', 'photo-' + activity._id);
-		div2.attr('data-id', activity._id);
-		div2.attr('data-frame', activity.frame);
-		div2.attr('data-reference', activity.reference);
+		div2.attr('id', 'photo-' + photo._id);
+		div2.attr('data-id', photo._id);
+		div2.attr('data-entry', entry._id);
+		// div2.attr('data-reference', photo.reference);
 		// div.attr('contenteditable', 'true');
 		// div.html(activity.text);
 
 		// Update Account that authored the contribution
 		//if (thought.author && thought.username) {
-			e.find('.account').html('<strong>' + activity.author.username + '</strong>' + ' snapped a photo');
-			console.log(activity.author.username);
+			e.find('.account').html('<strong>' + entry.author.username + '</strong>' + ' snapped a photo');
+			console.log(entry.author.username);
 		//}
 
 		// Add Tags
@@ -1938,25 +1932,25 @@ function addPhotoWidget(moment) {
 
 		// Set image
 		var image = e.find('.element .image');
-		image.attr('src', '' + localStorage['host'] + activity.uri + '');
+		image.attr('src', '' + localStorage['host'] + photo.uri + '');
 
 		image.click(function (event) { 
 			generatePhotoPage(event);
 		});
 
-		if ($("#frame-" + perspective.frame).length != 0) {
+		if ($("#frame-" + entry._id).length != 0) {
 		} else {
 
 			e.appendTo('#narrative-list');
 			//e.find('.element .image').click(function() { changePhoto(e) });
-			e.find('.element .options .timeline').click(function() { getTimeline({ moment_id: moment._id }); });
+			e.find('.element .options .timeline').click(function() { getTimeline({ moment_id: entry._id }); });
 			e.find('.hide').click(function() { toggleWidget(e); });
 
 			e.show(); // Show element
 		}
 
 		// Update Frame based on FrameView for current user's Account
-		if (perspective.visible === false) {
+		if (entry.visible === false) {
 			$(e).addClass('hidden')
 			$(e).find('.hide').attr('src', './img/plus-red.png');
 			$(e).hide();
@@ -1986,29 +1980,25 @@ function addPhotoWidget(moment) {
 // Videos
 //
 
-function addVideoWidget(moment) {
+function addVideoWidget(entry) {
 	console.log("addVideoWidget");
 
-	console.log(moment);
+	console.log(entry);
 
-	if(moment && moment.frame && moment.frame._id) {
+	if(entry && entry.entry && entry.entry._id) {
 
-		var frame    = moment.frame;
-		var activity = frame.activity; // TODO: Update this based on current view for user
-
-		// Only continue if Thought element is valid
-		if (!activity) return;
+		var video = entry.entry; // TODO: Update this based on current view for user
 
 		var e;
 		var div;
 
-		if ($("#frame-" + frame.frame).length != 0) {
+		if ($("#frame-" + entry._id).length != 0) {
 			// Element exists, so update it
 			console.log("Found existing Video widget. Updating widget.");
 
-			e = $('#frame-' + frame.frame); // <li> element
+			e = $('#frame-' + entry._id); // <li> element
 
-			e.find('.timeline').click(function() { getTimeline({ moment_id: moment._id }); });
+			e.find('.timeline').click(function() { getTimeline({ moment_id: entry._id }); });
 			//div = e.find('.element .text');
 
 		} else {
@@ -2024,28 +2014,28 @@ function addVideoWidget(moment) {
 		}
 
 		// Update 'li' for element
-		e.attr('id', 'frame-' + frame.frame);
-		e.attr('data-id', frame.frame);
-		e.attr('data-timeline', frame.timeline);
+		e.attr('id', 'frame-' + entry._id);
+		e.attr('data-id', entry._id);
+		e.attr('data-timeline', entry.timeline);
 
 		// Update element
 		var div2 = e.find('.activity-widget .element');
-		div2.attr('id', 'video-' + activity._id);
-		div2.attr('data-id', activity._id);
-		div2.attr('data-frame', activity.frame);
-		div2.attr('data-reference', activity.reference);
+		div2.attr('id', 'video-' + video._id);
+		div2.attr('data-id', video._id);
+		div2.attr('data-entry', entry._id);
+		// div2.attr('data-reference', video.reference);
 		// div.attr('contenteditable', 'true');
 		// div.html(activity.text);
 
 		// Update Account that authored the contribution
 		//if (thought.author && thought.username) {
-			e.find('.account').html('<strong>' + activity.author.username + '</strong>' + ' shot a video');
-			console.log(activity.author.username);
+			e.find('.account').html('<strong>' + entry.author.username + '</strong>' + ' shot a video');
+			console.log(entry.author.username);
 		//}
 
 		// Set video
-		var video = e.find('.element .video .source');
-		video.attr('src', '' + localStorage['host'] + activity.uri + '');
+		var videoElement = e.find('.element .video .source');
+		videoElement.attr('src', '' + localStorage['host'] + video.uri + '');
 
 		e.find('.element .video').click(function (event) { 
 			generateVideoPage(event);
@@ -2055,19 +2045,19 @@ function addVideoWidget(moment) {
 		e.find('.tags').off('blur');
 		e.find('.tags').blur(function() { saveTags(e); });
 
-		if ($("#frame-" + frame.frame).length != 0) {
+		if ($("#frame-" + entry._id).length != 0) {
 		} else {
 
 			e.appendTo('#narrative-list');
 			//e.find('.element .video').click(function() { changeVideo(e) });
-			e.find('.element .options .timeline').click(function() { getTimeline({ moment_id: moment._id }); });
+			e.find('.element .options .timeline').click(function() { getTimeline({ moment_id: entry._id }); });
 			e.find('.hide').click(function() { toggleWidget(e); });
 
 			e.show(); // Show element
 		}
 
 		// Update Frame based on FrameView for current user's Account
-		if (frame.visible === false) {
+		if (entry.visible === false) {
 			$(e).addClass('hidden')
 			$(e).find('.hide').attr('src', './img/plus-red.png');
 			$(e).hide();
@@ -2227,27 +2217,26 @@ function addMotionWidget(moment) {
 // Sketch
 //
 
-function addSketchWidget(moment) {
+function addSketchWidget(entry) {
 	console.log("addSketchWidget");
 
-	console.log(moment);
+	console.log(entry);
 
-	if(moment && moment.frame && moment.frame._id) {
+	if(entry && entry.entry && entry.entry._id) {
 
-		var frame    = moment.frame;
-		var activity = frame.activity; // TODO: Update this based on current view for user
+		var sketch = entry.entry; // TODO: Update this based on current view for user
 
 		// Only continue if Thought frame is valid
-		if (!activity) return;
+		if (!sketch) return;
 
 		var e;
 		var div;
 
-		if ($("#frame-" + frame.frame).length != 0) {
+		if ($("#frame-" + entry._id).length != 0) {
 			// Frame exists, so update it
 			console.log("Found existing sketch widget. Updating widget.");
 
-			e = $('#frame-' + frame.frame); // <li> element
+			e = $('#frame-' + entry._id); // <li> element
 			//div = e.find('.element .text');
 
 		} else {
@@ -2260,28 +2249,28 @@ function addSketchWidget(moment) {
 			e.addClass('activity-frame');
 			e.removeAttr('id'); // Remove 'id' attribute
 
-			e.find('.timeline').click(function() { getTimeline({ moment_id: moment._id }); });
+			e.find('.timeline').click(function() { getTimeline({ moment_id: entry._id }); });
 			//div = e.find('.element .text');
 		}
 
 		// Update 'li' for element
-		e.attr('id', 'frame-' + frame.frame);
-		e.attr('data-id', frame.frame);
-		e.attr('data-timeline', frame.timeline);
+		e.attr('id', 'frame-' + entry._id);
+		e.attr('data-id', entry._id);
+		e.attr('data-timeline', entry.timeline);
 
 		// Update element
 		var div2 = e.find('.activity-widget .element');
-		div2.attr('id', 'sketch-' + activity._id);
-		div2.attr('data-id', activity._id);
-		div2.attr('data-frame', activity.frame);
-		div2.attr('data-reference', activity.reference);
+		div2.attr('id', 'sketch-' + sketch._id);
+		div2.attr('data-id', sketch._id);
+		div2.attr('data-entry', entry._id);
+		div2.attr('data-reference', sketch.reference);
 		// div.attr('contenteditable', 'true');
 		// div.html(activity.text);
 
 		// Update Account that authored the contribution
 		//if (thought.author && thought.username) {
-			e.find('.account').html('<strong>' + activity.author.username + '</strong>' + ' made a sketch');
-			console.log(activity.author.username);
+			e.find('.account').html('<strong>' + entry.author.username + '</strong>' + ' made a sketch');
+			console.log(entry.author.username);
 		//}
 
 		// Add Tags
@@ -2290,18 +2279,18 @@ function addSketchWidget(moment) {
 
 		// Set image
 		var image = e.find('.element .image');
-		image.attr('src', activity.imageData);
+		image.attr('src', sketch.imageData);
 
 		// image.click(function (event) { 
 		// 	generatePhotoPage(event);
 		// });
 
-		if ($("#frame-" + frame.frame).length != 0) {
+		if ($("#frame-" + entry._id).length != 0) {
 		} else {
 
 			e.appendTo('#narrative-list');
 			//e.find('.element .image').click(function() { changeSketch(e) });
-			e.find('.element .options .timeline').click(function() { getTimeline({ moment_id: moment._id }); });
+			e.find('.element .options .timeline').click(function() { getTimeline({ moment_id: entry._id }); });
 			e.find('.hide').click(function() { toggleWidget(e); });
 		
 
@@ -2309,7 +2298,7 @@ function addSketchWidget(moment) {
 		}
 		
 		// Update Frame based on FrameView for current user's Account
-		if (frame.visible === false) {
+		if (entry.visible === false) {
 			$(e).addClass('hidden')
 			$(e).find('.hide').attr('src', './img/plus-red.png');
 			$(e).hide();
@@ -2319,9 +2308,10 @@ function addSketchWidget(moment) {
 		getTags(e);
 
 		// Update the Widget (updates that can only happen after displaying the widget)
-		if (activity.hasOwnProperty('imageWidth') && activity.hasOwnProperty('imageHeight')) {
-			var ratio = activity.imageWidth / activity.imageHeight;
-			var adjustedImageWidth = $(image).parent().width();
+		if (sketch.hasOwnProperty('imageWidth') && sketch.hasOwnProperty('imageHeight')) {
+			var ratio = sketch.imageWidth / sketch.imageHeight;
+			// var adjustedImageWidth = $(image).parent().width();
+			var adjustedImageWidth = 250;
 			var adjustedImageHeight = Math.floor(adjustedImageWidth / ratio);
 			console.log('adjustedWidth/Height: ' + ratio + ', ' + adjustedImageWidth + ', ' + adjustedImageHeight);
 			image.attr('width', adjustedImageWidth);
@@ -2783,14 +2773,18 @@ function saveThought(e) {
 // Get avatar for user of current Account
 function getTags(e) {
 
-	var frameId = $(e).find('.activity-widget .element').attr('data-frame');
+	var entryId = $(e).find('.activity-widget .element').attr('data-entry');
+
+	if (entryId === undefined) {
+		return;
+	}
 
 	$.ajax({
 		type: 'GET',
 		beforeSend: function(request) {
 			request.setRequestHeader('Authorization', 'Bearer ' + localStorage['token']);
 		},
-		url: localStorage['host'] + '/api/tag?frameId=' + frameId,
+		url: localStorage['host'] + '/api/tag?entryId=' + entryId,
 		dataType: 'json',
 		success: function(data) {
 			// console.log('Received protected thoughts (success).');
@@ -2798,7 +2792,7 @@ function getTags(e) {
 
 			$(e).find('.tags').html('');
 			for (tag in data) {
-				$(e).find('.tags').append('<span id="tag-' + data[tag].tag._id + '" style="display:inline-block;" contenteditable="false"><a href="javascript:getTimeline({ id: \'' + data[tag].timeline._id + '\' });">' + data[tag].tag.text + '</a></span> ');
+				$(e).find('.tags').append('<span id="tag-' + data[tag]._id + '" style="display:inline-block;" contenteditable="false"><a href="javascript:getTimeline({});">' + data[tag].text + '</a></span> ');
 
 				// NOTE: The following code doesn't work for some reason.  Not sure why.  The above is a hacky replacement for what the following was intended to accomplish.
 
@@ -2873,8 +2867,8 @@ function saveTags(e) {
 		// Construct JSON object for element to save
 		var dataJSON = {
 			//"timeline": $("#narrative-list").attr("data-timeline"),
-			"frame": element.attr("data-frame"),
-			"frameType": e.attr("data-activity-type"),
+			"entry": element.attr("data-entry"),
+			// "frameType": e.attr("data-activity-type"),
 			"text": uniqueTags[i]
 		};
 
@@ -3029,6 +3023,85 @@ function toggleWidget(e) {
 			console.log('Failed to PUT Widget.');
 		}
 	});
+}
+
+function bumpEntry(e) {
+	console.log('bumpEntry');
+
+	var activityType = $(e).attr('data-activity-type');
+	// TODO: Make sure actiivtyType is valid (compare with retreived types from API?)
+
+	console.log('Saving tags for activityType: ' + activityType);
+
+	var widget  = e.find('.activity-widget');
+	var element = e.find('.activity-widget .element');
+	// var tags    = e.find('.activity-widget .tags');
+
+	// Get textual tags (i.e., the "raw" tag text, e.g., "mytag" in "#mytag")
+	// var rawTagText = e.find('.tags').text();
+	// rawTagText = rawTagText.replace(/#,/, '');
+	//rawTagText = rawTagText.replace(/^[A-Z0-9]/, '');
+	// rawTagText = rawTagText.toLowerCase();
+	// console.log(rawTagText);
+	// var tagText = rawTagText.split(/\s/);
+	// var tagText = e.find('.tags').text().replace(/#,/, '').toLowerCase().trim().split(/\s+/);
+	// var tagTextCount = tagText.length;
+	// console.log(tagTextCount);
+
+	// var uniqueTags = [];
+	// $.each(tagText, function(i, el) {
+	// 	if($.inArray(el, uniqueTags) === -1) uniqueTags.push(el);
+	// });
+
+	// Save each tag
+	// var uniqueTagCount = uniqueTags.length;
+	// console.log('unique: ' + uniqueTagCount);
+
+	// for (var i = 0; i < uniqueTagCount; i++) {
+
+		// Construct JSON object for element to save
+		var dataJSON = {
+			//"timeline": $("#narrative-list").attr("data-timeline"),
+			"entry": element.attr("data-entry"),
+			// "frameType": e.attr("data-activity-type"),
+			"degree": 1
+		};
+
+		//if(element.attr("data-frame")) dataJSON.frame = element.attr("data-frame");
+		//if(element.attr("data-id")) dataJSON.reference = element.attr("data-id"); // Set the element to the reference, since it was edited.
+
+		console.log("Saving Bump for Entry (JSON): ");
+		console.log(dataJSON);
+
+		// POST the JSON object 
+		$.ajax({
+			type: 'POST',
+			beforeSend: function(request) {
+				request.setRequestHeader('Authorization', 'Bearer ' + localStorage['token']);
+			},
+			url: localStorage['host'] + '/api/' + activityType + '/bump',
+			dataType: 'json',
+			contentType: 'application/json; charset=utf-8',
+			data: JSON.stringify(dataJSON),
+			processData: false,
+			success: function(data) {
+				console.log('Saved Bumps: ');
+				console.log(data);
+
+				// Set element container (e.g., Thought). Only gets set once.
+				//$(e).find('.tags')
+				//.attr('id', 'frame-' + data.frame._id); // e.data('id', data._id);
+
+				// TODO: Only update necessary tags
+				// getTags(e);
+
+				console.log('Updated Bumps.');
+			},
+			error: function() {
+				console.log('Failed to save Bumps.');
+			}
+		});
+	// }
 }
 
 

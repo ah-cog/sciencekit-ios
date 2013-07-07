@@ -65,7 +65,7 @@ narrative-templates {
 
 .activity-widget {
   padding: 10px 8px 10px 8px;
-  margin: 13px 40px 13px 13px;
+  margin: 13px 90px 13px 13px;
   border-width: 1px;
   border-color: #dddddd;
   border-style: solid;
@@ -75,7 +75,7 @@ narrative-templates {
 
 .text-input-widget {
   padding: 10px 8px 10px 8px;
-  margin: 4px 40px 4px 40px;
+  margin: 4px 13px 4px 13px;
   border-width: 1px;
   border-color: #dddddd;
   border-style: solid;
@@ -85,7 +85,7 @@ narrative-templates {
 
 .text-input-widget input[type="text"] {
   width: 100%;
-  font-size: 35px;
+  font-size: 20px;
   font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
   padding: 10px;
   margin: 5px;
@@ -99,6 +99,21 @@ narrative-templates {
 
 .activity-template {
   display: none;
+}
+
+.tool-template {
+  /*display: none;*/
+}
+
+.tool-section {
+  padding: 10px 0px 10px 0px;
+  margin: 13px 70px 13px 0px;
+  border-width: 0px;
+  border-color: #dddddd;
+  border-style: solid;
+  font-size: 20px;
+  border-radius: 8px;
+  padding-left: 0px;
 }
 
 
@@ -226,7 +241,7 @@ narrative-templates {
   height: 100%;
   background: #ffffff;
   color: #000000;
-  z-index: 1000;
+  z-index: 2000;
 }
 
 .tool-table {
