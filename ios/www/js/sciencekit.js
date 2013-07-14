@@ -255,17 +255,6 @@ function getAvatar() {
 
 
 
-// Change Photo in PhotoFrame associated with the specified widget.
-var lastTouchedPhotoWidget;
-function changePhoto(e) {
-	console.log('changePhoto');
-
-	// Save the photo widget that the user last touched
-	lastTouchedPhotoWidget = e;
-
-	// Capture photo
-	capturePhotoToURI();
-}
 
 // Change Video in VideoFrame associated with the specified widget.
 var lastTouchedVideoWidget;
@@ -279,21 +268,27 @@ function changeVideo(e) {
 	captureVideo2();
 }
 
+lastImageUri = null;
+
 // Called when a photo is successfully retrieved
 //
 function onPhotoURISuccess(imageURI) {
     // Uncomment to view the image file URI
     console.log("Took photo: " + imageURI);
+    lastImageUri = imageURI;
+
+    $('#photo-tool-photo').attr('src', imageURI);
+
+    openPhotoTool();
 
     // Upload the photo
-    uploadPhoto(imageURI);
+    //uploadPhoto(imageURI);
 }
 
 // Called if something bad happens.
 //
 function onPhotoFail(message) {
     console.log('Camera failed because: ' + message);
-    lastTouchedPhotoWidget = null;
 }
 
 // A button will call this function
@@ -316,27 +311,74 @@ function uploadPhoto(photoURI) {
 	var widget, element;
 	var dataJSON;
 
-	if (lastTouchedPhotoWidget) {
-		widget  = lastTouchedPhotoWidget;
-		element = lastTouchedPhotoWidget.find('.activity-widget .element');
+	// Construct JSON object for element to save
+	dataJSON = {
+		"timeline": $("#narrative-list").attr("data-timeline")
+	};
 
-		// Construct JSON object for element to save
-		dataJSON = {
-			"timeline": $("#narrative-list").attr("data-timeline")
+	console.log("Saving Photo (JSON): ");
+	console.log(dataJSON);
+
+	// Concept
+	var conceptJSON = null;
+	if (currentConceptTool === 'Question') {
+		var questionText = $('#question-tool-text').val();
+
+		conceptJSON = {
+			"type": 'Question',
+			"text": questionText
 		};
 
-		if (element.attr("data-frame")) dataJSON.frame   = element.attr("data-frame");
-		if (element.attr("data-id"))    dataJSON.reference = element.attr("data-id"); // Set the element to the reference, since it was edited.
+	} else if (currentConceptTool === 'Observation') {
+		var causeText = $('#observation-tool-cause').val();
+		var effectText = $('#observation-tool-effect').val();
 
-		console.log("Saving thought (JSON): ");
-		console.log(dataJSON);
+		conceptJSON = {
+			"type": 'Observation',
+			"cause": causeText, 
+			"effect": effectText
+		};
+		
+	} else if (currentConceptTool === 'Sequence') {
+		var sequenceSteps = $('.sequence-tool-step');
+		var sequenceStepText = [];
+		$('.sequence-tool-step').each(function(i) {
+			console.log("step: " + $(this).val());
+			if ($(this).is(":visible")) {
+				sequenceStepText.push({ step: $(this).val() });
+			}
+		});
+
+		conceptJSON = {
+			"type": 'Sequence',
+			"steps": sequenceStepText
+		};
+
 	}
 
     // Upload the image to server
     function success(response) {
         console.log("Photo uploaded successfully:");
-        var photo = jQuery.parseJSON(response.response);
-        addPhotoWidget(photo);
+        var data = jQuery.parseJSON(response.response);
+        addPhotoWidget(data);
+
+        // Save Concept
+		if (conceptJSON) {
+			conceptJSON.parent = data._id;
+			saveConceptTool(conceptJSON);
+		}
+
+		// Save Collaborators
+		if (collaboratorsJSON) {
+			collaboratorsJSON.parent = data._id;
+			saveCollaborationTool(collaboratorsJSON);
+		}
+
+		// Save Identity
+		if (identityJSON) {
+			identityJSON.parent = data._id;
+			saveIdentityTool(identityJSON);
+		}
     }
 
     function fail(error) {
@@ -349,7 +391,7 @@ function uploadPhoto(photoURI) {
     options.mimeType = "image/jpeg";
 
     // Set parameters for request
-    if (lastTouchedPhotoWidget && dataJSON) {
+    if (dataJSON) {
 		options.params = dataJSON;
     } else {
 		var params = {};
@@ -411,21 +453,34 @@ function uploadAvatar(avatarURI) {
 
 
 
+lastVideo = null;
+
 // Called when capture operation is finished
 //
 function captureSuccess(mediaFiles) {
 	console.log("videoCaptureSuccess");
-	var i, len;
-	for (i = 0, len = mediaFiles.length; i < len; i += 1) {
-		uploadVideo(mediaFiles[i]);
-	}
+
+	// var i, len;
+	// for (i = 0, len = mediaFiles.length; i < len; i += 1) {
+	// 	uploadVideo(mediaFiles[i]);
+	// }
+
+	lastVideo = mediaFiles[0];
+
+	console.log($('#video-tool').find('.video .source'));
+	$('#video-tool').find('.video').attr('src', lastVideo.fullPath);
+	// $('#video-tool').find('.video').attr('controls', "true");
+	console.log($('#video-tool').find('.video .source').attr('src'));
+	// video(class="video", width="320", height="240", controls)
+	// source(class="source", src="")
+
+	openVideoTool();
 }
 
 function captureError(error) {
 	console.log("videoCaptureError");
 	// var msg = 'An error occurred during capture: ' + error.code;
 	// navigator.notification.alert(msg, null, 'Uh oh!');
-	alert("NOPE");
 }
 
 // Video
@@ -433,7 +488,10 @@ function captureError(error) {
 function captureVideo2() {
 	console.log("captureVideo");
     // Launch device video recording application 
-	navigator.device.capture.captureVideo(captureSuccess, captureError);
+    var options = {
+    	limit: 1
+    };
+	navigator.device.capture.captureVideo(captureSuccess, captureError, options);
 	console.log("captureVideo2");
 }
 
@@ -441,36 +499,112 @@ function uploadVideo(mediaFile) {
 	console.log("uploadVideo");
 	console.log(mediaFile);
 
-
-
 	var widget, element;
 	var dataJSON;
 
-	if (lastTouchedVideoWidget) {
-		widget  = lastTouchedVideoWidget;
-		element = lastTouchedVideoWidget.find('.activity-widget .element');
+	// if (lastTouchedVideoWidget) {
+		// widget  = lastTouchedVideoWidget;
+		// element = lastTouchedVideoWidget.find('.activity-widget .element');
 
 		// Construct JSON object for element to save
 		dataJSON = {
 			"timeline": $("#narrative-list").attr("data-timeline")
 		};
 
-		if (element.attr("data-frame")) dataJSON.frame   = element.attr("data-frame");
-		if (element.attr("data-id"))      dataJSON.reference = element.attr("data-id"); // Set the element to the reference, since it was edited.
-
-		console.log("Saving thought (JSON): ");
+		console.log("Saving Video (JSON): ");
 		console.log(dataJSON);
+	// }
+
+
+
+
+	// Concept
+	var conceptJSON = null;
+	if (currentConceptTool === 'Question') {
+		var questionText = $('#question-tool-text').val();
+
+		conceptJSON = {
+			"type": 'Question',
+			"text": questionText
+		};
+
+	} else if (currentConceptTool === 'Observation') {
+		var causeText = $('#observation-tool-cause').val();
+		var effectText = $('#observation-tool-effect').val();
+
+		conceptJSON = {
+			"type": 'Observation',
+			"cause": causeText, 
+			"effect": effectText
+		};
+		
+	} else if (currentConceptTool === 'Sequence') {
+		var sequenceSteps = $('.sequence-tool-step');
+		var sequenceStepText = [];
+		$('.sequence-tool-step').each(function(i) {
+			console.log("step: " + $(this).val());
+			if ($(this).is(":visible")) {
+				sequenceStepText.push({ step: $(this).val() });
+			}
+		});
+
+		conceptJSON = {
+			"type": 'Sequence',
+			"steps": sequenceStepText
+		};
+
 	}
+
+	// Collaborators
+	var collaboratorsJSON = null;
+	var authors = [];
+	$("input[name='collaborators']:checked").each(function() {
+		authors.push({ author: $(this).val() });
+	});
+	if (authors.length > 0) {
+		collaboratorsJSON = {};
+		collaboratorsJSON.authors = authors;
+	}
+
+	// Feeling/Identity
+	var identityJSON = null;
+	if ($("input[name='identity-options']:checked").length > 0) {
+		identityJSON = {
+			"identity": $("input[name='identity-options']:checked").val()
+		};
+	}
+
+
 
 
 
     function success(result) {
         console.log("Video upload succeeded:");
-        var video = jQuery.parseJSON(result.response);
+        var data = jQuery.parseJSON(result.response);
         // addPhoto(photo);
 
         console.log('Upload success: ' + result.responseCode);
 		console.log(result.bytesSent + ' bytes sent');
+
+
+
+		// Save Concept
+		if (conceptJSON) {
+			conceptJSON.parent = data._id;
+			saveConceptTool(conceptJSON);
+		}
+
+		// Save Collaborators
+		if (collaboratorsJSON) {
+			collaboratorsJSON.parent = data._id;
+			saveCollaborationTool(collaboratorsJSON);
+		}
+
+		// Save Identity
+		if (identityJSON) {
+			identityJSON.parent = data._id;
+			saveIdentityTool(identityJSON);
+		}
     }
     
     function fail(error) {
@@ -494,7 +628,7 @@ function uploadVideo(mediaFile) {
 	options.headers = headers;
 
     // Set parameters for request
-    if (lastTouchedVideoWidget && dataJSON) {
+    if (dataJSON) {
     	options.params = dataJSON;
     } else {
     	var params = {};
@@ -578,6 +712,10 @@ window.onload = function() {
 		apiLogin({});
 		return false;
 	});
+
+	currentPerspective = 'Inquiry';
+	currentTool = null;
+	currentConceptTool = null;
 }
 
 function apiLogin(options) {
@@ -688,21 +826,6 @@ function getTimeline(options) {
 	console.log('getTimeline()');
 
 	//
-	// Save current state of timeline
-	//
-
-	// Save current timeline as "previous" timeline
-	// var previousTimeline;
-	// if ($("#narrative-list").attr("data-timeline") !== undefined) {
-	// 	previousTimeline = $("#narrative-list").attr("data-timeline");
-	// }
-
-	// var previousTimeline = null;
-	// if (timelineStack.length > 1) {
-	// 	previousTimeline = timelineStack.pop();
-	// }
-
-	//
 	// Request resources for new timeline and update the timeline widget
 	//
 
@@ -726,72 +849,16 @@ function getTimeline(options) {
 		url: requestUri,
 		dataType: 'json',
 		success: function(data) {
-			console.log('Received protected thoughts (success).');
-			console.log(data);
+			// console.log('Received protected thoughts (success).');
+			// console.log(data);
 
 			$('#narrative-list').html('');
 			$('#narrative-list').attr('data-timeline', data._id);
 			$('#narrative-list').attr('data-moment', data.moment);
 
-			// Set previous timeline (if any)
-			// if (previousTimeline) {
-			// 	$('#narrative-list').attr('data-previous-timeline', previousTimeline);
-			// }
-
 			// Add Moments to Timeline
 			for (moment in data.moments) {
 				addTimelineWidget(data.moments[moment]);
-			}
-
-			//console.log('timelineStack.length = ' + timelineStack.length);
-
-			//
-			// Save Timeline on stack
-			//
-
-			var currentTimeline = {};
-			currentTimeline.timeline = data._id;
-			if (timelineStack.length > 0) {
-				currentTimeline.previousTimeline = timelineStack[timelineStack.length - 1].timeline;
-			} else {
-				currentTimeline.previousTimeline = null;
-			}
-
-			// Only add timeline if it's not already on the top of the stack (i.e., prevent duplicates)
-			if (timelineStack.length > 0) {
-				if (currentTimeline.timeline !== timelineStack[timelineStack.length - 1].timeline) {
-					timelineStack.push(currentTimeline);
-				}
-			} else {
-				timelineStack.push(currentTimeline);
-			}
-
-			//
-			// Update timeline widget "header"
-			//
-
-			if (timelineStack.length > 1) {
-				$('#sciencekit-logo').hide();
-				$('#timeline-intro-text').hide();
-
-				$('#previous-timeline-widget').show();
-				$('#previous-timeline-widget').find('.link').off('click'); // Remove any existing 'onclick' event handler
-				$('#previous-timeline-widget').find('.link').click(function() {
-					var currentTimeline = timelineStack.pop();
-					getTimeline({ id: currentTimeline.previousTimeline });
-				});
-
-				// Hide Timeline under first Widget
-				//$('#narrative-list').get(0).find('.timeline-branch').css('display', 'none');
-				$($('#narrative-list li').get(0)).find('.timeline-branch').css('visibility', 'hidden');
-
-				scrollToTop();
-
-			} else {
-				$('#sciencekit-logo').show();
-				$('#timeline-intro-text').show();
-
-				$('#previous-timeline-widget').hide();			
 			}
 		},
 		error: function() {
@@ -1026,16 +1093,165 @@ function drawGraph (graph, data, maxPointCount) {
 
 
 
+currentPerspective = 'Inquiry';
+currentTool = null;
+currentConceptTool = null;
 
 //
-// Question Tool
+// Perspectives
 //
 
-function setupQuestionTool() {
+function openInquiryPerspective() {
 
+	currentPerspective = 'Inquiry';
+
+	$('#toolkit-list').fadeOut(function() {
+		$('.activity-frame').show();
+		$('#narrative-list').fadeIn();
+	});
+
+	$('#story-perspective-list').fadeOut();
+
+	$('#toolkit-tool-options').fadeOut(function() {
+		$('#toolkit-options').fadeIn(function() {
+			$('#top').fadeIn();
+			$('#bottom').fadeIn();
+			$('#logo').fadeIn();
+		});
+	});
+
+	// TODO: Only open Story Tool
+
+	$('.activity-widget').closest('.activity-template').off('click');
+	$('.activity-widget').closest('.activity-template').removeClass('activity-template-left activity-template-right');
 }
 
-function openQuestionTool() {
+function openStoryPerspective() {
+
+	currentPerspective = 'Story';
+
+	$('#logo').fadeOut();
+	$('#top').fadeOut();
+	$('#bottom').fadeOut();
+
+	$('#story-title').hide();
+
+	$('#toolkit-list').fadeOut();
+
+	$('#narrative-list').fadeOut(function() {
+		// $('#toolkit-tool-options').fadeIn();
+		$('#story-grid-template-row').hide();
+		$('#story-grid').fadeIn();
+		$('#story-perspective-list').fadeIn();
+	});
+
+	
+	
+	$('#toolkit-tool-options').fadeOut();
+	$('#toolkit-options').fadeOut();
+
+	// TODO: Only open Story Tool
+	getStories();
+}
+
+function openStoryTool(options) {
+
+	if (typeof options !== "undefined") {
+		if (options.hasOwnProperty('id')) {
+			requestUri = requestUri + '?id=' + options['id'];
+		} else if (options.hasOwnProperty('moment_id')) {
+			requestUri = requestUri + '?moment_id=' + options['moment_id'];
+		} else if (options.hasOwnProperty('frameId')) {
+			requestUri = requestUri + '?frameId=' + options['frameId'];
+		}
+	} else {
+		options = { 'readOnly': false };
+	}
+
+	currentTool = 'Story';
+
+	$('#logo').fadeOut();
+	$('#top').fadeOut();
+	$('#bottom').fadeOut();
+
+	$('#story-grid-template-row').hide();
+
+	$('#story-grid').fadeOut(function() {
+		$('#narrative-list').fadeIn();
+		$('#story-title').fadeIn();
+		// $('#toolkit-tool-options').fadeIn();
+		// $('#story-grid-template-row').hide();
+		// $('#story-perspective-list').show();
+	});
+
+
+	
+	$('#toolkit-options').fadeOut(function() {
+		// $('#toolkit-tool-options').fadeIn();
+	});
+
+	// $('#narrative-list').show(function() {
+	// 	$('.toolkit-tool').hide();
+	// 	$('#media-toolkit').show();
+	// 	$('#media-type-options').show();
+	// 	$('#tool-extra-options').show();
+	// 	$('.text-tool').show();
+	// 	$('#toolkit-list').fadeIn();
+	// });
+
+
+
+	// $('#narrative-list').fadeOut(function() {
+	// 	$('#toolkit-list').fadeIn();
+	// });
+
+	// Intialize by setting all entires to the right.  By default, entries are added to a new Story.
+	if (options['readOnly'] !== true) {
+		$('.activity-widget').closest('.activity-template').addClass('activity-template-right');
+
+		// TODO: Only open Story Tool
+		// getStories();
+
+		$('.activity-widget').closest('.activity-template').off('click');
+		$('.activity-widget').closest('.activity-template').on('click', function() {
+
+			// Move right
+			if ($(this).hasClass('activity-template-left') && !($(this).hasClass('activity-template-right'))) {
+				$(this).removeClass('activity-template-left');
+				$(this).addClass('activity-template-right');
+
+			// Move left
+			} else if (!($(this).hasClass('activity-template-left')) && $(this).hasClass('activity-template-right')) {
+				$(this).removeClass('activity-template-right');
+				$(this).addClass('activity-template-left');
+
+			// Set default
+			} else {
+				$(this).removeClass('activity-template-left');
+				$(this).removeClass('activity-template-right');
+				$(this).addClass('activity-template-left');
+			}
+
+			// $('.activity-widget').removeClass('activity-widget-right');
+			// $('.activity-widget').addClass('activity-widget-left');
+		});
+	}
+
+	// if (options['readOnly'] === true) {
+	// 	$('.activity-template-right').hide();
+	// }
+}
+
+
+
+
+//
+// Toolkit
+//
+
+function openTextTool() {
+
+	currentTool = 'Text';
 
 	$('#logo').fadeOut();
 	$('#top').fadeOut();
@@ -1046,12 +1262,449 @@ function openQuestionTool() {
 	});
 
 	$('#narrative-list').fadeOut(function() {
+		$('.toolkit-tool').hide();
+		$('#media-toolkit').show();
+		$('#media-type-options').show();
+		$('#tool-extra-options').show();
+		$('.text-tool').show();
 		$('#toolkit-list').fadeIn();
+	});
+
+	// TODO: Only open Question Tool
+}
+
+function openPhotoTool() {
+
+	currentTool = 'Photo';
+
+	$('#logo').fadeOut();
+	$('#top').fadeOut();
+	$('#bottom').fadeOut();
+	
+	$('#toolkit-options').fadeOut(function() {
+		$('#toolkit-tool-options').fadeIn();
+	});
+
+	$('#narrative-list').fadeOut(function() {
+		$('.toolkit-tool').hide();
+		$('#media-toolkit').show();
+		$('#media-type-options').show();
+		$('#tool-extra-options').show();
+		$('.photo-tool').show();
+		$('#toolkit-list').fadeIn();
+	});
+
+	// TODO: Only open Question Tool
+}
+
+function openVideoTool() {
+
+	currentTool = 'Video';
+
+	$('#logo').fadeOut();
+	$('#top').fadeOut();
+	$('#bottom').fadeOut();
+	
+	$('#toolkit-options').fadeOut(function() {
+		$('#toolkit-tool-options').fadeIn();
+	});
+
+	$('#narrative-list').fadeOut(function() {
+		$('.toolkit-tool').hide();
+		$('#media-toolkit').show();
+		$('#media-type-options').show();
+		$('#tool-extra-options').show();
+		$('.video-tool').show();
+		$('#toolkit-list').fadeIn();
+	});
+
+	// TODO: Only open Question Tool
+}
+
+function openSketchTool2() {
+
+	currentTool = 'Sketch';
+
+	$('#logo').fadeOut();
+	$('#top').fadeOut();
+	$('#bottom').fadeOut();
+	
+	$('#toolkit-options').fadeOut(function() {
+		$('#toolkit-tool-options').fadeIn();
+	});
+
+	$('#narrative-list').fadeOut(function() {
+		$('.toolkit-tool').hide();
+		$('#media-toolkit').show();
+		$('#media-type-options').show();
+		$('#tool-extra-options').show();
+		$('.sketch-tool2').show();
+		$('#toolkit-list').fadeIn();
+	});
+
+	// TODO: Only open Question Tool
+}
+
+function openQuestionTool() {
+
+	currentConceptTool = 'Question';
+
+	$('#logo').fadeOut();
+	$('#top').fadeOut();
+	$('#bottom').fadeOut();
+	
+	$('#toolkit-options').fadeOut(function() {
+		$('#toolkit-tool-options').fadeIn();
+	});
+
+	$('#narrative-list').fadeOut(function() {
+		$('.concept-tool').hide();
+		$('#concept-toolkit').show();
+		$('#toolkit-list').fadeIn();
+		$('.question-tool').fadeIn();
+	});
+}
+
+function openObservationTool() {
+
+	currentConceptTool = 'Observation';
+
+	$('#logo').fadeOut();
+	$('#top').fadeOut();
+	$('#bottom').fadeOut();
+	
+	$('#toolkit-options').fadeOut(function() {
+		$('#toolkit-tool-options').fadeIn();
+	});
+
+	$('#narrative-list').fadeOut(function() {
+		$('.concept-tool').hide();
+		$('#concept-toolkit').show();
+		$('#toolkit-list').fadeIn();
+		$('.observation-tool').fadeIn();
+	});
+}
+
+function openSequenceTool() {
+
+	currentConceptTool = 'Sequence';
+
+	$('#logo').fadeOut();
+	$('#top').fadeOut();
+	$('#bottom').fadeOut();
+	
+	$('#toolkit-options').fadeOut(function() {
+		$('#toolkit-tool-options').fadeIn();
+	});
+
+	$('#narrative-list').fadeOut(function() {
+		$('.concept-tool').hide();
+
+		$('#sequence-tool-template-label').hide();
+		$('#sequence-tool-template-step').hide();
+
+		$('#concept-toolkit').show();
+		$('#toolkit-list').fadeIn();
+		$('.sequence-tool').fadeIn();
+	});
+}
+
+function addSequenceStep() {
+	console.log("addSequenceStep");
+	// Clone template structure and remove 'id' element to avoid 'id' conflict
+	var sequenceStepLabel = $('#sequence-tool-template-label').clone();
+	var sequenceStepStep = $('#sequence-tool-template-step').clone();
+	// sequenceStep.addClass('activity-frame');
+	sequenceStepLabel.removeAttr('id'); // Remove 'id' attribute
+	sequenceStepStep.removeAttr('id'); // Remove 'id' attribute
+	$('#sequence-tool-template-label').show();
+	$('#sequence-tool-template-step').show();
+	// div = sequenceStep.find('.element .text');
+	$('#sequence-tool').append(sequenceStepLabel);
+	$('#sequence-tool').append(sequenceStepStep);
+}
+
+// Get avatar for user of current Account
+function getStories(options) {
+
+	if (typeof options !== "undefined") {
+		if (options.hasOwnProperty('id')) {
+			requestUri = requestUri + '?id=' + options['id'];
+		} else if (options.hasOwnProperty('moment_id')) {
+			requestUri = requestUri + '?moment_id=' + options['moment_id'];
+		} else if (options.hasOwnProperty('frameId')) {
+			requestUri = requestUri + '?frameId=' + options['frameId'];
+		}
+	} else {
+		options = {};
+	}
+
+	options['timeline'] = $("#narrative-list").attr("data-timeline");
+	console.log(options['timeline']);
+
+
+	// var entryId = $(e).find('.activity-widget .element').attr('data-entry');
+
+	// if (entryId === undefined) {
+	// 	return;
+	// }
+
+	$.ajax({
+		type: 'GET',
+		beforeSend: function(request) {
+			request.setRequestHeader('Authorization', 'Bearer ' + localStorage['token']);
+		},
+		url: localStorage['host'] + '/api/story?timelineId=' + options['timeline'],
+		dataType: 'json',
+		success: function(data) {
+			console.log('Received Story for Timeline.');
+			console.log(data);
+
+			// Create the story grid
+
+			var currentRow = -1;
+			var currentColumn = 0;
+			for(var i = 0; i < data.length; i++) {
+				//console.log('Story: ' + data[story].title);
+
+				// Create a new row
+				if (currentRow === -1 || i % 3 === 0) {
+					currentRow++;
+
+					console.log("addSequenceStep");
+					// Clone template structure and remove 'id' element to avoid 'id' conflict
+					var storyGridRow = $('#story-grid-template-row').clone();
+					// sequenceStep.addClass('activity-frame');
+					$(storyGridRow).removeAttr('id'); // Remove 'id' attribute
+					$(storyGridRow).css('display', 'table-row');
+
+					var leftStory = storyGridRow.find('.story-cover-left');
+					$(leftStory).attr('id', 'story-' + currentRow + '-0');
+					$(leftStory).css('opacity', '0');
+
+					var middleStory = storyGridRow.find('.story-cover-middle');
+					$(middleStory).attr('id', 'story-' + currentRow + '-1');
+					$(middleStory).css('opacity', '0');
+
+					var rightStory = storyGridRow.find('.story-cover-right');
+					$(rightStory).attr('id', 'story-' + currentRow + '-2');
+					$(rightStory).css('opacity', '0');
+
+					$('#story-grid-table').append(storyGridRow);
+					$(storyGridRow).show();
+
+					// TODO: Clone table row template and update IDs of covers
+				}
+
+				currentColumn = i % 3;
+
+				var storyCell = $('#story-' + currentRow + '-' + currentColumn);
+				$(storyCell).html('<strong>' + data[i].title + '</strong><br />' + data[i].author.username);
+				$(storyCell).css('opacity', '1');
+				$(storyCell).attr('data-id', data[i]._id);
+				var id = data[i]._id;
+				$(storyCell).click(function() {
+					console.log('openStory ' + $(this).attr('data-id'));
+					getStory({ id: $(this).attr('data-id'), readOnly: true });
+					openStoryTool({ readOnly: true });
+				});
+
+				// TODO: Populate the covers and show them once they're ready
+				console.log('story: ' + currentRow + ', ' + currentColumn);
+
+			}
+		}
+	});
+}
+
+function getStory(options) {
+
+	if (typeof options !== "undefined") {
+		if (options.hasOwnProperty('id')) {
+			// requestUri = requestUri + '?id=' + options['id'];
+		} else if (options.hasOwnProperty('moment_id')) {
+			// requestUri = requestUri + '?moment_id=' + options['moment_id'];
+		} else if (options.hasOwnProperty('frameId')) {
+			// requestUri = requestUri + '?frameId=' + options['frameId'];
+		}
+	} else {
+		options = {
+			readOnly: false
+		};
+	}
+
+	options['timeline'] = $("#narrative-list").attr("data-timeline");
+	console.log(options['timeline']);
+
+
+	// var entryId = $(e).find('.activity-widget .element').attr('data-entry');
+
+	// if (entryId === undefined) {
+	// 	return;
+	// }
+
+	$.ajax({
+		type: 'GET',
+		beforeSend: function(request) {
+			request.setRequestHeader('Authorization', 'Bearer ' + localStorage['token']);
+		},
+		url: localStorage['host'] + '/api/story?timelineId=' + options['timeline'],
+		dataType: 'json',
+		success: function(data) {
+			console.log('Received Story for Timeline.');
+			console.log(data);
+
+			// Create the story grid
+
+			var currentRow = -1;
+			var currentColumn = 0;
+			for(var i = 0; i < data.length; i++) {
+
+				// Find current Story
+				if (data[i]._id === options['id']) {
+					currentStory = data[i];
+					break;
+				}
+
+			}
+
+
+			// Hide all Entries
+			if (options['readOnly'] === true) {
+				// $('.activity-template').hide();
+				$('.activity-frame').hide();
+			} else {
+				// $('.activity-template').show();
+				$('.activity-frame').show();
+			}
+
+			// Show all Entries in the current Story
+
+			var story = currentStory;
+
+			for (pageIndex in story.pages) {
+				var page = story.pages[pageIndex];
+				var entry = page.entry;
+
+				$('#story-tool-title').val(story.title);
+
+				// Check if Entry exists in Inquiry, and if so, denote it as part of the Story.
+				var entryWidget = $('#frame-' + entry._id);
+				$(entryWidget).show();
+				if (options['readOnly'] !== true) {
+					if ($(entryWidget).hasClass('activity-template-right'))
+						$(entryWidget).removeClass('activity-template-right');
+					if ($(entryWidget).hasClass('activity-template-left'))
+						$(entryWidget).removeClass('activity-template-left');
+					$(entryWidget).addClass('activity-template-left');
+				}
+				console.log(entryWidget);
+			}
+
+			// $(e).find('.tags').html('');
+			// for (tag in data) {
+			// 	$(e).find('.tags').append('<span id="tag-' + data[tag]._id + '" style="display:inline-block;" contenteditable="false"><a href="javascript:getTimeline({});">' + data[tag].text + '</a></span> ');
+			// }
+		}
 	});
 }
 
 function saveTool() {
 	// TODO: Check which tool is currently open, save work, reset form.
+
+	console.log("saveTool");
+	console.log("currentPerspective = " + currentPerspective);
+	console.log("currentTool = " + currentTool);
+
+	if (currentPerspective === 'Inquiry') {
+
+		// TODO: Get currentTool and save accordingly
+		// TODO: Clear form after save
+
+		if (currentTool === 'Text') {
+			e = $('#text-tool');
+			saveText(e);
+
+		} else if (currentTool === 'Photo') {
+
+			// Upload the photo
+    		uploadPhoto(lastImageUri);
+
+		} else if (currentTool === 'Video') {
+
+			uploadVideo(lastVideo);
+			
+		} else if (currentTool === 'Sketch') {
+			
+			saveSketchTool();
+		}
+
+
+
+	} else if (currentPerspective === 'Story') {
+
+		if (currentTool === 'Story') {
+			e = $('#story-tool');
+			// saveText(e);
+
+			var story = {
+				title: '',
+				entries: []
+			};
+
+			story.title = e.find('#story-tool-title').val();
+
+			$('.activity-template-left').closest('.activity-template').each(function(i) {
+
+				var entryType = $(this).attr("data-activity-type");
+				var entryId = $(this).attr("data-id");
+
+				console.log(entryId + ' ' + entryType);
+
+				story.entries.push({ type: entryType, entry: entryId });
+				// TODO: Create StoryEntry
+
+			});
+
+			var storyJSON = JSON.stringify(story);
+
+			// var uniqueTags = [];
+			// $.each(tagText, function(i, el) {
+			// 	if($.inArray(el, uniqueTags) === -1) uniqueTags.push(el);
+			// });
+
+
+
+			// POST the JSON object
+
+			$.ajax({
+				type: 'POST',
+				beforeSend: function(request) {
+					request.setRequestHeader('Authorization', 'Bearer ' + localStorage['token']);
+				},
+				url: localStorage['host'] + '/api/story',
+				dataType: 'json',
+				contentType: 'application/json; charset=utf-8',
+				data: storyJSON,
+				processData: false,
+				success: function(data) {
+					console.log('Saved Story: ');
+					console.log(data);
+
+					// Set element container (e.g., Thought). Only gets set once.
+					// $(e).attr('id', 'frame-' + data.frame._id); // e.data('id', data._id);
+					// addTimelineWidget(data);
+					//addSketchWidget();
+
+					console.log('Saved Story.');
+				},
+				error: function() {
+					console.log('Failed to save Story.');
+				}
+			});
+
+		}
+	}
 
 	closeTool();
 }
@@ -1118,6 +1771,7 @@ function openSketchTool() {
 	});
 }
 
+var lastSketch = null;
 function saveSketch() {
 	console.log('saveSketch');
 
@@ -1136,6 +1790,17 @@ function saveSketch() {
 	var imageWidth = $(c).width();
 	var imageHeight = $(c).height();
 
+	lastSketch = base64ImageData;
+	lastSketchWidth = imageWidth;
+	lastSketchHeight = imageHeight;
+
+	$('#sketch-tool2').find('.image').attr('src', $(oImgPNG).attr('src'));
+
+	openSketchTool2();
+}
+
+function saveSketchTool() {
+	console.log('saveSketchTool');
 	// var widget  = e.find('.activity-widget');
 	// var element = e.find('.activity-widget .element');
 	// var text    = e.find('.element .text');
@@ -1143,10 +1808,66 @@ function saveSketch() {
 	// Construct JSON object for element to save
 	var dataJSON = {
 		//"timeline": $("#narrative-list").attr("data-timeline"),
-		"imageData": base64ImageData,
-		"imageWidth": imageWidth,
-		"imageHeight": imageHeight
+		"imageData": $('#sketch-tool2').find('.image').attr('src'),
+		"imageWidth": lastSketchWidth,
+		"imageHeight": lastSketchHeight
 	};
+
+	// Concept
+	var conceptJSON = null;
+	if (currentConceptTool === 'Question') {
+		var questionText = $('#question-tool-text').val();
+
+		conceptJSON = {
+			"type": 'Question',
+			"text": questionText
+		};
+
+	} else if (currentConceptTool === 'Observation') {
+		var causeText = $('#observation-tool-cause').val();
+		var effectText = $('#observation-tool-effect').val();
+
+		conceptJSON = {
+			"type": 'Observation',
+			"cause": causeText, 
+			"effect": effectText
+		};
+		
+	} else if (currentConceptTool === 'Sequence') {
+		var sequenceSteps = $('.sequence-tool-step');
+		var sequenceStepText = [];
+		$('.sequence-tool-step').each(function(i) {
+			console.log("step: " + $(this).val());
+			if ($(this).is(":visible")) {
+				sequenceStepText.push({ step: $(this).val() });
+			}
+		});
+
+		conceptJSON = {
+			"type": 'Sequence',
+			"steps": sequenceStepText
+		};
+
+	}
+
+	// Collaborators
+	var collaboratorsJSON = null;
+	var authors = [];
+	$("input[name='collaborators']:checked").each(function() {
+		authors.push({ author: $(this).val() });
+	});
+	if (authors.length > 0) {
+		collaboratorsJSON = {};
+		collaboratorsJSON.authors = authors;
+	}
+
+	// Feeling/Identity
+	var identityJSON = null;
+	if ($("input[name='identity-options']:checked").length > 0) {
+		identityJSON = {
+			"identity": $("input[name='identity-options']:checked").val()
+		};
+	}
 
 	// if(element.attr("data-frame")) dataJSON.frame = element.attr("data-frame");
 	// if(element.attr("data-id")) dataJSON.reference = element.attr("data-id"); // Set the element to the reference, since it was edited.
@@ -1173,6 +1894,28 @@ function saveSketch() {
 			// $(e).attr('id', 'frame-' + data.frame._id); // e.data('id', data._id);
 			addTimelineWidget(data);
 			//addSketchWidget();
+
+			// Set element container (e.g., Thought). Only gets set once.
+			// $(e).attr('id', 'frame-' + data._id); // e.data('id', data._id);
+			// addTimelineWidget(e);
+
+			// Save Concept
+			if (conceptJSON) {
+				conceptJSON.parent = data._id;
+				saveConceptTool(conceptJSON);
+			}
+
+			// Save Collaborators
+			if (collaboratorsJSON) {
+				collaboratorsJSON.parent = data._id;
+				saveCollaborationTool(collaboratorsJSON);
+			}
+
+			// Save Identity
+			if (identityJSON) {
+				identityJSON.parent = data._id;
+				saveIdentityTool(identityJSON);
+			}
 
 			console.log('Updated Sketch element.');
 		},
@@ -1533,9 +2276,13 @@ function addThoughtWidget(entry) {
 
 		// Update Account that authored the contribution
 		//if (thought.author && thought.username) {
-			e.find('.account').html('<strong>' + entry.author.username + '</strong>' + ' had a thought');
-			console.log(entry.author.username);
+			e.find('.account').html('<strong>' + entry.author.username + ' had a thought</strong>');
 		//}
+
+		// Update bumps
+		if (entry.hasOwnProperty('bumps')) {
+			e.find('.element .options').html('Bumps: ' + entry.bumps.length);
+		}
 
 		// Update options for widget
 		var options = e.find('.activity-widget .element .options');
@@ -1548,7 +2295,7 @@ function addThoughtWidget(entry) {
 			// Set up Widget event handlers.
 			//
 
-			e.appendTo('#narrative-list');
+			e.prependTo('#narrative-list');
 			//e.find('.element .text').off('blur');
 			//e.find('.element .text').blur(function() { saveThought(e); });
 			e.find('.tags').off('blur');
@@ -1590,7 +2337,7 @@ function addThoughtWidget(entry) {
 		e = $('#thought-activity-template').clone().attr('id', 'volatile-activity');
 		e.addClass('activity-frame');
 		e.removeAttr('id'); // Remove 'id' attribute
-		e.appendTo('#narrative-list');
+		e.prependTo('#narrative-list');
 		// e.find('.element .options .timeline').click(function() { getTimeline({ moment_id: moment._id }); });
 
 		setupThoughtWidget();
@@ -1728,6 +2475,223 @@ function addThoughtWidget(entry) {
 	}
 }
 
+function addTextWidget(entry) {
+
+	var type = 'text';
+
+	//
+	// Make sure that the Moment has a sound structure.
+	//
+
+	if(entry && entry.entry && entry.entry._id) {
+
+		var text = entry.entry; // TODO: Update this based on current view for user
+
+		// Only continue if Thought element is valid
+		if (!text) return;
+
+		var e;
+		var div;
+
+		//
+		// Check if a widget for the Activity already exists. If so, store a reference 
+		// to it.  If not, create the widget and store a reference to it.
+		//
+
+		if ($("#frame-" + entry._id).length != 0) {
+			// Element exists, so update it
+			console.log("Found existing text widget. Updating widget.");
+
+			e = $('#frame-' + entry._id); // <li> element
+			div = e.find('.element .text');
+
+		} else {
+
+			// Widget does not exist for element does not exist, so create it
+			console.log("Could not find existing widget for text. Creating new text widget.");
+
+			// Clone template structure and remove 'id' element to avoid 'id' conflict
+			e = $('#text-activity-template').clone().attr('id', 'volatile-activity');
+			e.addClass('activity-frame');
+			e.removeAttr('id'); // Remove 'id' attribute
+			div = e.find('.element .text');
+		}
+
+		//
+		// Update widget based on whether it is the timeline's "parent" Moment
+		//
+
+		if (entry._id === $('#narrative-list').attr('data-entry')) {
+			e.find('.timeline-branch').hide();
+		}
+
+		// Update 'li' for element
+		e.attr('id', 'frame-' + entry._id);
+		e.attr('data-id', entry._id);
+		e.attr('data-timeline', entry.timeline);
+
+		// Update element
+		var div2 = e.find('.activity-widget .element');
+		div2.attr('id', 'text-' + text._id);
+		div2.attr('data-id', text._id);
+		div2.attr('data-entry', entry._id);
+		//div2.attr('data-reference', text.reference);
+		div2.attr('data-text', text.text);
+		div.attr('contenteditable', 'false');
+		// div.html(text.text);
+
+		//
+		// Add Question, Observation, or Sequence
+		//
+		var authorEntryAction = 'wrote something';
+		if (entry.hasOwnProperty('questions')) {
+			var question = entry.questions[0];
+			e.find('.entry-margin-icon-img').attr('src', './img/question-green.png');
+			e.find('.observation').hide();
+			e.find('.sequence').hide();
+			e.find('.question').show();
+			authorEntryAction = 'asked a question';
+			div.html(question.question);
+
+		} else if (entry.hasOwnProperty('observations')) {
+			var observation = entry.observations[0];
+			e.find('.entry-margin-icon-img').attr('src', './img/cause-and-effect.png');
+			e.find('.question').hide();
+			e.find('.sequence').hide();
+			e.find('.observation').show();
+			authorEntryAction = 'noticed something';
+			e.find('.effect').html(observation.cause);
+			e.find('.cause').html(observation.effect);
+
+		} else if (entry.hasOwnProperty('sequences')) {
+			var sequence = entry.sequences[0];
+			e.find('.entry-margin-icon-img').attr('src', './img/step-by-step.png');
+			var sequenceString = '';
+			var index = 1;
+
+			for (step2 in sequence.steps) {
+				sequenceString += '<strong>' + index + ' </strong>' + sequence.steps[step2].step + '<br />';
+
+				var step = e.find('.sequence-step-template').clone();
+				var stepDivider = e.find('.sequence-step-divider-template').clone();
+
+				step.removeClass('sequence-step-template');
+				step.addClass('sequence-step');
+				stepDivider.removeClass('sequence-step-divider-template');
+				stepDivider.addClass('sequence-step-divider');
+
+				// Make sure the new elements are set to display:table-row to render properly
+				$(step).css('display', 'table-row');
+				$(stepDivider).css('display', 'table-row');
+
+				// e.removeAttr('id'); // Remove 'id' attribute
+				// e.prependTo('#narrative-list');
+				// e.find('.element-table').append(step);
+				e.find('.sequence-section').append(step);
+				e.find('.sequence-section').append(stepDivider);
+				// e.find('.element-table').append(stepDivider);
+				// $(step).insertBefore(e.find('.sequence-step-template'));
+
+				$(step).find('.step').html('<strong>' + index + '.</strong> ' + sequence.steps[step2].step);
+
+				index++;
+			}
+			e.find('.question').hide();
+			e.find('.observation').hide();
+			e.find('.sequence').show();
+
+			e.find('.sequence-step-template').hide();
+			e.find('.sequence-step-divider-template').hide();
+
+			authorEntryAction = 'did a step by step activity';
+		}
+
+		// Update Account that authored the contribution
+		//if (text.author && text.username) {
+			e.find('.account').html('<strong>' + entry.author.username + '</strong> ' + authorEntryAction);
+			if (entry.hasOwnProperty('collaborations')) {
+				var authors = entry.collaborations[0].authors;
+
+				if (authors.length > 0) {
+					e.find('.account').html('<strong>' + entry.author.username + '</strong>'  + ' ' + authorEntryAction + ' with ' + authors.length + ' others');
+				}
+			}
+
+			if (entry.hasOwnProperty('date')) {
+				var currentHtml = e.find('.account').html();
+				var entryDate = new Date(entry.date);
+				e.find('.account').html(currentHtml + ' on ' + entryDate.getMonth() + '/' + entryDate.getDay() + '/' + entryDate.getFullYear() + ' at ' + entryDate.getHours() + ':' + entryDate.getMinutes());
+			}
+		//}
+
+		// Update bumps
+		if (entry.hasOwnProperty('bumps')) {
+			e.find('.bump-count').text(entry.bumps.length);
+		}
+
+		// Update options for widget
+		var options = e.find('.activity-widget .element .options');
+		// options.find('.open').click(function() { getNextThought(e); });
+
+		if ($("#frame-" + entry._id).length != 0) {
+		} else {
+
+			//
+			// Set up Widget event handlers.
+			//
+
+			e.prependTo('#narrative-list');
+			//e.find('.element .text').off('blur');
+			//e.find('.element .text').blur(function() { saveThought(e); });
+			e.find('.tags').off('blur');
+			e.find('.tags').blur(function() { saveTags(e); });
+			//e.find('.element .options .timeline').click(function() { getTimeline({ moment_id: entry._id }); });
+			e.find('.timeline').click(function() { getTimeline({ moment_id: entry._id }); });
+			e.find('.hide').click(function() { toggleWidget(e); });
+
+			e.find('.bump').click(function() { bumpEntry(e); });
+		
+
+			e.show(); // Show element
+
+			//
+			// Request Tags from server
+			//
+
+			getTags(e);
+		}
+
+		// Update Frame based on FrameView for current user's Account
+		if (entry.visible === false) {
+			$(e).addClass('hidden')
+			$(e).find('.hide').attr('src', './img/plus-red.png');
+			$(e).hide();
+		}
+
+		// setupThoughtWidget();
+
+	} else {
+
+		//
+		// Widget does not exist for the Activity.  Create new Widget.
+		//
+
+		console.log("Creating new Widget for Thought.");
+
+		// Clone template structure and remove 'id' element to avoid 'id' conflict
+		e = $('#thought-activity-template').clone().attr('id', 'volatile-activity');
+		e.addClass('activity-frame');
+		e.removeAttr('id'); // Remove 'id' attribute
+		e.prependTo('#narrative-list');
+		// e.find('.element .options .timeline').click(function() { getTimeline({ moment_id: moment._id }); });
+
+		setupThoughtWidget();
+
+		// Show the Widget
+		e.show();
+	}
+}
+
 function addTopicWidget(moment) {
 
 	if(moment && moment.frame && moment.frame._id) {
@@ -1777,7 +2741,7 @@ function addTopicWidget(moment) {
 		if ($("#frame-" + topicFrame.frame).length != 0) {
 		} else {
 
-			e.appendTo('#narrative-list');
+			e.prependTo('#narrative-list');
 			e.find('.element .text').blur(function() { saveTopic(e); });
 			e.find('.element .options .timeline').click(function() { getTimeline({ moment_id: moment._id }); });
 			e.find('.hide').click(function() { toggleWidget(e); });
@@ -1800,7 +2764,7 @@ function addTopicWidget(moment) {
 		e = $('#topic-activity-template').clone().attr('id', 'volatile-activity');
 		e.addClass('activity-frame');
 		e.removeAttr('id'); // Remove 'id' attribute
-		e.appendTo('#narrative-list');
+		e.prependTo('#narrative-list');
 		e.find('.element .text').blur(function() { saveTopic(e) });
 		// e.find('.element .options .timeline').click(function() { getTimeline({ moment_id: moment._id }); });
 		e.show(); // Show element
@@ -1841,7 +2805,10 @@ function addTimelineWidget(entry) {
 	console.log(entry.entryType);
 
 	// Add thought to timeline
-	if(entry.entryType === 'Thought') {
+	if(entry.entryType === 'Text') {
+		addTextWidget(entry);
+
+	} else if(entry.entryType === 'Thought') {
 		addThoughtWidget(entry);
 
 	} else if(entry.entryType === 'Topic') {
@@ -1923,8 +2890,63 @@ function addPhotoWidget(entry) {
 		// Update Account that authored the contribution
 		//if (thought.author && thought.username) {
 			e.find('.account').html('<strong>' + entry.author.username + '</strong>' + ' snapped a photo');
-			console.log(entry.author.username);
 		//}
+
+		//
+		// Question, Observation, Sequence
+		//
+		e.find('.question-section').hide();
+		e.find('.observation-section').hide();
+		e.find('.sequence-section-template').hide();
+		e.find('.sequence-section-divider-template').hide();
+		if (entry.hasOwnProperty('questions')) {
+			e.find('.question-section').show();
+			e.find('.question-section').find('.question').html(entry.questions[0].question);
+		} else if (entry.hasOwnProperty('observations')) {
+			e.find('.observation-section').show();
+			e.find('.observation-effect').html(entry.observations[0].effect);
+			e.find('.observation-cause').html(entry.observations[0].cause);
+		} else if (entry.hasOwnProperty('sequences')) {
+			e.find('.sequence-section').show();
+			e.find('.sequence-section').attr('display', 'table-row');
+			e.find('.sequence-section').find('.sequence').html('sequence!!!!!');
+
+			var sequence = entry.sequences[0];
+			var index = 1;
+			for (step2 in sequence.steps) {
+
+				var step = e.find('.sequence-section-template').clone();
+				var stepDivider = e.find('.sequence-section-divider-template').clone();
+
+				step.removeClass('sequence-section-template');
+				step.addClass('sequence-section');
+				stepDivider.removeClass('sequence-section-divider-template');
+				stepDivider.addClass('sequence-section-divider');
+
+				if (index > 1) {
+					step.find('.step').css('background-image', 'none');
+				}
+
+				step.find('.step').html('<strong>' + index + '.</strong> ' + sequence.steps[step2].step);
+
+				// Make sure the new elements are set to display:table-row to render properly
+				$(step).css('display', 'table-row');
+				$(stepDivider).css('display', 'table-row');
+
+				// e.removeAttr('id'); // Remove 'id' attribute
+				// e.prependTo('#narrative-list');
+				// e.find('.element-table').append(step);
+				$(step).insertBefore(e.find('.sequence-section-divider-template'));
+				if (index < sequence.steps.length) {
+					$(stepDivider).insertBefore(e.find('.sequence-section-divider-template'));
+				}
+				// e.find('.sequence-section').append(step);
+				// e.find('.sequence-section').append(stepDivider);
+
+				index++;
+
+			}
+		}
 
 		// Add Tags
 		e.find('.tags').off('blur');
@@ -1934,14 +2956,14 @@ function addPhotoWidget(entry) {
 		var image = e.find('.element .image');
 		image.attr('src', '' + localStorage['host'] + photo.uri + '');
 
-		image.click(function (event) { 
-			generatePhotoPage(event);
-		});
+		// image.click(function (event) { 
+		// 	generatePhotoPage(event);
+		// });
 
 		if ($("#frame-" + entry._id).length != 0) {
 		} else {
 
-			e.appendTo('#narrative-list');
+			e.prependTo('#narrative-list');
 			//e.find('.element .image').click(function() { changePhoto(e) });
 			e.find('.element .options .timeline').click(function() { getTimeline({ moment_id: entry._id }); });
 			e.find('.hide').click(function() { toggleWidget(e); });
@@ -1967,7 +2989,7 @@ function addPhotoWidget(entry) {
 		e = $('#photo-template').clone().attr('id', 'volatile-activity');
 		e.addClass('activity-frame');
 		e.removeAttr('id'); // Remove 'id' attribute
-		e.appendTo('#narrative-list');
+		e.prependTo('#narrative-list');
 		e.find('.element .image').click(function() { changePhoto(e) });
 		e.show(); // Show element
 	}
@@ -2030,16 +3052,71 @@ function addVideoWidget(entry) {
 		// Update Account that authored the contribution
 		//if (thought.author && thought.username) {
 			e.find('.account').html('<strong>' + entry.author.username + '</strong>' + ' shot a video');
-			console.log(entry.author.username);
 		//}
 
 		// Set video
-		var videoElement = e.find('.element .video .source');
+		var videoElement = e.find('.element .video');
 		videoElement.attr('src', '' + localStorage['host'] + video.uri + '');
 
-		e.find('.element .video').click(function (event) { 
-			generateVideoPage(event);
-		});
+		//
+		// Question, Observation, Sequence
+		//
+		e.find('.question-section').hide();
+		e.find('.observation-section').hide();
+		e.find('.sequence-section-template').hide();
+		e.find('.sequence-section-divider-template').hide();
+		if (entry.hasOwnProperty('questions')) {
+			e.find('.question-section').show();
+			e.find('.question-section').find('.question').html(entry.questions[0].question);
+		} else if (entry.hasOwnProperty('observations')) {
+			e.find('.observation-section').show();
+			e.find('.observation-effect').html(entry.observations[0].effect);
+			e.find('.observation-cause').html(entry.observations[0].cause);
+		} else if (entry.hasOwnProperty('sequences')) {
+			e.find('.sequence-section').show();
+			e.find('.sequence-section').attr('display', 'table-row');
+			e.find('.sequence-section').find('.sequence').html('sequence!!!!!');
+
+			var sequence = entry.sequences[0];
+			var index = 1;
+			for (step2 in sequence.steps) {
+
+				var step = e.find('.sequence-section-template').clone();
+				var stepDivider = e.find('.sequence-section-divider-template').clone();
+
+				step.removeClass('sequence-section-template');
+				step.addClass('sequence-section');
+				stepDivider.removeClass('sequence-section-divider-template');
+				stepDivider.addClass('sequence-section-divider');
+
+				if (index > 1) {
+					step.find('.step').css('background-image', 'none');
+				}
+
+				step.find('.step').html('<strong>' + index + '.</strong> ' + sequence.steps[step2].step);
+
+				// Make sure the new elements are set to display:table-row to render properly
+				$(step).css('display', 'table-row');
+				$(stepDivider).css('display', 'table-row');
+
+				// e.removeAttr('id'); // Remove 'id' attribute
+				// e.prependTo('#narrative-list');
+				// e.find('.element-table').append(step);
+				$(step).insertBefore(e.find('.sequence-section-divider-template'));
+				if (index < sequence.steps.length) {
+					$(stepDivider).insertBefore(e.find('.sequence-section-divider-template'));
+				}
+				// e.find('.sequence-section').append(step);
+				// e.find('.sequence-section').append(stepDivider);
+
+				index++;
+
+			}
+		}
+
+		// e.find('.element .video').click(function (event) { 
+		// 	generateVideoPage(event);
+		// });
 
 		// Add Tags
 		e.find('.tags').off('blur');
@@ -2048,7 +3125,7 @@ function addVideoWidget(entry) {
 		if ($("#frame-" + entry._id).length != 0) {
 		} else {
 
-			e.appendTo('#narrative-list');
+			e.prependTo('#narrative-list');
 			//e.find('.element .video').click(function() { changeVideo(e) });
 			e.find('.element .options .timeline').click(function() { getTimeline({ moment_id: entry._id }); });
 			e.find('.hide').click(function() { toggleWidget(e); });
@@ -2074,7 +3151,7 @@ function addVideoWidget(entry) {
 		e = $('#video-activity-template').clone().attr('id', 'volatile-activity');
 		e.addClass('activity-frame');
 		e.removeAttr('id'); // Remove 'id' attribute
-		e.appendTo('#narrative-list');
+		e.prependTo('#narrative-list');
 		//e.find('.element .video').click(function() { changeVideo(e) });
 		e.show(); // Show element
 	}
@@ -2165,7 +3242,7 @@ function addMotionWidget(moment) {
 		if ($("#frame-" + frame.frame).length != 0) {
 		} else {
 
-			e.appendTo('#narrative-list');
+			e.prependTo('#narrative-list');
 			//e.find('.element .image').click(function() { changePhoto(e) });
 			e.find('.element .options .timeline').click(function() { getTimeline({ moment_id: moment._id }); });
 			e.find('.hide').click(function() { toggleWidget(e); });
@@ -2204,7 +3281,7 @@ function addMotionWidget(moment) {
 		e = $('#motion-activity-template').clone().attr('id', 'volatile-activity');
 		e.addClass('activity-frame');
 		e.removeAttr('id'); // Remove 'id' attribute
-		e.appendTo('#narrative-list');
+		e.prependTo('#narrative-list');
 		//e.find('.element .image').click(function() { changePhoto(e) });
 		e.show(); // Show element
 	}
@@ -2220,7 +3297,7 @@ function addMotionWidget(moment) {
 function addSketchWidget(entry) {
 	console.log("addSketchWidget");
 
-	console.log(entry);
+	// console.log(entry);
 
 	if(entry && entry.entry && entry.entry._id) {
 
@@ -2270,8 +3347,63 @@ function addSketchWidget(entry) {
 		// Update Account that authored the contribution
 		//if (thought.author && thought.username) {
 			e.find('.account').html('<strong>' + entry.author.username + '</strong>' + ' made a sketch');
-			console.log(entry.author.username);
 		//}
+
+		//
+		// Question, Observation, Sequence
+		//
+		e.find('.question-section').hide();
+		e.find('.observation-section').hide();
+		e.find('.sequence-section-template').hide();
+		e.find('.sequence-section-divider-template').hide();
+		if (entry.hasOwnProperty('questions')) {
+			e.find('.question-section').show();
+			e.find('.question-section').find('.question').html(entry.questions[0].question);
+		} else if (entry.hasOwnProperty('observations')) {
+			e.find('.observation-section').show();
+			e.find('.observation-effect').html(entry.observations[0].effect);
+			e.find('.observation-cause').html(entry.observations[0].cause);
+		} else if (entry.hasOwnProperty('sequences')) {
+			e.find('.sequence-section').show();
+			e.find('.sequence-section').attr('display', 'table-row');
+			e.find('.sequence-section').find('.sequence').html('sequence!!!!!');
+
+			var sequence = entry.sequences[0];
+			var index = 1;
+			for (step2 in sequence.steps) {
+
+				var step = e.find('.sequence-section-template').clone();
+				var stepDivider = e.find('.sequence-section-divider-template').clone();
+
+				step.removeClass('sequence-section-template');
+				step.addClass('sequence-section');
+				stepDivider.removeClass('sequence-section-divider-template');
+				stepDivider.addClass('sequence-section-divider');
+
+				if (index > 1) {
+					step.find('.step').css('background-image', 'none');
+				}
+
+				step.find('.step').html('<strong>' + index + '.</strong> ' + sequence.steps[step2].step);
+
+				// Make sure the new elements are set to display:table-row to render properly
+				$(step).css('display', 'table-row');
+				$(stepDivider).css('display', 'table-row');
+
+				// e.removeAttr('id'); // Remove 'id' attribute
+				// e.prependTo('#narrative-list');
+				// e.find('.element-table').append(step);
+				$(step).insertBefore(e.find('.sequence-section-divider-template'));
+				if (index < sequence.steps.length) {
+					$(stepDivider).insertBefore(e.find('.sequence-section-divider-template'));
+				}
+				// e.find('.sequence-section').append(step);
+				// e.find('.sequence-section').append(stepDivider);
+
+				index++;
+
+			}
+		}
 
 		// Add Tags
 		e.find('.tags').off('blur');
@@ -2288,7 +3420,7 @@ function addSketchWidget(entry) {
 		if ($("#frame-" + entry._id).length != 0) {
 		} else {
 
-			e.appendTo('#narrative-list');
+			e.prependTo('#narrative-list');
 			//e.find('.element .image').click(function() { changeSketch(e) });
 			e.find('.element .options .timeline').click(function() { getTimeline({ moment_id: entry._id }); });
 			e.find('.hide').click(function() { toggleWidget(e); });
@@ -2326,7 +3458,7 @@ function addSketchWidget(entry) {
 		e = $('#sketch-activity-template').clone().attr('id', 'volatile-activity');
 		e.addClass('activity-frame');
 		e.removeAttr('id'); // Remove 'id' attribute
-		e.appendTo('#narrative-list');
+		e.prependTo('#narrative-list');
 		//e.find('.element .image').click(function() { changeSketch(e) });
 		e.show(); // Show element
 	}
@@ -2412,7 +3544,7 @@ function addNarrationWidget(moment) {
 		if ($("#frame-" + perspective.frame).length != 0) {
 		} else {
 
-			e.appendTo('#narrative-list');
+			e.prependTo('#narrative-list');
 			//e.find('.element .image').click(function() { changePhoto(e) });
 			e.find('.element .options .timeline').click(function() { getTimeline({ moment_id: moment._id }); });
 			e.find('.hide').click(function() { toggleWidget(e); });
@@ -2439,7 +3571,7 @@ function addNarrationWidget(moment) {
 		e = $('#narration-activity-template').clone().attr('id', 'volatile-activity');
 		e.addClass('activity-frame');
 		e.removeAttr('id'); // Remove 'id' attribute
-		e.appendTo('#narrative-list');
+		e.prependTo('#narrative-list');
 		//e.find('.element .image').click(function() { changePhoto(e) });
 		e.find('.text').blur(function() { saveNarration(e); });
 		e.show(); // Show element
@@ -2766,6 +3898,306 @@ function saveThought(e) {
 		},
 		error: function() {
 			console.log('Failed to save thought.');
+		}
+	});
+}
+
+function saveText(e) {
+	console.log('saveText');
+
+	// var widget  = e.find('.activity-widget');
+	var element = e.find('.element');
+	// var text    = e.find('.element .text');
+
+	// Construct JSON object for element to save
+	var dataJSON = {
+		"timeline": $("#narrative-list").attr("data-timeline"),
+		// "text": e.find('#text-tool-text').val()
+	};
+
+	// Concept
+	var conceptJSON = null;
+	if (currentConceptTool === 'Question') {
+		var questionText = $('#question-tool-text').val();
+
+		conceptJSON = {
+			"type": 'Question',
+			"text": questionText
+		};
+
+	} else if (currentConceptTool === 'Observation') {
+		var causeText = $('#observation-tool-cause').val();
+		var effectText = $('#observation-tool-effect').val();
+
+		conceptJSON = {
+			"type": 'Observation',
+			"cause": causeText, 
+			"effect": effectText
+		};
+		
+	} else if (currentConceptTool === 'Sequence') {
+		var sequenceSteps = $('.sequence-tool-step');
+		var sequenceStepText = [];
+		$('.sequence-tool-step').each(function(i) {
+			console.log("step: " + $(this).val());
+			if ($(this).is(":visible")) {
+				sequenceStepText.push({ step: $(this).val() });
+			}
+		});
+
+		conceptJSON = {
+			"type": 'Sequence',
+			"steps": sequenceStepText
+		};
+
+	}
+
+	// Collaborators
+	var collaboratorsJSON = null;
+	var authors = [];
+	$("input[name='collaborators']:checked").each(function() {
+		authors.push({ author: $(this).val() });
+	});
+	if (authors.length > 0) {
+		collaboratorsJSON = {};
+		collaboratorsJSON.authors = authors;
+	}
+
+	// Feeling/Identity
+	var identityJSON = null;
+	if ($("input[name='identity-options']:checked").length > 0) {
+		identityJSON = {
+			"identity": $("input[name='identity-options']:checked").val()
+		};
+	}
+
+	// if(element.attr("data-frame")) dataJSON.frame = element.attr("data-frame");
+	// if(element.attr("data-id")) dataJSON.reference = element.attr("data-id"); // Set the element to the reference, since it was edited.
+
+	console.log("Saving Text: ");
+	console.log(dataJSON);
+	// POST the JSON object
+
+	$.ajax({
+		type: 'POST',
+		beforeSend: function(request) {
+			request.setRequestHeader('Authorization', 'Bearer ' + localStorage['token']);
+		},
+		url: localStorage['host'] + '/api/text',
+		dataType: 'json',
+		contentType: 'application/json; charset=utf-8',
+		data: JSON.stringify(dataJSON),
+		processData: false,
+		success: function(data) {
+			console.log('Saved Text: ');
+			console.log(data);
+
+			// Set element container (e.g., Thought). Only gets set once.
+			$(e).attr('id', 'frame-' + data._id); // e.data('id', data._id);
+			addTimelineWidget(e);
+
+			// Save Concept
+			if (conceptJSON) {
+				conceptJSON.parent = data._id;
+				saveConceptTool(conceptJSON);
+			}
+
+			// Save Collaborators
+			if (collaboratorsJSON) {
+				collaboratorsJSON.parent = data._id;
+				saveCollaborationTool(collaboratorsJSON);
+			}
+
+			// Save Identity
+			if (identityJSON) {
+				identityJSON.parent = data._id;
+				saveIdentityTool(identityJSON);
+			}
+		},
+		error: function() {
+			console.log('Failed to save Text.');
+		}
+	});
+}
+
+function saveConceptTool(jsonData, callback) {
+	// jsonData.type
+	console.log('saveConceptTool');
+
+	if (jsonData.type === 'Question') {
+		saveQuestion(jsonData);
+	} else if (jsonData.type === 'Observation') {
+		saveObservation(jsonData);
+	} else if (jsonData.type === 'Sequence') {
+		saveSequence(jsonData);
+	}
+}
+
+function saveQuestion(jsonData) {
+	console.log('saveQuestion');
+
+	console.log("Saving Question (JSON): ");
+	console.log(jsonData);
+	// POST the JSON object
+
+	$.ajax({
+		type: 'POST',
+		beforeSend: function(request) {
+			request.setRequestHeader('Authorization', 'Bearer ' + localStorage['token']);
+		},
+		url: localStorage['host'] + '/api/question',
+		dataType: 'json',
+		contentType: 'application/json; charset=utf-8',
+		data: JSON.stringify(jsonData),
+		processData: false,
+		success: function(data) {
+			console.log('Saved Question: ');
+			console.log(data);
+
+			// Set element container (e.g., Thought). Only gets set once.
+			// $(e).attr('id', 'frame-' + data.frame._id); // e.data('id', data._id);
+			// addTimelineWidget(e);
+		},
+		error: function() {
+			console.log('Failed to save Question.');
+		}
+	});
+}
+
+function saveObservation(jsonData) {
+	console.log('saveObservation');
+
+	console.log("Saving Observation (JSON): ");
+	console.log(jsonData);
+	// POST the JSON object
+
+	$.ajax({
+		type: 'POST',
+		beforeSend: function(request) {
+			request.setRequestHeader('Authorization', 'Bearer ' + localStorage['token']);
+		},
+		url: localStorage['host'] + '/api/observation',
+		dataType: 'json',
+		contentType: 'application/json; charset=utf-8',
+		data: JSON.stringify(jsonData),
+		processData: false,
+		success: function(data) {
+			console.log('Saved Observation: ');
+			console.log(data);
+
+			// Set element container (e.g., Thought). Only gets set once.
+			// $(e).attr('id', 'frame-' + data.frame._id); // e.data('id', data._id);
+			// addTimelineWidget(e);
+		},
+		error: function() {
+			console.log('Failed to save Observation.');
+		}
+	});
+}
+
+function saveSequence(jsonData) {
+	console.log('saveSequence');
+
+	console.log("Saving Sequence (JSON): ");
+	console.log(jsonData);
+	// POST the JSON object
+
+	$.ajax({
+		type: 'POST',
+		beforeSend: function(request) {
+			request.setRequestHeader('Authorization', 'Bearer ' + localStorage['token']);
+		},
+		url: localStorage['host'] + '/api/sequence',
+		dataType: 'json',
+		contentType: 'application/json; charset=utf-8',
+		data: JSON.stringify(jsonData),
+		processData: false,
+		success: function(data) {
+			console.log('Saved Sequence: ');
+			console.log(data);
+
+			// Set element container (e.g., Thought). Only gets set once.
+			// $(e).attr('id', 'frame-' + data.frame._id); // e.data('id', data._id);
+			// addTimelineWidget(e);
+		},
+		error: function() {
+			console.log('Failed to save Sequence.');
+		}
+	});
+}
+
+function saveCollaborationTool(jsonData, callback) {
+	// jsonData.accounts[0].id
+	console.log('saveCollaborationTool');
+
+	saveCollaboration(jsonData);
+}
+
+function saveCollaboration(jsonData) {
+	console.log('saveCollaboration');
+
+	console.log("Saving Collaboration (JSON): ");
+	console.log(jsonData);
+	// POST the JSON object
+
+	$.ajax({
+		type: 'POST',
+		beforeSend: function(request) {
+			request.setRequestHeader('Authorization', 'Bearer ' + localStorage['token']);
+		},
+		url: localStorage['host'] + '/api/collaboration',
+		dataType: 'json',
+		contentType: 'application/json; charset=utf-8',
+		data: JSON.stringify(jsonData),
+		processData: false,
+		success: function(data) {
+			console.log('Saved Collaboration: ');
+			console.log(data);
+
+			// Set element container (e.g., Thought). Only gets set once.
+			// $(e).attr('id', 'frame-' + data.frame._id); // e.data('id', data._id);
+			// addTimelineWidget(e);
+		},
+		error: function() {
+			console.log('Failed to save Collaboration.');
+		}
+	});
+}
+
+function saveIdentityTool(jsonData, callback) {
+	// jsonData.identity
+	console.log('saveIdentityTool');
+
+	saveIdentity(jsonData);
+}
+
+function saveIdentity(jsonData) {
+	console.log('saveIdentity');
+
+	console.log("Saving Identity (JSON): ");
+	console.log(jsonData);
+	// POST the JSON object
+
+	$.ajax({
+		type: 'POST',
+		beforeSend: function(request) {
+			request.setRequestHeader('Authorization', 'Bearer ' + localStorage['token']);
+		},
+		url: localStorage['host'] + '/api/identity',
+		dataType: 'json',
+		contentType: 'application/json; charset=utf-8',
+		data: JSON.stringify(jsonData),
+		processData: false,
+		success: function(data) {
+			console.log('Saved Identity: ');
+			console.log(data);
+
+			// Set element container (e.g., Thought). Only gets set once.
+			// $(e).attr('id', 'frame-' + data.frame._id); // e.data('id', data._id);
+			// addTimelineWidget(e);
+		},
+		error: function() {
+			console.log('Failed to save Identity.');
 		}
 	});
 }

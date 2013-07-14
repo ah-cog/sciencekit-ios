@@ -11,8 +11,16 @@ block content
 	//a(id="account-list", href="javascript:void(0);") Request resource (using access token)
 	//p(id="resource_response") no resource received
 
-	.edge(id="logo", style="position: fixed; left: 80px; top: 0px; text-align: right; font-size: 30px; padding-right: 10px; z-index: 1001;")
-		img(id="logo", src="./img/sciencekit-logo.png", alt="sciencekit logo", style="margin-top: 0px; width: 230px;")
+	.edge(id="mode-options", style="position: fixed; left: 10px; top: 0px; text-align: right; font-size: 30px; padding-right: 10px; z-index: 1001;")
+		a(href="javascript:void(0);", onclick="openInquiryPerspective();") 
+			img(src="./img/earth.png", width="50px", alt="inquiry")
+			| capture
+		a(href="javascript:void(0);", onclick="openStoryPerspective();") 
+			img(src="./img/story.png", width="50px", alt="story")
+			| story
+
+	//.edge(id="logo", style="position: fixed; left: 80px; top: 0px; text-align: right; font-size: 30px; padding-right: 10px; z-index: 1001;")
+	//	img(id="logo", src="./img/sciencekit-logo.png", alt="sciencekit logo", style="margin-top: 0px; width: 230px;")
 
 	.edge(id="top", style="text-align: right; font-size: 30px; padding-right: 10px; z-index: 1000;")
 		//a(a(href="javscript:void(0);", onclick="generateStory();") 
@@ -26,38 +34,48 @@ block content
 		a(href="javscript:void(0);", onclick="scrollToTop();") 
 			img(src="./img/up-arrow.png", alt="top")
 
+	//
+	// Toolkit Options
+	//
 	.edge(id="toolkit-options", style="position: fixed; right: 0px; top: 100px; text-align: right; font-size: 30px; padding-right: 10px; z-index: 1000;")
-		a(href="javascript:void(0);", onclick="openQuestionTool();") 
-			img(src="./img/question.png", width="50px", alt="question")
+		a(href="javascript:void(0);", onclick="openTextTool();") 
+			img(src="./img/text.png", width="50px", alt="text")
 		br
 
-		a(href="javascript:void(0);", onclick="openSketchTool();") 
-			img(src="./img/cause-and-effect.png", width="50px", alt="observation")
-		br
-
-		a(href="javascript:void(0);", onclick="openSketchTool();") 
-			img(src="./img/step-by-step.png", width="50px", alt="sequence")
-		br
-
-		a(href="javascript:void(0);", onclick="addThoughtWidget();scrollToBottom();") 
-			img(src="./img/thought.png", width="50px", alt="thought")
-		br
-
+		//a(href="javascript:void(0);", onclick="openPhotoTool();") 
 		a(href="javascript:void(0);", onclick="capturePhotoToURI();") 
 			img(src="./img/camera.png", width="50px", alt="image")
 		br
 
-		a(href="javascript:void(0);", onclick="captureVideo2();scrollToBottom();") 
+		// a(href="javascript:void(0);", onclick="openVideoTool();") 
+		a(href="javascript:void(0);", onclick="captureVideo2();") 
 			img(src="./img/video.png", width="50px", alt="video")
 		br
 
+		//a(href="javascript:void(0);", onclick="openSketchTool2();") 
 		a(href="javascript:void(0);", onclick="openSketchTool();") 
 			img(src="./img/palette.png", width="50px", alt="sketch")
 		br
 
-		a(href="javascript:void(0);", onclick="addThoughtWidget();scrollToBottom();") 
-			img(src="./img/story.png", width="50px", alt="story")
+		//a(href="javascript:void(0);", onclick="openQuestionTool();") 
+		//	img(src="./img/question.png", width="50px", alt="question")
+		//br
 
+		//a(href="javascript:void(0);", onclick="openObservationTool();") 
+		//	img(src="./img/cause-and-effect.png", width="50px", alt="observation")
+		//br
+
+		//a(href="javascript:void(0);", onclick="openSequenceTool();") 
+		//	img(src="./img/step-by-step.png", width="50px", alt="sequence")
+		//br
+
+		//a(href="javascript:void(0);", onclick="addThoughtWidget();") 
+		//	img(src="./img/thought.png", width="50px", alt="thought")
+		//br
+
+	//
+	// Toolkit Per-Tool Options
+	//
 	.edge(id="toolkit-tool-options", style="position: fixed; right: 0px; top: 100px; text-align: right; font-size: 30px; padding-right: 10px; z-index: 1000;")
 		a(href="javascript:void(0);", onclick="cancelTool();") 
 			img(src="./img/cross-red.png", width="50px", alt="cancel")
@@ -108,26 +126,230 @@ block content
 		//		p(id="beginning", class="tagline") all inquiry data
 
 	//
-	// Toolkit tool interfaces
+	// Story Perspective
 	//
 
-	ul(id="toolkit-list")
-		li(id="thought-activity-template", class="tool-template")
-			div(style="display: table; width: 100%;")
+	ul(id="story-perspective-list")
 
-				//
-				// Think/Do (Science/Art)
-				//
+		//
+		// "Think/Do" (Science/Art), Media/Concept
+		//
+
+		li(id="story-grid")
+
+			//
+			// Text
+			//
+
+			div(id="story-grid-tool", class="", style="display: table; width: 100%;")
 
 				div(style="display: table-row;")
 					div(style="display: table-cell; text-align: center; vertical-align: middle;")
 						img(src="./img/blank.png", width="50", height="0", style="padding: 10px;")
 					div(class="account", style="display: table-cell; position: relative; z-index: 0; width: 100%; border-left: 0px solid #f16521; vertical-align: middle; padding-left: 22px; padding-top: 10px; font-size: 20px; color: #666666;")
-						| What do you <strong>wonder</strong>? (Type/Create)
+						| <strong>Stories</strong> (Create or choose one)
+				div(style="display: table-row;")
+					div(style="display: table-cell; text-align: center; vertical-align: middle;")
+						img(src="./img/blank.png", width="50", height="0", style="padding: 10px;")
+					div(class="account", style="display: table-cell; position: relative; z-index: 0; width: 100%; border-left: 0px solid #f16521; vertical-align: middle; padding-left: 22px; padding-top: 10px; font-size: 20px; color: #666666;")
+						a(class="story-tool", href="javascript:void(0);", onclick="openStoryTool();")
+							img(src="./img/plus-red.png", width="50", height="50", style="0px 10px 0px 10px;")
 
 				div(style="display: table-row;")
 					div(style="display: table-cell; text-align: center; vertical-align: middle;")
-						img(src="./img/thought.png", width="50", height="50", style="padding: 10px;")
+						img(src="./img/blank.png", width="50", height="50", style="padding: 10px;")
+
+					div(style="display: table-cell; position: relative; z-index: 0; width: 100%; border-left: 0px solid #f16521;")
+
+						div(class="tool-section")
+							div(class="story-grid-options")
+								div(id="story-grid-table", class="element-table", style="display: table; width: 100%;")
+
+									// div(id="sequence-tool-template-step", style="display: table-row;")
+									div(id="story-grid-template-row", style="display: table-row;")
+										div(style="display: table-cell; width: 33%; vertical-align: middle;")
+											div(class="story-cover-left")
+												| <strong>book one</strong><br />
+												| by ... with ...
+										div(style="display: table-cell; width: 33%; vertical-align: middle;")
+											div(class="story-cover-middle")
+												| book one
+										div(style="display: table-cell; width: 33%; vertical-align: middle;")
+											div(class="story-cover-right")
+												| book one
+
+		li(id="story-title", class="")
+
+			//
+			// Text
+			//
+
+			div(id="story-tool", class="story-tool toolkit-tool", style="display: table; width: 100%;")
+
+				div(style="display: table-row;")
+					div(style="display: table-cell; text-align: center; vertical-align: middle;")
+						img(src="./img/blank.png", width="50", height="0", style="padding: 10px;")
+					div(class="account", style="display: table-cell; position: relative; z-index: 0; width: 100%; border-left: 0px solid #f16521; vertical-align: middle; padding-left: 22px; padding-top: 10px; font-size: 20px; color: #666666;")
+						| <strong>Title</strong> (Type/Create)
+
+				div(style="display: table-row;")
+					div(style="display: table-cell; text-align: center; vertical-align: middle;")
+						img(src="./img/story.png", width="50", height="50", style="padding: 10px;")
+
+					div(style="display: table-cell; position: relative; z-index: 0; width: 100%; border-left: 0px solid #f16521;")
+
+						div(class="tool-section")
+							div(class="text-input-widget")
+								div(class="element-table", style="display: table; width: 100%;")
+
+									div(class="element", style="display: table-row;")
+										div(class="text", style="display: table-cell; min-width: 100%; vertical-align: middle;")
+											input(type='text', id='story-tool-title')
+
+										div(class="options", style="width: 75px; display: table-cell; text-align: right; vertical-align: middle;")
+											img(id="hostAddressSave", src="./img/check.png", style="display: none;")
+											img(id="hostAddressInvalid", src="./img/cross-red.png", style="display: none;")
+
+	//
+	// Toolkit tool interfaces
+	//
+
+	ul(id="toolkit-list")
+
+		//
+		// "Think/Do" (Science/Art), Media/Concept
+		//
+
+		li(id="media-toolkit", class="toolkit-tool media-toolkit tool-template")
+
+			//
+			// Text
+			//
+
+			//div(id="text-tool", class="text-tool toolkit-tool", style="display: table; width: 100%;")	
+
+			//
+			// Photo
+			//
+
+			div(id="photo-tool", class="photo-tool toolkit-tool", style="display: table; width: 100%;")
+
+				div(style="display: table-row;")
+					div(style="display: table-cell; text-align: center; vertical-align: middle;")
+						img(src="./img/camera.png", width="50", height="50", style="padding: 10px;")
+
+					div(style="display: table-cell; position: relative; z-index: 0; width: 100%; border-left: 0px solid #f16521;")
+
+						div(class="tool-section")
+							div(class="text-input-widget")
+								div(class="element-table", style="display: table; width: 100%;")
+
+									div(class="element", style="display: table-row;")
+										div(class="text", style="display: table-cell; min-width: 100%; vertical-align: middle;")
+											img(class="image", id="photo-tool-photo", src="./img/camera.png", width="250", height="250")
+
+										div(class="options", style="width: 75px; display: table-cell; text-align: right; vertical-align: middle;")
+											img(id="hostAddressSave", src="./img/check.png", style="display: none;")
+											img(id="hostAddressInvalid", src="./img/cross-red.png", style="display: none;")
+
+
+			//
+			// Video
+			//
+
+			div(id="video-tool", class="video-tool toolkit-tool", style="display: table; width: 100%;")
+
+				div(style="display: table-row;")
+					div(style="display: table-cell; text-align: center; vertical-align: middle;")
+						img(src="./img/video.png", width="50", height="50", style="padding: 10px;")
+
+					div(style="display: table-cell; position: relative; z-index: 0; width: 100%; border-left: 0px solid #f16521;")
+
+						div(class="tool-section")
+							div(class="text-input-widget")
+								div(class="element-table", style="display: table; width: 100%;")
+
+									div(class="element", style="display: table-row;")
+										div(class="text", style="display: table-cell; min-width: 100%; vertical-align: middle;")
+											video(class="video", width="320", height="240", controls)
+
+										div(class="options", style="width: 75px; display: table-cell; text-align: right; vertical-align: middle;")
+											img(id="hostAddressSave", src="./img/check.png", style="display: none;")
+											img(id="hostAddressInvalid", src="./img/cross-red.png", style="display: none;")
+
+			//
+			// Sketch
+			//
+
+			div(id="sketch-tool2", class="sketch-tool2 toolkit-tool", style="display: table; width: 100%;")
+
+				div(style="display: table-row;")
+					div(style="display: table-cell; text-align: center; vertical-align: middle;")
+						img(src="./img/palette.png", width="50", height="50", style="padding: 10px;")
+
+					div(style="display: table-cell; position: relative; z-index: 0; width: 100%; border-left: 0px solid #f16521;")
+
+						div(class="tool-section")
+							div(class="text-input-widget")
+								div(class="element-table", style="display: table; width: 100%;")
+
+									div(class="element", style="display: table-row;")
+										div(class="text", style="display: table-cell; min-width: 100%; vertical-align: middle;")
+											img(class="image", src="./img/palette.png", width="250", height="250")
+
+										div(class="options", style="width: 75px; display: table-cell; text-align: right; vertical-align: middle;")
+											img(id="hostAddressSave", src="./img/check.png", style="display: none;")
+											img(id="hostAddressInvalid", src="./img/cross-red.png", style="display: none;")
+
+		//
+		// Media Type
+		//
+
+		li(id="media-type-options", class="toolkit-tool media-toolkit tool-template")
+			div(id="media-type-options", class="media-toolkit", style="display: table; width: 100%;")
+
+				//
+				// What kind of content is this?
+				//
+
+				div(class="media-type-options", style="display: table-row;")
+					div(style="display: table-cell; text-align: center; vertical-align: middle;")
+						img(src="./img/blank.png", width="50", height="0", style="padding: 10px;")
+					div(class="account", style="display: table-cell; position: relative; z-index: 0; width: 100%; border-left: 0px solid #f16521; vertical-align: middle; padding-left: 22px; padding-top: 10px; font-size: 20px; color: #666666;")
+						| <strong>What kind is it?</strong> (Choose one)
+
+				div(class="media-type-options", style="display: table-row;")
+					div(style="display: table-cell; text-align: center; vertical-align: middle;")
+						img(src="./img/blank.png", width="50", height="0", style="padding: 10px;")
+					div(class="account", style="display: table-cell; position: relative; z-index: 0; width: 100%; border-left: 0px solid #f16521; vertical-align: middle; padding-left: 22px; padding-top: 10px; font-size: 20px; color: #666666;")
+						a(href="javscript:void(0);", onclick="openQuestionTool();") 
+							img(src="./img/question.png", width="50", height="50", style="padding: 0px 10px 0px 10px;")
+						a(href="javscript:void(0);", onclick="openObservationTool();")
+							img(src="./img/cause-and-effect.png", width="50", height="50", style="padding: 0px 10px 0px 10px;")
+						a(href="javscript:void(0);", onclick="openSequenceTool();") 
+							img(src="./img/step-by-step.png", width="50", height="50", style="padding: 0px 10px 0px 10px;")
+
+		//
+		// Concept Toolkit
+		//
+
+		li(id="concept-toolkit", class="concept-tool toolkit-tool concept-toolkit tool-template")
+
+			//
+			// Question
+			//
+
+			div(id="question-tool", class="question-tool concept-tool", style="display: table; width: 100%;")
+
+				div(style="display: table-row;")
+					div(style="display: table-cell; text-align: center; vertical-align: middle;")
+						img(src="./img/blank.png", width="50", height="0", style="padding: 10px;")
+					div(class="account", style="display: table-cell; position: relative; z-index: 0; width: 100%; border-left: 0px solid #f16521; vertical-align: middle; padding-left: 22px; padding-top: 10px; font-size: 20px; color: #666666;")
+						| <strong>What do you wonder?</strong> (Type/Create)
+
+				div(style="display: table-row;")
+					div(style="display: table-cell; text-align: center; vertical-align: middle;")
+						img(src="./img/question.png", width="50", height="50", style="padding: 10px;")
 
 					div(style="display: table-cell; position: relative; z-index: 0; width: 100%; border-left: 0px solid #f16521;")
 
@@ -137,13 +359,130 @@ block content
 
 										div(class="element", style="display: table-row;")
 											div(class="text", style="display: table-cell; min-width: 100%; vertical-align: middle;")
-												input(type='text', id='questionText')
+												input(type='text', id='question-tool-text')
 
 											div(class="options", style="width: 75px; display: table-cell; text-align: right; vertical-align: middle;")
 												img(id="hostAddressSave", src="./img/check.png", style="display: none;")
 												img(id="hostAddressInvalid", src="./img/cross-red.png", style="display: none;")
 
-		li(id="tool-extra-options", class="tool-template")
+			//
+			// Observation
+			//
+
+			div(id="observation-tool", class="observation-tool concept-tool", style="display: table; width: 100%;")
+
+				div(style="display: table-row;")
+					div(style="display: table-cell; text-align: center; vertical-align: middle;")
+						img(src="./img/blank.png", width="50", height="0", style="padding: 10px;")
+					div(class="account", style="display: table-cell; position: relative; z-index: 0; width: 100%; border-left: 0px solid #f16521; vertical-align: middle; padding-left: 22px; padding-top: 10px; font-size: 20px; color: #666666;")
+						| <strong>What do you see?</strong> (Type/Create)
+
+				div(style="display: table-row;")
+					div(style="display: table-cell; text-align: center; vertical-align: middle;")
+						img(src="./img/cause-and-effect.png", width="50", height="50", style="padding: 10px;")
+
+					div(style="display: table-cell; position: relative; z-index: 0; width: 100%; border-left: 0px solid #f16521;")
+
+						div(class="tool-section")
+							div(class="text-input-widget")
+								div(class="element-table", style="display: table; width: 100%;")
+
+									div(class="element", style="display: table-row;")
+										div(class="text", style="display: table-cell; min-width: 100%; vertical-align: middle;")
+											input(type='text', id='observation-tool-effect')
+
+										div(class="options", style="width: 75px; display: table-cell; text-align: right; vertical-align: middle;")
+											img(id="hostAddressSave", src="./img/check.png", style="display: none;")
+											img(id="hostAddressInvalid", src="./img/cross-red.png", style="display: none;")
+
+				div(style="display: table-row;")
+					div(style="display: table-cell; text-align: center; vertical-align: middle;")
+						img(src="./img/blank.png", width="50", height="0", style="padding: 10px;")
+					div(class="account", style="display: table-cell; position: relative; z-index: 0; width: 100%; border-left: 0px solid #f16521; vertical-align: middle; padding-left: 22px; padding-top: 10px; font-size: 20px; color: #666666;")
+						| <strong>Why did it happen?</strong> (Type/Create)
+
+				div(style="display: table-row;")
+					div(style="display: table-cell; text-align: center; vertical-align: middle;")
+						img(src="./img/blank.png", width="50", height="50", style="padding: 10px;")
+
+					div(style="display: table-cell; position: relative; z-index: 0; width: 100%; border-left: 0px solid #f16521;")
+
+						div(class="tool-section")
+							div(class="text-input-widget")
+								div(class="element-table", style="display: table; width: 100%;")
+
+										div(class="element", style="display: table-row;")
+											div(class="text", style="display: table-cell; min-width: 100%; vertical-align: middle;")
+												input(type='text', id='observation-tool-cause')
+
+											div(class="options", style="width: 75px; display: table-cell; text-align: right; vertical-align: middle;")
+												img(id="hostAddressSave", src="./img/check.png", style="display: none;")
+												img(id="hostAddressInvalid", src="./img/cross-red.png", style="display: none;")
+
+			//
+			// Sequence
+			//
+
+			div(id="sequence-tool", class="sequence-tool concept-tool", style="display: table; width: 100%;")
+
+				div(style="display: table-row;")
+					div(style="display: table-cell; text-align: center; vertical-align: middle;")
+						img(src="./img/blank.png", width="50", height="0", style="padding: 10px;")
+					div(class="account", style="display: table-cell; position: relative; z-index: 0; width: 100%; border-left: 0px solid #f16521; vertical-align: middle; padding-left: 22px; padding-top: 10px; font-size: 20px; color: #666666;")
+						| <strong>What is the first step?</strong> (Type/Create)
+
+				div(style="display: table-row;")
+					div(style="display: table-cell; text-align: center; vertical-align: middle;")
+						img(src="./img/step-by-step.png", width="50", height="50", style="padding: 10px;")
+
+					div(style="display: table-cell; position: relative; z-index: 0; width: 100%; border-left: 0px solid #f16521;")
+
+						div(class="tool-section")
+							div(class="text-input-widget")
+								div(class="element-table", style="display: table; width: 100%;")
+
+										div(class="element", style="display: table-row;")
+											div(class="text", style="display: table-cell; min-width: 100%; vertical-align: middle;")
+												input(type='text', class="sequence-tool-step")
+
+											div(class="options", style="width: 75px; display: table-cell; text-align: right; vertical-align: middle;")
+												img(id="hostAddressSave", src="./img/check.png", style="display: none;")
+												img(id="hostAddressInvalid", src="./img/cross-red.png", style="display: none;")
+
+				div(style="display: table-row;")
+					div(style="display: table-cell; text-align: center; vertical-align: middle;")
+						img(src="./img/blank.png", width="50", height="0", style="padding: 10px;")
+					div(class="account", style="display: table-cell; position: relative; z-index: 0; width: 100%; border-left: 0px solid #f16521; vertical-align: middle; padding-left: 22px; padding-top: 10px; font-size: 20px; color: #666666;")
+						a(class="sequence-tool", href="javascript:void(0);", onclick="addSequenceStep();")
+							img(src="./img/plus-red.png", width="50", height="50", style="0px 10px 0px 10px;")
+
+				// Sequence Step Template
+				// This is the template used for steps in the sequence.
+				//div(id="sequence-tool-template-label", style="display: table-row;")
+				//	div(style="display: table-cell; text-align: center; vertical-align: middle;")
+				//		img(src="./img/blank.png", width="50", height="0", style="padding: 10px;")
+				//	div(class="account", style="display: table-cell; position: relative; z-index: 0; width: 100%; border-left: 0px solid #f16521; vertical-align: middle; padding-left: 22px; padding-top: 10px; font-size: 20px; color: #666666;")
+				//		| What is <strong>first</strong>? (Type/Create)
+
+				div(id="sequence-tool-template-step", style="display: table-row;")
+					div(style="display: table-cell; text-align: center; vertical-align: middle;")
+						img(src="./img/blank.png", width="50", height="50", style="padding: 10px;")
+
+					div(style="display: table-cell; position: relative; z-index: 0; width: 100%; border-left: 0px solid #f16521;")
+
+						div(class="tool-section")
+							div(class="text-input-widget")
+								div(class="element-table", style="display: table; width: 100%;")
+
+										div(class="element", style="display: table-row;")
+											div(class="text", style="display: table-cell; min-width: 100%; vertical-align: middle;")
+												input(type='text', class="sequence-tool-step")
+
+											div(class="options", style="width: 75px; display: table-cell; text-align: right; vertical-align: middle;")
+												img(id="hostAddressSave", src="./img/check.png", style="display: none;")
+												img(id="hostAddressInvalid", src="./img/cross-red.png", style="display: none;")
+
+		li(id="tool-extra-options", class="toolkit-tool tool-template")
 			div(style="display: table; width: 100%;")
 
 				div(style="display: table-row;")
@@ -160,7 +499,7 @@ block content
 					div(style="display: table-cell; text-align: center; vertical-align: middle;")
 						img(src="./img/blank.png", width="50", height="0", style="padding: 10px;")
 					div(class="account", style="display: table-cell; position: relative; z-index: 0; width: 100%; border-left: 0px solid #f16521; vertical-align: middle; padding-left: 22px; padding-top: 10px; font-size: 20px; color: #666666;")
-						| Who else helped you with this just now? (Select everyone)
+						| <strong>Who else helped you with this just now?</strong> (Select everyone)
 
 				div(style="display: table-row;")
 					div(style="display: table-cell; text-align: center; vertical-align: middle;")
@@ -171,9 +510,9 @@ block content
 						div(class="activity-widget")
 							div(class="element-table", style="display: table; width: 100%;")
 
-									// Core activity
-									div(class="element", style="display: table-row;")
-										div(id="collaborator-options", class="text", style="display: table-cell; min-width: 100%; vertical-align: middle;")
+								// Core activity
+								div(class="element", style="display: table-row;")
+									div(id="collaborator-options", class="text", style="display: table-cell; min-width: 100%; vertical-align: middle;")
 
 				//
 				// Feel
@@ -183,7 +522,7 @@ block content
 					div(style="display: table-cell; text-align: center; vertical-align: middle;")
 						img(src="./img/blank.png", width="50", height="0", style="padding: 10px;")
 					div(class="account", style="display: table-cell; position: relative; z-index: 0; width: 100%; border-left: 0px solid #f16521; vertical-align: middle; padding-left: 22px; padding-top: 10px; font-size: 20px; color: #666666;")
-						| How do you <strong>feel</strong>? (Choose one)
+						| <strong>What do you feel like?</strong> (Choose one)
 						
 				div(style="display: table-row;")
 					div(style="display: table-cell; text-align: center; vertical-align: middle;")
@@ -194,56 +533,56 @@ block content
 						div(class="activity-widget")
 							div(class="element-table", style="display: table; width: 100%;")
 
-									// Core activity
-									div(class="element", style="display: table-row;")
-										div(class="text", style="display: table-cell; min-width: 100%; vertical-align: middle;")
+								// Core activity
+								div(class="element", style="display: table-row;")
+									div(class="text", style="display: table-cell; min-width: 100%; vertical-align: middle;")
 
-											input(name="identity-options", id="scientist-option", value="scientist", type="radio")
-											label(for="scientist") scientist
-											hr(style="margin-bottom: 14px; margin-top: 14px; margin-right: 0px; height: 1px; border: none; background-color: #dddddd;")
+										input(name="identity-options", id="scientist-option", value="scientist", type="radio")
+										label(for="scientist") scientist
+										hr(style="margin-bottom: 14px; margin-top: 14px; margin-right: 0px; height: 1px; border: none; background-color: #dddddd;")
 
-											input(name="identity-options", id="scientist-option", value="scientist", type="radio")
-											label(for="scientist") artist
-											hr(style="margin-bottom: 14px; margin-top: 14px; margin-right: 0px; height: 1px; border: none; background-color: #dddddd;")
+										input(name="identity-options", id="scientist-option", value="scientist", type="radio")
+										label(for="scientist") artist
+										hr(style="margin-bottom: 14px; margin-top: 14px; margin-right: 0px; height: 1px; border: none; background-color: #dddddd;")
 
-											input(name="identity-options", id="scientist-option", value="scientist", type="radio")
-											label(for="scientist") explorer
-											hr(style="margin-bottom: 14px; margin-top: 14px; margin-right: 0px; height: 1px; border: none; background-color: #dddddd;")
+										input(name="identity-options", id="scientist-option", value="scientist", type="radio")
+										label(for="scientist") explorer
+										hr(style="margin-bottom: 14px; margin-top: 14px; margin-right: 0px; height: 1px; border: none; background-color: #dddddd;")
 
-											input(name="identity-options", id="scientist-option", value="scientist", type="radio")
-											label(for="scientist") maker
-											hr(style="margin-bottom: 14px; margin-top: 14px; margin-right: 0px; height: 1px; border: none; background-color: #dddddd;")
+										input(name="identity-options", id="scientist-option", value="scientist", type="radio")
+										label(for="scientist") maker
+										hr(style="margin-bottom: 14px; margin-top: 14px; margin-right: 0px; height: 1px; border: none; background-color: #dddddd;")
 
-											input(name="identity-options", id="scientist-option", value="scientist", type="radio")
-											label(for="scientist") dancer
-											hr(style="margin-bottom: 14px; margin-top: 14px; margin-right: 0px; height: 1px; border: none; background-color: #dddddd;")
+										input(name="identity-options", id="scientist-option", value="scientist", type="radio")
+										label(for="scientist") dancer
+										hr(style="margin-bottom: 14px; margin-top: 14px; margin-right: 0px; height: 1px; border: none; background-color: #dddddd;")
 
-											input(name="identity-options", id="scientist-option", value="scientist", type="radio")
-											label(for="scientist") happy
-											hr(style="margin-bottom: 14px; margin-top: 14px; margin-right: 0px; height: 1px; border: none; background-color: #dddddd;")
+										input(name="identity-options", id="scientist-option", value="scientist", type="radio")
+										label(for="scientist") happy
+										hr(style="margin-bottom: 14px; margin-top: 14px; margin-right: 0px; height: 1px; border: none; background-color: #dddddd;")
 
-											input(name="identity-options", id="scientist-option", value="scientist", type="radio")
-											label(for="scientist") excited
-											hr(style="margin-bottom: 14px; margin-top: 14px; margin-right: 0px; height: 1px; border: none; background-color: #dddddd;")
+										input(name="identity-options", id="scientist-option", value="scientist", type="radio")
+										label(for="scientist") excited
+										hr(style="margin-bottom: 14px; margin-top: 14px; margin-right: 0px; height: 1px; border: none; background-color: #dddddd;")
 
-											input(name="identity-options", id="scientist-option", value="scientist", type="radio")
-											label(for="scientist") intense
-											hr(style="margin-bottom: 14px; margin-top: 14px; margin-right: 0px; height: 1px; border: none; background-color: #dddddd;")
+										input(name="identity-options", id="scientist-option", value="scientist", type="radio")
+										label(for="scientist") intense
+										hr(style="margin-bottom: 14px; margin-top: 14px; margin-right: 0px; height: 1px; border: none; background-color: #dddddd;")
 
-											input(name="identity-options", id="scientist-option", value="scientist", type="radio")
-											label(for="scientist") reflective
-											hr(style="margin-bottom: 14px; margin-top: 14px; margin-right: 0px; height: 1px; border: none; background-color: #dddddd;")
+										input(name="identity-options", id="scientist-option", value="scientist", type="radio")
+										label(for="scientist") reflective
+										hr(style="margin-bottom: 14px; margin-top: 14px; margin-right: 0px; height: 1px; border: none; background-color: #dddddd;")
 
-											input(name="identity-options", id="scientist-option", value="scientist", type="radio")
-											label(for="scientist") tired
-											hr(style="margin-bottom: 14px; margin-top: 14px; margin-right: 0px; height: 1px; border: none; background-color: #dddddd;")
+										input(name="identity-options", id="scientist-option", value="scientist", type="radio")
+										label(for="scientist") tired
+										hr(style="margin-bottom: 14px; margin-top: 14px; margin-right: 0px; height: 1px; border: none; background-color: #dddddd;")
 
-											input(name="identity-options", id="scientist-option", value="scientist", type="radio")
-											label(for="scientist") confused
-											hr(style="margin-bottom: 14px; margin-top: 14px; margin-right: 0px; height: 1px; border: none; background-color: #dddddd;")
+										input(name="identity-options", id="scientist-option", value="scientist", type="radio")
+										label(for="scientist") confused
+										hr(style="margin-bottom: 14px; margin-top: 14px; margin-right: 0px; height: 1px; border: none; background-color: #dddddd;")
 
-											input(name="identity-options", id="scientist-option", value="scientist", type="radio")
-											label(for="scientist") ambitious
+										input(name="identity-options", id="scientist-option", value="scientist", type="radio")
+										label(for="scientist") ambitious
 
 
 
@@ -306,37 +645,6 @@ block content
 			.float-page-row
 				p(class="float-page-p")
 					video(class="video", width="640", height="480", source="", controls)
-
-	//
-	// "Motion" tool interface
-	//
-	.tool-widget(id="motion-tool")
-		.tool-table
-
-			//
-			// Header
-			//
-
-			.tool-table-row
-				.tool-table-cell(style='text-align: right; vertical-align: middle; padding-right: 30px; padding-top: 30px;')
-					img(class="close", src="./img/cross-gray.png")
-
-			//
-			// Body
-			//
-			.tool-table-row
-				.tool-table-cell(style="vertical-align: middle; text-align: center; height: 100%; width: 100%;")
-					canvas(class="canvas", width="768", height="512", style="background-color: #ffffff;")
-					// script to initialize canvas, graph event handlers
-					// - set up handler to grab buffered data upon close, format it, send it to the server, get response, create new element
-
-			//
-			// Footer
-			//
-
-			.tool-table-row
-				.tool-table-cell
-					| &nbsp;
 
 	//
 	// "Sketch" tool interface
@@ -424,6 +732,7 @@ block content
 			$('#motion-tool').hide();
 			$('#sketch-tool').hide();
 
+			$('#story-perspective-list').hide();
 			$('#toolkit-list').hide();
 			$('#toolkit-tool-options').hide();
 
@@ -445,30 +754,6 @@ block content
 					$('#collaborator-options').append(option);
 				}
 			});
-
-			// Add handler for interrupting automatic scrolling
-			$('body,html').bind("scroll mousedown DOMMouseScroll mousewheel keyup", function(e) {
-				if ( e.which > 0 || e.type === "mousedown" || e.type === "mousewheel") {
-					console.log('Canceling autoscrolling animation.');
-					$("html,body").stop();
-				}
-			});
-
-			$("#footer").slideUp();
-			
-
-			// Get Account
-			// getAvatar();
-
-			//scrollToBottom();
-
-			// orientationchange
-
-			// gesturestart
-
-			// gesturechange
-
-			// gestureend
 		}
 
 		// Show options when scroll up, hide when scroll down

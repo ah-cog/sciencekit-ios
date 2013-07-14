@@ -499,6 +499,7 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ENABLE_OBJC_ARC = NO;
 				CODE_SIGN_IDENTITY = "iPhone Developer: June AHN (A96628N8P3)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: June AHN (A96628N8P3)";
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -509,7 +510,8 @@
 				INFOPLIST_FILE = "ScienceKitClient/ScienceKitClient-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
 				PRODUCT_NAME = "#sciencekit";
-				PROVISIONING_PROFILE = "AB7CC413-7317-4091-9812-B46C10663561";
+				PROVISIONING_PROFILE = "B77B6B65-AF5C-4E02-9B29-7C8368CF98DC";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "B77B6B65-AF5C-4E02-9B29-7C8368CF98DC";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -519,7 +521,8 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ENABLE_OBJC_ARC = NO;
-				CODE_SIGN_IDENTITY = "iPhone Developer: June AHN (A96628N8P3)";
+				CODE_SIGN_IDENTITY = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: June AHN (A96628N8P3)";
 				COPY_PHASE_STRIP = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "ScienceKitClient/ScienceKitClient-Prefix.pch";
@@ -528,7 +531,7 @@
 				INFOPLIST_FILE = "ScienceKitClient/ScienceKitClient-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
 				PRODUCT_NAME = "#sciencekit";
-				PROVISIONING_PROFILE = "AB7CC413-7317-4091-9812-B46C10663561";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "BDE00019-08BA-4377-885F-FAB0FFF6A299";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
