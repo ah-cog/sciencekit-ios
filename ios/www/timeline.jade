@@ -2,33 +2,30 @@ extends layout
 
 block content
 
-	// TODO: Remove this!
-	//h2 Exchange client's authorization grant for a client access token
-	//a(id="auth_link", href="javascript:void(0);") Authenticate ScienceKit
-	//p(id="token_response") no token received
-
-	//h2 Request Resource (on behalf of owner that granted authorization)
-	//a(id="account-list", href="javascript:void(0);") Request resource (using access token)
-	//p(id="resource_response") no resource received
-
+	//
+	// "capture" and "story" Perspective Options
+	//
 	.edge(id="mode-options", style="position: fixed; left: 10px; top: 0px; text-align: right; font-size: 30px; padding-right: 10px; z-index: 1001;")
-		a(href="javascript:void(0);", onclick="openInquiryPerspective();") 
-			img(src="./img/earth.png", width="50px", alt="inquiry")
-			| capture
-		a(href="javascript:void(0);", onclick="openStoryPerspective();") 
-			img(src="./img/story.png", width="50px", alt="story")
-			| story
+		div(style="display: table;")
+			div(style="display: table-row;")
+				div(style="display: table-cell;")
+					a(class="sequence-tool", href="javascript:void(0);", onclick='openInquiryPerspective();')
+						div(style='background-image: url(./img/earth.png); background-size: 40px 40px; background-repeat:no-repeat; background-position:0px 8px; height: 50px; padding-left: 45px; padding-top: 8px; font-size: 30px; vertical-align: middle;')
+							| capture
+				div(style="display: table-cell;")
+					a(class="sequence-tool", href="javascript:void(0);", onclick='openStoryPerspective();')
+						div(style='background-image: url(./img/story.png); background-size: 40px 40px; background-repeat:no-repeat; background-position:10px 8px; height: 50px; padding-left: 55px; padding-top: 8px; font-size: 30px; vertical-align: middle;')
+							| story
 
 	//.edge(id="logo", style="position: fixed; left: 80px; top: 0px; text-align: right; font-size: 30px; padding-right: 10px; z-index: 1001;")
 	//	img(id="logo", src="./img/sciencekit-logo.png", alt="sciencekit logo", style="margin-top: 0px; width: 230px;")
 
+	//
+	// Top-right floating options
+	//
 	.edge(id="top", style="text-align: right; font-size: 30px; padding-right: 10px; z-index: 1000;")
-		//a(a(href="javscript:void(0);", onclick="generateStory();") 
-		//	img(src="./img/story-time.png", alt="story time")
 		a(href="javascript:void(0);", onclick="scrollTickle();") 
 			img(src="./img/search.png", alt="search") 
-		//a(href="javascript:void(0);", onclick="showHiddenFrames();") 
-		//	img(src="./img/history.png", alt="show whole story") 
 		a(href="./timeline.html") 
 			img(src="./img/refresh.png", alt="refresh") 
 		a(href="javscript:void(0);", onclick="scrollToTop();") 
@@ -42,36 +39,17 @@ block content
 			img(src="./img/text.png", width="50px", alt="text")
 		br
 
-		//a(href="javascript:void(0);", onclick="openPhotoTool();") 
 		a(href="javascript:void(0);", onclick="capturePhotoToURI();") 
 			img(src="./img/camera.png", width="50px", alt="image")
 		br
 
-		// a(href="javascript:void(0);", onclick="openVideoTool();") 
 		a(href="javascript:void(0);", onclick="captureVideo2();") 
 			img(src="./img/video.png", width="50px", alt="video")
 		br
 
-		//a(href="javascript:void(0);", onclick="openSketchTool2();") 
 		a(href="javascript:void(0);", onclick="openSketchTool();") 
 			img(src="./img/palette.png", width="50px", alt="sketch")
 		br
-
-		//a(href="javascript:void(0);", onclick="openQuestionTool();") 
-		//	img(src="./img/question.png", width="50px", alt="question")
-		//br
-
-		//a(href="javascript:void(0);", onclick="openObservationTool();") 
-		//	img(src="./img/cause-and-effect.png", width="50px", alt="observation")
-		//br
-
-		//a(href="javascript:void(0);", onclick="openSequenceTool();") 
-		//	img(src="./img/step-by-step.png", width="50px", alt="sequence")
-		//br
-
-		//a(href="javascript:void(0);", onclick="addThoughtWidget();") 
-		//	img(src="./img/thought.png", width="50px", alt="thought")
-		//br
 
 	//
 	// Toolkit Per-Tool Options
@@ -84,7 +62,6 @@ block content
 		a(href="javascript:void(0);", onclick="saveTool();") 
 			img(src="./img/check.png", width="50px", alt="done")
 
-
 	//
 	// Templates for Timeline Widgets (this is not visible)
 	//
@@ -94,9 +71,6 @@ block content
 		// Template timeline widgets
 		include widget-templates
 
-
-
-		
 	//
 	// Top of interface
 	//
@@ -113,17 +87,6 @@ block content
 				
 			div(style="display: table-cell; width: 100%; border-left: 0px solid #f16521; padding-left: 10px;")
 				&nbsp;
-
-		//
-		// Timeline introductory text (e.g., "once upon a time")
-		//
-
-		//div(style="display: table-row;", id="timeline-intro-text")
-		//	div(style="display: table-cell; text-align: center; vertical-align: middle; width: 30px;")
-		//		img(src="./img/blank.png", width="30", height="30", style="padding: 10px;")
-
-		//	div(style="display: table-cell; width: 100%; border-left: 2px solid #f16521; padding-left: 10px;")
-		//		p(id="beginning", class="tagline") all inquiry data
 
 	//
 	// Story Perspective
@@ -152,8 +115,12 @@ block content
 					div(style="display: table-cell; text-align: center; vertical-align: middle;")
 						img(src="./img/blank.png", width="50", height="0", style="padding: 10px;")
 					div(class="account", style="display: table-cell; position: relative; z-index: 0; width: 100%; border-left: 0px solid #f16521; vertical-align: middle; padding-left: 22px; padding-top: 10px; font-size: 20px; color: #666666;")
-						a(class="story-tool", href="javascript:void(0);", onclick="openStoryTool();")
-							img(src="./img/plus-red.png", width="50", height="50", style="0px 10px 0px 10px;")
+						//
+						// Create new story
+						//
+						a(href="javascript:void(0);", onclick='openStoryTool();')
+							div(style='background-image: url(./img/plus-red.png); background-repeat:no-repeat; background-position:0px 0px; height: 50px; padding-left: 50px; padding-top: 2px; font-size: 30px; vertical-align: middle;')
+								| Create new story
 
 				div(style="display: table-row;")
 					div(style="display: table-cell; text-align: center; vertical-align: middle;")
@@ -323,11 +290,15 @@ block content
 						img(src="./img/blank.png", width="50", height="0", style="padding: 10px;")
 					div(class="account", style="display: table-cell; position: relative; z-index: 0; width: 100%; border-left: 0px solid #f16521; vertical-align: middle; padding-left: 22px; padding-top: 10px; font-size: 20px; color: #666666;")
 						a(href="javscript:void(0);", onclick="openQuestionTool();") 
-							img(src="./img/question.png", width="50", height="50", style="padding: 0px 10px 0px 10px;")
-						a(href="javscript:void(0);", onclick="openObservationTool();")
-							img(src="./img/cause-and-effect.png", width="50", height="50", style="padding: 0px 10px 0px 10px;")
+							div(style='background-image: url(./img/question.png); background-size:40px 40px; background-repeat:no-repeat; background-position:0px 0px; height: 50px; padding-left: 50px; padding-top: 8px; font-size: 20px; vertical-align: middle;')
+								| Question
+							// img(src="./img/question.png", width="50", height="50", style="padding: 0px 10px 0px 10px;")
+						a(href="javscript:void(0);", onclick="openObservationTool();") 
+							div(style='background-image: url(./img/observation.png); background-size:40px 40px; background-repeat:no-repeat; background-position:0px 0px; height: 50px; padding-left: 50px; padding-top: 8px; font-size: 20px; vertical-align: middle;')
+								| Observation
 						a(href="javscript:void(0);", onclick="openSequenceTool();") 
-							img(src="./img/step-by-step.png", width="50", height="50", style="padding: 0px 10px 0px 10px;")
+							div(style='background-image: url(./img/sequence.png); background-size:40px 40px; background-repeat:no-repeat; background-position:0px 0px; height: 50px; padding-left: 50px; padding-top: 8px; font-size: 20px; vertical-align: middle;')
+								| Sequence
 
 		//
 		// Concept Toolkit
@@ -379,7 +350,7 @@ block content
 
 				div(style="display: table-row;")
 					div(style="display: table-cell; text-align: center; vertical-align: middle;")
-						img(src="./img/cause-and-effect.png", width="50", height="50", style="padding: 10px;")
+						img(src="./img/observation.png", width="50", height="50", style="padding: 10px;")
 
 					div(style="display: table-cell; position: relative; z-index: 0; width: 100%; border-left: 0px solid #f16521;")
 
@@ -433,7 +404,7 @@ block content
 
 				div(style="display: table-row;")
 					div(style="display: table-cell; text-align: center; vertical-align: middle;")
-						img(src="./img/step-by-step.png", width="50", height="50", style="padding: 10px;")
+						img(src="./img/sequence.png", width="50", height="50", style="padding: 10px;")
 
 					div(style="display: table-cell; position: relative; z-index: 0; width: 100%; border-left: 0px solid #f16521;")
 
@@ -449,12 +420,16 @@ block content
 												img(id="hostAddressSave", src="./img/check.png", style="display: none;")
 												img(id="hostAddressInvalid", src="./img/cross-red.png", style="display: none;")
 
-				div(style="display: table-row;")
+				div(class="sequence-tool-add-step", style="display: table-row;")
 					div(style="display: table-cell; text-align: center; vertical-align: middle;")
 						img(src="./img/blank.png", width="50", height="0", style="padding: 10px;")
 					div(class="account", style="display: table-cell; position: relative; z-index: 0; width: 100%; border-left: 0px solid #f16521; vertical-align: middle; padding-left: 22px; padding-top: 10px; font-size: 20px; color: #666666;")
-						a(class="sequence-tool", href="javascript:void(0);", onclick="addSequenceStep();")
-							img(src="./img/plus-red.png", width="50", height="50", style="0px 10px 0px 10px;")
+						//
+						// Create new story
+						//
+						a(class="sequence-tool", href="javascript:void(0);", onclick='addSequenceStep();')
+							div(style='background-image: url(./img/plus-red.png); background-repeat:no-repeat; background-position:0px 0px; height: 50px; padding-left: 50px; padding-top: 2px; font-size: 30px; vertical-align: middle;')
+								| Add a step
 
 				// Sequence Step Template
 				// This is the template used for steps in the sequence.
@@ -487,8 +462,14 @@ block content
 
 				div(style="display: table-row;")
 					div(style="display: table-cell; text-align: center; vertical-align: middle;")
+						img(src="./img/blank.png", width="50", height="0", style="padding: 10px;")
+					div(class="account", style="display: table-cell; position: relative; z-index: 0; width: 100%; border-left: 0px solid #f16521; vertical-align: middle; padding-left: 22px; padding-top: 10px; padding-bottom: 0px; font-size: 20px; color: #666666;")
+						| OPTIONAL
+
+				div(style="display: table-row;")
+					div(style="display: table-cell; text-align: center; vertical-align: middle;")
 						img(src="./img/blank.png", width="50", height="0", style="padding: 0px;")
-					div(style="display: table-cell; position: relative; z-index: 0; width: 100%; border-left: 0px solid #f16521; vertical-align: middle; padding-left: 0px; padding-top: 10px; font-size: 20px; color: #666666;")
+					div(style="display: table-cell; position: relative; z-index: 0; width: 100%; border-left: 0px solid #f16521; vertical-align: middle; padding-left: 0px; padding-top: 0px; font-size: 20px; color: #666666;")
 						hr(style='margin-bottom: 14px; margin-top: 14px; margin-right: 70px; height: 1px; border: none; background-color: #dddddd;')
 
 				//
@@ -538,53 +519,19 @@ block content
 									div(class="text", style="display: table-cell; min-width: 100%; vertical-align: middle;")
 
 										input(name="identity-options", id="scientist-option", value="scientist", type="radio")
-										label(for="scientist") scientist
+										label(for="scientist-option") scientist
 										hr(style="margin-bottom: 14px; margin-top: 14px; margin-right: 0px; height: 1px; border: none; background-color: #dddddd;")
 
-										input(name="identity-options", id="scientist-option", value="scientist", type="radio")
-										label(for="scientist") artist
+										input(name="identity-options", id="creative-option", value="creative", type="radio")
+										label(for="creative-option") creative
 										hr(style="margin-bottom: 14px; margin-top: 14px; margin-right: 0px; height: 1px; border: none; background-color: #dddddd;")
 
-										input(name="identity-options", id="scientist-option", value="scientist", type="radio")
-										label(for="scientist") explorer
+										input(name="identity-options", id="chemist-option", value="chemist", type="radio")
+										label(for="chemist-option") chemist
 										hr(style="margin-bottom: 14px; margin-top: 14px; margin-right: 0px; height: 1px; border: none; background-color: #dddddd;")
 
-										input(name="identity-options", id="scientist-option", value="scientist", type="radio")
-										label(for="scientist") maker
-										hr(style="margin-bottom: 14px; margin-top: 14px; margin-right: 0px; height: 1px; border: none; background-color: #dddddd;")
-
-										input(name="identity-options", id="scientist-option", value="scientist", type="radio")
-										label(for="scientist") dancer
-										hr(style="margin-bottom: 14px; margin-top: 14px; margin-right: 0px; height: 1px; border: none; background-color: #dddddd;")
-
-										input(name="identity-options", id="scientist-option", value="scientist", type="radio")
-										label(for="scientist") happy
-										hr(style="margin-bottom: 14px; margin-top: 14px; margin-right: 0px; height: 1px; border: none; background-color: #dddddd;")
-
-										input(name="identity-options", id="scientist-option", value="scientist", type="radio")
-										label(for="scientist") excited
-										hr(style="margin-bottom: 14px; margin-top: 14px; margin-right: 0px; height: 1px; border: none; background-color: #dddddd;")
-
-										input(name="identity-options", id="scientist-option", value="scientist", type="radio")
-										label(for="scientist") intense
-										hr(style="margin-bottom: 14px; margin-top: 14px; margin-right: 0px; height: 1px; border: none; background-color: #dddddd;")
-
-										input(name="identity-options", id="scientist-option", value="scientist", type="radio")
-										label(for="scientist") reflective
-										hr(style="margin-bottom: 14px; margin-top: 14px; margin-right: 0px; height: 1px; border: none; background-color: #dddddd;")
-
-										input(name="identity-options", id="scientist-option", value="scientist", type="radio")
-										label(for="scientist") tired
-										hr(style="margin-bottom: 14px; margin-top: 14px; margin-right: 0px; height: 1px; border: none; background-color: #dddddd;")
-
-										input(name="identity-options", id="scientist-option", value="scientist", type="radio")
-										label(for="scientist") confused
-										hr(style="margin-bottom: 14px; margin-top: 14px; margin-right: 0px; height: 1px; border: none; background-color: #dddddd;")
-
-										input(name="identity-options", id="scientist-option", value="scientist", type="radio")
-										label(for="scientist") ambitious
-
-
+										input(name="identity-options", id="baker-option", value="baker", type="radio")
+										label(for="baker-option") baker
 
 	//
 	// Timeline interface
@@ -605,46 +552,11 @@ block content
 			a(id="create-#{frameType}-button", data-artifact-type="#{frameType}", href="javascript:void(0);", onclick='#{clickEventHandler}') #{name}
 
 	div(style="display: table-row;", id="timeline-intro-text")
-			div(style="display: table-cell; text-align: center; vertical-align: middle; width: 30px;")
-				img(src="./img/blank.png", width="50", height="15", style="padding: 10px;")
+		div(style="display: table-cell; text-align: center; vertical-align: middle; width: 30px;")
+			img(src="./img/blank.png", width="50", height="15", style="padding: 10px;")
 
-			div(style="display: table-cell; width: 100%; border-left: 0px solid #f16521; padding-left: 10px;")
-				p(id="beginning", class="tagline") &nbsp;
-
-	//
-	// "Storybook" interface
-	//
-	.float-page(id="float-page")
-		.float-page-table
-			p(class="float-page-p")
-				| once upon a time
-
-	//
-	// Photo page interface
-	//
-	.float-page(id="photo-page")
-		.float-page-table
-
-			.float-page-row
-				.float-page-cell(style='text-align: right; vertical-align: middle; padding-right: 30px;')
-					img(class="hide", src="./img/cross-gray.png")
-
-			p(class="float-page-p")
-				img(class="photo", src="./img/camera.png", width="900", height="900")
-
-	//
-	// Video page interface
-	//
-	.float-page(id="video-page")
-		.float-page-table
-			
-			.float-page-row
-				.float-page-cell(style='text-align: right; vertical-align: middle; padding-right: 30px;')
-					img(class="hide", src="./img/cross-gray.png")
-
-			.float-page-row
-				p(class="float-page-p")
-					video(class="video", width="640", height="480", source="", controls)
+		div(style="display: table-cell; width: 100%; border-left: 0px solid #f16521; padding-left: 10px;")
+			p(id="beginning", class="tagline") &nbsp;
 
 	//
 	// "Sketch" tool interface
@@ -677,30 +589,18 @@ block content
 				.tool-table-cell
 					| &nbsp;
 
-
-
-
-		
-
-
-
-
-
-
-
-
 	script
 		window.onload = function() {
 
 			// Set up PhoneGap event listeners
 			document.addEventListener("deviceready", onDeviceReady, false);
 
-			//localStorage['host'] = 'http://192.168.1.41:3000';
-
 			// Initialize web socket connection for real-time collaboration
 			connectWebSocket();
 
+			//
 			// Define interaction event listeners
+			//
 
 			// Initialize GUI event listeners
 			$('#outgoingChatMessage').keypress(function(event) {
@@ -719,12 +619,10 @@ block content
 				}
 			});
 
-
-
-
-
-
+			//
 			// Initialize interface
+			//
+
 			$('#float-page').hide();
 			$('#photo-page').hide();
 			$('#video-page').hide();
@@ -755,109 +653,6 @@ block content
 				}
 			});
 		}
-
-		// Show options when scroll up, hide when scroll down
-		var prevPosition = 0;
-		window.onscroll = function() {
-			// console.log("scroll event detected! " + window.pageXOffset + " " + window.pageYOffset);
-
-			var currPosition = window.pageYOffset;
-			var delta = currPosition - prevPosition;
-			prevPosition = currPosition;
-			//console.log(delta);
-
-			// Show or hide bottom shortcuts
-			/*
-			if(window.pageYOffset >= (document.height - window.innerHeight - 100)) {
-				$("#footer").slideDown();
-			} else if(delta > 10) {
-				$("#footer").slideUp();
-			} else if (delta < -10) {
-				$("#footer").slideDown();
-			}
-			*/
-
-			// Update widget with focus (closest to center)
-			/*
-			var closestWidget = null;
-			var closestDistance = -1;
-			var timelineList = $('#narrative-list li').get();
-			for(var i = 0; i < timelineList.length; i++) {
-				$(timelineList[i]).find('.element .options').css('visibility', 'hidden');
-
-				var widgetTop = Math.abs($(timelineList[i]).position().top - (currPosition + window.innerHeight / 2));
-				if (closestDistance == -1 || (widgetTop < closestDistance)) {
-					closestWidget = $(timelineList[i]);
-					closestDistance = widgetTop;
-				}
-			}
-			console.log('Widget with focus: ' + $(closestWidget).attr('id'));
-			$(closestWidget).find('.element .options').css('visibility', 'visible');
-			*/
-		}
-
-		// Scroll to element
-
-		function generateStory() {
-			// TODO: Take into account voting!
-
-			// Show the introduction
-			$('#float-page').fadeIn().delay(2000).fadeOut();
-
-			// Generate list of "pages" to include in story
-			var timelineList = $('#narrative-list li').get();
-			var timelineHighlights = [ 0, 13, 19, 37, 55, 68 ];
-
-			// Scroll through the pages
-			$("html,body").stop().delay(1000);
-			for(var i = 0; i < 6; i++) {
-				$('html,body').animate({ scrollTop: $(timelineList[(timelineHighlights[i])]).offset().top }, 1000).delay(1000);
-			}
-
-			// Scroll to "end point" of story
-			//$('html,body').animate({ scrollTop: $('#sciencekit-small-logo').offset().top }, 1000);
-			$('html,body').animate({ scrollTop: document.body.scrollHeight }, 1000);
-		}
-
-		function generatePage() {
-			// Show full-screen
-			// Show controls for "next" and "previous" page
-			// Let interact with page/timeline
-		}
-
-		function generatePhotoPage(event) {
-
-			// Set image
-			var imageUri = $(event.target).attr('src');
-			$('#photo-page').find('.photo').attr('src', imageUri);
-
-			// Show the introduction
-			$('#photo-page').fadeIn();
-
-			// Set up event handlers
-			$('#photo-page').find('.hide').off('click');
-			$('#photo-page').find('.hide').click(function () {
-				$('#photo-page').fadeOut();
-			});
-		}
-
-		function generateVideoPage(event) {
-
-			// Set video
-			var videoUri = $(event.target).find('.source').attr('src');
-			$('#video-page').find('.video').attr('src', videoUri);
-
-			// Show the introduction
-			$('#video-page').fadeIn();
-
-			// Set up event handlers
-			$('#video-page').find('.hide').off('click');
-			$('#video-page').find('.hide').click(function () {
-				$('#video-page').fadeOut();
-			});
-		}
-
-		
 
 		function scrollToTop() {
 			$('html,body').animate({ scrollTop: 0 }, 1000);

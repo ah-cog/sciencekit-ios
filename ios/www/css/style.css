@@ -118,7 +118,7 @@ narrative-templates {
 }
 
 .text-input-widget {
-  padding: 10px 8px 10px 8px;
+  /*padding: 10px 8px 10px 8px;*/
   margin: 4px 13px 4px 13px;
   border-width: 1px;
   border-color: #dddddd;
@@ -156,6 +156,7 @@ narrative-templates {
   border-style: solid;
   font-size: 30px;
   border-radius: 8px;
+  text-align: center;
 }
 
 .story-cover-middle {
@@ -167,6 +168,7 @@ narrative-templates {
   border-style: solid;
   font-size: 30px;
   border-radius: 8px;
+  text-align: center;
 }
 
 .story-cover-right {
@@ -178,6 +180,7 @@ narrative-templates {
   border-style: solid;
   font-size: 30px;
   border-radius: 8px;
+  text-align: center;
 }
 
 

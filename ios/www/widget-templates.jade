@@ -14,9 +14,9 @@ ul(id="narrative-list-template")
 						div(class="bump-count", style="display: table-cell; vertical-align: middle; text-align: center; font-size: 20px; padding-right: 6px;")
 							| &nbsp;
 						div(style="display: table-cell; vertical-align: middle; text-align: center;")
-							| &times;
+							| &nbsp;
 						div(style="display: table-cell; vertical-align: middle; text-align: center;")
-							img(class="bump", src="./img/star-yellow.png")
+							img(class="bump", src="./img/star-yellow.png", style="width: 35px;")
 
 			div(style="display: table-row;")
 				div(class="entry-margin")
@@ -76,7 +76,7 @@ ul(id="narrative-list-template")
 										| -
 
 							// Divider
-							div(class=" sequence sequence-step-divider-template", style="display: table-row;")
+							div(class="sequence sequence-step-divider-template", style="display: table-row;")
 								div(class="divider", style="display: table-cell;")
 									hr(style='margin-bottom: 8px; height: 1px; border: none; background-color: #dddddd;')
 
@@ -85,50 +85,6 @@ ul(id="narrative-list-template")
 							//
 							// Tags
 							//
-							div(style="display: table-row;")
-								div(class="tags", contenteditable="true", style="display: table-cell; min-width: 100%; vertical-align: middle; font-size: 20px; color: #666666; padding-left: 40px; background-image: url(./img/topic.png); background-size: 30px 30px; background-repeat: no-repeat; height: 30px;")
-									//img(src="./img/topic.png", width="30", height="30", style="padding: 0px 8px 0px 0px; margin: 0px; vertical-align: middle;")
-									| &nbsp;
-
-	li(id="thought-activity-template", class="activity-template", data-activity-type="thought", data-id="", data-timeline="")
-		div(style="display: table; width: 100%;")
-
-			div(style="display: table-row;")
-				div(class="entry-margin")
-					div(class="entry-margin-icon")
-						img(src="./img/thought.png", width="50", height="50")
-				div(class="account entry-body")
-					| &nbsp;
-
-				div(class="bump-section", style="display: table; position: absolute; right: 100px;")
-					div(style="display: table-row;")
-						div(class="bump-count", style="display: table-cell; vertical-align: middle; text-align: center; font-size: 20px; padding-right: 6px;")
-							| &nbsp;
-						div(style="display: table-cell; vertical-align: middle; text-align: center;")
-							| &times;
-						div(style="display: table-cell; vertical-align: middle; text-align: center;")
-							img(class="bump", src="./img/star-yellow.png")
-
-			div(style="display: table-row;")
-				div(class="entry-margin")
-					img(src="./img/blank.png", width="50", height="0", style="padding: 10px;")
-
-				div(class="entry-body")
-
-					div(class="activity-widget")
-						div(class="element-table", style="display: table; width: 100%;")
-
-							// Core activity
-							div(class="element", style="display: table-row;")
-								div(class="text", style="display: table-cell; min-width: 100%; vertical-align: middle;")
-									| -
-
-							// Divider
-							div(style="display: table-row;")
-								div(class="divider", style="display: table-cell;")
-									hr(style='margin-bottom: 8px; height: 1px; border: none; background-color: #dddddd;')
-
-							// Tags
 							div(style="display: table-row;")
 								div(class="tags", contenteditable="true", style="display: table-cell; min-width: 100%; vertical-align: middle; font-size: 20px; color: #666666; padding-left: 40px; background-image: url(./img/topic.png); background-size: 30px 30px; background-repeat: no-repeat; height: 30px;")
 									//img(src="./img/topic.png", width="30", height="30", style="padding: 0px 8px 0px 0px; margin: 0px; vertical-align: middle;")
@@ -143,6 +99,15 @@ ul(id="narrative-list-template")
 						img(src="./img/camera.png", width="50", height="50")
 				div(class="account entry-body")
 					| &nbsp;
+
+				div(class="bump-section", style="display: table; position: absolute; right: 100px;")
+					div(style="display: table-row;")
+						div(class="bump-count", style="display: table-cell; vertical-align: middle; text-align: center; font-size: 20px; padding-right: 6px;")
+							| &nbsp;
+						div(style="display: table-cell; vertical-align: middle; text-align: center;")
+							| &nbsp;
+						div(style="display: table-cell; vertical-align: middle; text-align: center;")
+							img(class="bump", src="./img/star-yellow.png", style="width: 35px;")
 
 			div(style="display: table-row;")
 				div(class="entry-margin", style="display: table-cell; text-align: center; vertical-align: middle;")
@@ -167,14 +132,14 @@ ul(id="narrative-list-template")
 							// Question
 							//
 							div(class="question-section", style="display: table-row;")
-								div(class="question", style="display: table-cell; min-width: 100%; vertical-align: middle; font-size: 20px; color: #666666; padding-left: 60px; background-image: url(./img/question-green.png); background-size: 50px 50px; background-repeat: no-repeat; height: 50px;")
+								div(class="question", style="display: table-cell; min-width: 100%; vertical-align: middle; font-size: 20px; color: #666666; padding-left: 60px; background-image: url(./img/question.png); background-size: 50px 50px; background-repeat: no-repeat; height: 50px;")
 									| question
 
 							//
 							// Observation
 							//
 							div(class="observation-section", style="display: table-row;")
-								div(class="observation-effect", style="display: table-cell; min-width: 100%; vertical-align: middle; font-size: 20px; color: #666666; padding-left: 60px; background-image: url(./img/cause-and-effect.png); background-size: 50px 50px; background-repeat: no-repeat; height: 50px;")
+								div(class="observation-effect", style="display: table-cell; min-width: 100%; vertical-align: middle; font-size: 20px; color: #666666; padding-left: 60px; background-image: url(./img/observation.png); background-size: 50px 50px; background-repeat: no-repeat; height: 50px;")
 									| observation
 
 							// Divider
@@ -190,7 +155,7 @@ ul(id="narrative-list-template")
 							// Sequence
 							//
 							div(class="sequence-section-template", style="display: table-row;")
-								div(class="step", style="display: table-cell; min-width: 100%; vertical-align: middle; font-size: 20px; color: #666666; padding-left: 60px; background-image: url(./img/step-by-step.png); background-size: 50px 50px; background-repeat: no-repeat; height: 50px;")
+								div(class="step", style="display: table-cell; min-width: 100%; vertical-align: middle; font-size: 20px; color: #666666; padding-left: 60px; background-image: url(./img/sequence.png); background-size: 50px 50px; background-repeat: no-repeat; height: 50px;")
 									| step 1
 
 							// Divider
@@ -224,9 +189,9 @@ ul(id="narrative-list-template")
 						div(class="bump-count", style="display: table-cell; vertical-align: middle; text-align: center; font-size: 20px; padding-right: 6px;")
 							| &nbsp;
 						div(style="display: table-cell; vertical-align: middle; text-align: center;")
-							| &times;
+							| &nbsp;
 						div(style="display: table-cell; vertical-align: middle; text-align: center;")
-							img(class="bump", src="./img/star-yellow.png")
+							img(class="bump", src="./img/star-yellow.png", style="width: 35px;")
 
 			div(style="display: table-row;")
 				div(class="entry-margin", style="display: table-cell; text-align: center; vertical-align: middle;")
@@ -250,14 +215,14 @@ ul(id="narrative-list-template")
 							// Question
 							//
 							div(class="question-section", style="display: table-row;")
-								div(class="question", style="display: table-cell; min-width: 100%; vertical-align: middle; font-size: 20px; color: #666666; padding-left: 60px; background-image: url(./img/question-green.png); background-size: 50px 50px; background-repeat: no-repeat; height: 50px;")
+								div(class="question", style="display: table-cell; min-width: 100%; vertical-align: middle; font-size: 20px; color: #666666; padding-left: 60px; background-image: url(./img/question.png); background-size: 50px 50px; background-repeat: no-repeat; height: 50px;")
 									| question
 
 							//
 							// Observation
 							//
 							div(class="observation-section", style="display: table-row;")
-								div(class="observation-effect", style="display: table-cell; min-width: 100%; vertical-align: middle; font-size: 20px; color: #666666; padding-left: 60px; background-image: url(./img/cause-and-effect.png); background-size: 50px 50px; background-repeat: no-repeat; height: 50px;")
+								div(class="observation-effect", style="display: table-cell; min-width: 100%; vertical-align: middle; font-size: 20px; color: #666666; padding-left: 60px; background-image: url(./img/observation.png); background-size: 50px 50px; background-repeat: no-repeat; height: 50px;")
 									| observation
 
 							// Divider
@@ -273,7 +238,7 @@ ul(id="narrative-list-template")
 							// Sequence
 							//
 							div(class="sequence-section-template", style="display: table-row;")
-								div(class="step", style="display: table-cell; min-width: 100%; vertical-align: middle; font-size: 20px; color: #666666; padding-left: 60px; background-image: url(./img/step-by-step.png); background-size: 50px 50px; background-repeat: no-repeat; height: 50px;")
+								div(class="step", style="display: table-cell; min-width: 100%; vertical-align: middle; font-size: 20px; color: #666666; padding-left: 60px; background-image: url(./img/sequence.png); background-size: 50px 50px; background-repeat: no-repeat; height: 50px;")
 									| step 1
 
 							// Divider
@@ -307,9 +272,9 @@ ul(id="narrative-list-template")
 						div(class="bump-count", style="display: table-cell; vertical-align: middle; text-align: center; font-size: 20px; padding-right: 6px;")
 							| &nbsp;
 						div(style="display: table-cell; vertical-align: middle; text-align: center;")
-							| &times;
+							| &nbsp;
 						div(style="display: table-cell; vertical-align: middle; text-align: center;")
-							img(class="bump", src="./img/star-yellow.png")
+							img(class="bump", src="./img/star-yellow.png", style="width: 35px;")
 
 			div(style="display: table-row;")
 				div(class="entry-margin", style="display: table-cell; text-align: center; vertical-align: middle;")
@@ -333,14 +298,14 @@ ul(id="narrative-list-template")
 							// Question
 							//
 							div(class="question-section", style="display: table-row;")
-								div(class="question", style="display: table-cell; min-width: 100%; vertical-align: middle; font-size: 20px; color: #666666; padding-left: 60px; background-image: url(./img/question-green.png); background-size: 50px 50px; background-repeat: no-repeat; height: 50px;")
+								div(class="question", style="display: table-cell; min-width: 100%; vertical-align: middle; font-size: 20px; color: #666666; padding-left: 60px; background-image: url(./img/question.png); background-size: 50px 50px; background-repeat: no-repeat; height: 50px;")
 									| question
 
 							//
 							// Observation
 							//
 							div(class="observation-section", style="display: table-row;")
-								div(class="observation-effect", style="display: table-cell; min-width: 100%; vertical-align: middle; font-size: 20px; color: #666666; padding-left: 60px; background-image: url(./img/cause-and-effect.png); background-size: 50px 50px; background-repeat: no-repeat; height: 50px;")
+								div(class="observation-effect", style="display: table-cell; min-width: 100%; vertical-align: middle; font-size: 20px; color: #666666; padding-left: 60px; background-image: url(./img/observation.png); background-size: 50px 50px; background-repeat: no-repeat; height: 50px;")
 									| observation
 
 							// Divider
@@ -356,7 +321,7 @@ ul(id="narrative-list-template")
 							// Sequence
 							//
 							div(class="sequence-section-template", style="display: table-row;")
-								div(class="step", style="display: table-cell; min-width: 100%; vertical-align: middle; font-size: 20px; color: #666666; padding-left: 60px; background-image: url(./img/step-by-step.png); background-size: 50px 50px; background-repeat: no-repeat; height: 50px;")
+								div(class="step", style="display: table-cell; min-width: 100%; vertical-align: middle; font-size: 20px; color: #666666; padding-left: 60px; background-image: url(./img/sequence.png); background-size: 50px 50px; background-repeat: no-repeat; height: 50px;")
 									| step 1
 
 							// Divider

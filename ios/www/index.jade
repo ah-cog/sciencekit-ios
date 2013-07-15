@@ -35,7 +35,7 @@ block content
 
 			// DEBUG: Hack for Kidsteam
 			//$('#hostAddressInput').val('http://129.2.101.49:3000');
-			$('#hostAddressInput').val('http://10.109.80.85:3000');
+			$('#hostAddressInput').val('http://10.10.0.140:3000');
 			updateAddressInput();
 
 			// Reset localStorage
@@ -112,10 +112,10 @@ block content
 			openChildBrowser();
 		}
 
-		//delete localStorage['host'];
-		//delete localStorage['client_id'];
-		//delete localStorage['client_secret'];
-		//delete localStorage['token'];
+		delete localStorage['host'];
+		delete localStorage['client_id'];
+		delete localStorage['client_secret'];
+		delete localStorage['token'];
 
 		function updateGui() {
 			if(!localStorage['host']) {
