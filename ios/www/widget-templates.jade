@@ -2,7 +2,7 @@ ul(id="narrative-list-template")
 	li(id="text-activity-template", class="activity-template", data-activity-type="text", data-id="", data-timeline="")
 		div(style="display: table; width: 100%;")
 
-			div(style="display: table-row; position: relative;")
+			div(class="author", style="display: table-row; position: relative;")
 				div(class="entry-margin")
 					div(class="entry-margin-icon")
 						img(class="entry-margin-icon-img", src="./img/text.png", width="50", height="50")
@@ -90,10 +90,25 @@ ul(id="narrative-list-template")
 									//img(src="./img/topic.png", width="30", height="30", style="padding: 0px 8px 0px 0px; margin: 0px; vertical-align: middle;")
 									| &nbsp;
 
+						div(class="element-table note-section", style="display: table; width: 100%;")
+
+							// Divider
+							div(class="node-section note-divider", style="display: table-row;")
+								div(class="divider", style="display: table-cell;")
+									hr(style='margin-bottom: 8px; margin-top: 8px; height: 1px; border: none; background-color: #dddddd;')
+
+							//
+							// Reflection
+							//
+							div(style="display: table-row;")
+								div(class="note", contenteditable="true", style="display: table-cell; min-width: 100%; vertical-align: middle; font-size: 20px; color: #666666; padding-left: 40px; background-image: url(./img/text.png); background-size: 30px 30px; background-repeat: no-repeat; height: 30px;")
+									//img(src="./img/topic.png", width="30", height="30", style="padding: 0px 8px 0px 0px; margin: 0px; vertical-align: middle;")
+									| &nbsp;
+
 	li(id="photo-template", class="activity-template", data-activity-type="photo", data-id="", data-timeline="")
 		div(style="display: table; width: 100%;")
 
-			div(style="display: table-row;")
+			div(class="author", style="display: table-row;")
 				div(class="entry-margin")
 					div(class="entry-margin-icon")
 						img(src="./img/camera.png", width="50", height="50")
@@ -174,10 +189,25 @@ ul(id="narrative-list-template")
 									//img(src="./img/topic.png", width="30", height="30", style="padding: 0px 8px 0px 0px; margin: 0px; vertical-align: middle;")
 									| &nbsp;
 
+						div(class="element-table note-section", style="display: table; width: 100%;")
+
+							// Divider
+							div(class="node-section note-divider", style="display: table-row;")
+								div(class="divider", style="display: table-cell;")
+									hr(style='margin-bottom: 8px; margin-top: 8px; height: 1px; border: none; background-color: #dddddd;')
+
+							//
+							// Reflection
+							//
+							div(style="display: table-row;")
+								div(class="note", contenteditable="true", style="display: table-cell; min-width: 100%; vertical-align: middle; font-size: 20px; color: #666666; padding-left: 40px; background-image: url(./img/text.png); background-size: 30px 30px; background-repeat: no-repeat; height: 30px;")
+									//img(src="./img/topic.png", width="30", height="30", style="padding: 0px 8px 0px 0px; margin: 0px; vertical-align: middle;")
+									| &nbsp;
+
 	li(id="video-activity-template", class="activity-template", data-activity-type="video", data-id="", data-timeline="")
 		div(style="display: table; width: 100%;")
 
-			div(style="display: table-row;")
+			div(class="author", style="display: table-row;")
 				div(class="entry-margin")
 					div(class="entry-margin-icon")
 						img(src="./img/video.png", width="50", height="50")
@@ -257,10 +287,25 @@ ul(id="narrative-list-template")
 									//img(src="./img/topic.png", width="30", height="30", style="padding: 0px 8px 0px 0px; margin: 0px; vertical-align: middle;")
 									| &nbsp;
 
+						div(class="element-table note-section", style="display: table; width: 100%;")
+
+							// Divider
+							div(class="node-section note-divider", style="display: table-row;")
+								div(class="divider", style="display: table-cell;")
+									hr(style='margin-bottom: 8px; margin-top: 8px; height: 1px; border: none; background-color: #dddddd;')
+
+							//
+							// Reflection
+							//
+							div(style="display: table-row;")
+								div(class="note", contenteditable="true", style="display: table-cell; min-width: 100%; vertical-align: middle; font-size: 20px; color: #666666; padding-left: 40px; background-image: url(./img/text.png); background-size: 30px 30px; background-repeat: no-repeat; height: 30px;")
+									//img(src="./img/topic.png", width="30", height="30", style="padding: 0px 8px 0px 0px; margin: 0px; vertical-align: middle;")
+									| &nbsp;
+
 	li(id="sketch-activity-template", class="activity-template", data-activity-type="sketch", data-id="", data-timeline="")
 		div(style="display: table; width: 100%;")
 
-			div(style="display: table-row;")
+			div(class="author", style="display: table-row;")
 				div(class="entry-margin")
 					div(class="entry-margin-icon")
 						img(src="./img/palette.png", width="50", height="50")
@@ -337,5 +382,20 @@ ul(id="narrative-list-template")
 							// Tags
 							div(style="display: table-row;")
 								div(class="tags", contenteditable="true", style="display: table-cell; min-width: 100%; vertical-align: middle; font-size: 20px; color: #666666; padding-left: 40px; background-image: url(./img/topic.png); background-size: 30px 30px; background-repeat: no-repeat; height: 30px;")
+									//img(src="./img/topic.png", width="30", height="30", style="padding: 0px 8px 0px 0px; margin: 0px; vertical-align: middle;")
+									| &nbsp;
+
+						div(class="element-table note-section", style="display: table; width: 100%;")
+
+							// Divider
+							div(class="node-section note-divider", style="display: table-row;")
+								div(class="divider", style="display: table-cell;")
+									hr(style='margin-bottom: 8px; margin-top: 8px; height: 1px; border: none; background-color: #dddddd;')
+
+							//
+							// Reflection
+							//
+							div(style="display: table-row;")
+								div(class="note", contenteditable="true", style="display: table-cell; min-width: 100%; vertical-align: middle; font-size: 20px; color: #666666; padding-left: 40px; background-image: url(./img/text.png); background-size: 30px 30px; background-repeat: no-repeat; height: 30px;")
 									//img(src="./img/topic.png", width="30", height="30", style="padding: 0px 8px 0px 0px; margin: 0px; vertical-align: middle;")
 									| &nbsp;

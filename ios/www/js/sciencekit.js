@@ -608,7 +608,7 @@ function apiGetUser(options) {
 	});
 }
 
-var accounts = [];
+accounts = [];
 function getAccounts(options, fn) {
 	console.log('getAccounts()');
 
@@ -804,11 +804,16 @@ function openStoryTool(options) {
 
 	// Intialize by setting all entires to the right.  By default, entries are added to a new Story.
 	if (options['readOnly'] !== true) {
+		// Set entry text
+		$('.note').text('');
+		$('.note-section').hide();
+
 		$('.activity-widget').closest('.activity-template').addClass('activity-template-right');
 
 		// TODO: Only open Story Tool
 		// getStories();
 
+		// Set up click handler for entries (to include/exclude in the story)
 		$('.activity-widget').closest('.activity-template').off('click');
 		$('.activity-widget').closest('.activity-template').on('click', function() {
 
@@ -817,16 +822,26 @@ function openStoryTool(options) {
 				$(this).removeClass('activity-template-left');
 				$(this).addClass('activity-template-right');
 
+				// $(this).find('.note-section').css('display', 'none');
+				$(this).find('.note-section').slideUp();
+
 			// Move left
 			} else if (!($(this).hasClass('activity-template-left')) && $(this).hasClass('activity-template-right')) {
 				$(this).removeClass('activity-template-right');
 				$(this).addClass('activity-template-left');
+
+				// $(this).find('.note-section').css('display', 'table-row');
+				$(this).find('.note-section').slideDown();
 
 			// Set default
 			} else {
 				$(this).removeClass('activity-template-left');
 				$(this).removeClass('activity-template-right');
 				$(this).addClass('activity-template-left');
+
+				$(this).find('.note-section').slideUp();
+
+				// $(this).find('.note-section').css('display', 'none');
 			}
 
 			// $('.activity-widget').removeClass('activity-widget-right');
@@ -1215,12 +1230,22 @@ function getStory(options) {
 
 				// Check if Entry exists in Inquiry, and if so, denote it as part of the Story.
 				var entryWidget = $('#frame-' + entry._id);
+
+				// Set entry text
+				$('.note').text('');
+				getNote(entryWidget);
+				$(entryWidget).find('.note-section').show();
+
 				$(entryWidget).show();
+
+				// Reset widget
+				if ($(entryWidget).hasClass('activity-template-right'))
+					$(entryWidget).removeClass('activity-template-right');
+				if ($(entryWidget).hasClass('activity-template-left'))
+					$(entryWidget).removeClass('activity-template-left');
+				$(entryWidget).off('click');
+
 				if (options['readOnly'] !== true) {
-					if ($(entryWidget).hasClass('activity-template-right'))
-						$(entryWidget).removeClass('activity-template-right');
-					if ($(entryWidget).hasClass('activity-template-left'))
-						$(entryWidget).removeClass('activity-template-left');
 					$(entryWidget).addClass('activity-template-left');
 				}
 				console.log(entryWidget);
@@ -1907,7 +1932,7 @@ function addTextWidget(entry) {
 		var authorEntryAction = 'wrote something';
 		if (entry.hasOwnProperty('questions')) {
 			var question = entry.questions[0];
-			e.find('.entry-margin-icon-img').attr('src', './img/question-green.png');
+			e.find('.entry-margin-icon-img').attr('src', './img/question.png');
 			e.find('.observation').hide();
 			e.find('.sequence').hide();
 			e.find('.question').show();
@@ -1916,7 +1941,7 @@ function addTextWidget(entry) {
 
 		} else if (entry.hasOwnProperty('observations')) {
 			var observation = entry.observations[0];
-			e.find('.entry-margin-icon-img').attr('src', './img/cause-and-effect.png');
+			e.find('.entry-margin-icon-img').attr('src', './img/observation.png');
 			e.find('.question').hide();
 			e.find('.sequence').hide();
 			e.find('.observation').show();
@@ -1926,7 +1951,7 @@ function addTextWidget(entry) {
 
 		} else if (entry.hasOwnProperty('sequences')) {
 			var sequence = entry.sequences[0];
-			e.find('.entry-margin-icon-img').attr('src', './img/step-by-step.png');
+			e.find('.entry-margin-icon-img').attr('src', './img/sequence.png');
 			var sequenceString = '';
 			var index = 1;
 
@@ -1998,37 +2023,44 @@ function addTextWidget(entry) {
 			e.find('.bump-count').text(entry.bumps.length);
 		}
 
+		// Hide notes section
+		e.find('.note-section').hide();
+
 		// Update options for widget
 		var options = e.find('.activity-widget .element .options');
 
-		if ($("#frame-" + entry._id).length != 0) {
-		} else {
+		if ($("#frame-" + entry._id).length === 0) {
 
 			//
-			// Set up Widget event handlers.
+			// Set up widget event handlers
 			//
 
+			// Add to list of entry widgets
 			e.prependTo('#narrative-list');
-			//e.find('.element .text').off('blur');
+
+			// Set up tags section event handlers
+			e.find('.tags').off('click');
+			e.find('.tags').click(function(event) { event.stopPropagation(); });
 			e.find('.tags').off('blur');
 			e.find('.tags').blur(function() { saveTags(e); });
+
+			// Set up bump section event handlers
 			e.find('.bump').click(function() { bumpEntry(e); });
+
+			// Set up note section event handlers
+			e.find('.note').off('click');
+			e.find('.note').click(function(event) { event.stopPropagation(); });
+			e.find('.note').off('blur');
+			e.find('.note').blur(function() { saveNote(e); });
 		
+			// Show entry widget
+			e.show();
 
-			e.show(); // Show element
-
-			//
 			// Request Tags from server
-			//
-
 			getTags(e);
-		}
 
-		// Update Frame based on FrameView for current user's Account
-		if (entry.visible === false) {
-			$(e).addClass('hidden')
-			$(e).find('.hide').attr('src', './img/plus-red.png');
-			$(e).hide();
+			// Request Note from server
+			getNote(e);
 		}
 
 	} else {
@@ -2049,27 +2081,6 @@ function addTextWidget(entry) {
 		// Show the Widget
 		e.show();
 	}
-}
-
-var showingHiddenFrames = false;
-function showHiddenFrames() {
-	if (showingHiddenFrames) {
-		showingHiddenFrames = false;
-		$('.activity-frame.hidden').fadeOut('slow', function() {
-			//$('.activity-frame.hidden').slideUp();
-		});
-	} else {
-		showingHiddenFrames = true;
-		//$('.activity-frame.hidden').css('visibility', 'hidden');
-		//$('.activity-frame.hidden').slideDown('slow', function() {
-			//$('.activity-frame.hidden').css('visibility', 'visible');
-			$('.activity-frame.hidden').fadeIn('slow');
-		//});
-	}
-}
-
-function setCurrentWidget(widget) {
-	e.find('.element .options').show();
 }
 
 //
@@ -2208,6 +2219,9 @@ function addPhotoWidget(entry) {
 			e.find('.bump-count').text(entry.bumps.length);
 		}
 
+		// Hide notes section
+		e.find('.note-section').hide();
+
 		//
 		// Question, Observation, Sequence
 		//
@@ -2274,29 +2288,46 @@ function addPhotoWidget(entry) {
 		e.find('.tags').off('blur');
 		e.find('.tags').blur(function() { saveTags(e); });
 
+		e.find('.note').off('blur');
+		e.find('.note').blur(function() { saveNote(e); });
+
 		// Set image
 		var image = e.find('.element .image');
 		image.attr('src', '' + localStorage['host'] + photo.uri + '');
 
-		if ($("#frame-" + entry._id).length != 0) {
-		} else {
+		if ($("#frame-" + entry._id).length === 0) {
 
+			//
+			// Set up widget event handlers
+			//
+
+			// Add to list of entry widgets
 			e.prependTo('#narrative-list');
 
+			// Set up tags section event handlers
+			e.find('.tags').off('click');
+			e.find('.tags').click(function(event) { event.stopPropagation(); });
+			e.find('.tags').off('blur');
+			e.find('.tags').blur(function() { saveTags(e); });
+
+			// Set up bump section event handlers
 			e.find('.bump').click(function() { bumpEntry(e); });
 
-			e.show(); // Show element
-		}
+			// Set up note section event handlers
+			e.find('.note').off('click');
+			e.find('.note').click(function(event) { event.stopPropagation(); });
+			e.find('.note').off('blur');
+			e.find('.note').blur(function() { saveNote(e); });
+		
+			// Show entry widget
+			e.show();
 
-		// Update Frame based on FrameView for current user's Account
-		if (entry.visible === false) {
-			$(e).addClass('hidden')
-			$(e).find('.hide').attr('src', './img/plus-red.png');
-			$(e).hide();
-		}
+			// Request Tags from server
+			getTags(e);
 
-		// Request Tags from server
-		getTags(e);
+			// Request Note from server
+			getNote(e);
+		}
 
 	} else {
 
@@ -2391,6 +2422,9 @@ function addVideoWidget(entry) {
 			e.find('.bump-count').text(entry.bumps.length);
 		}
 
+		// Hide notes section
+		e.find('.note-section').hide();
+
 		// Set video
 		var videoElement = e.find('.element .video');
 		videoElement.attr('src', '' + localStorage['host'] + video.uri + '');
@@ -2453,29 +2487,39 @@ function addVideoWidget(entry) {
 			}
 		}
 
-		// Add Tags
-		e.find('.tags').off('blur');
-		e.find('.tags').blur(function() { saveTags(e); });
+		if ($("#frame-" + entry._id).length === 0) {
 
-		if ($("#frame-" + entry._id).length != 0) {
-		} else {
+			//
+			// Set up widget event handlers
+			//
 
+			// Add to list of entry widgets
 			e.prependTo('#narrative-list');
 
+			// Set up tags section event handlers
+			e.find('.tags').off('click');
+			e.find('.tags').click(function(event) { event.stopPropagation(); });
+			e.find('.tags').off('blur');
+			e.find('.tags').blur(function() { saveTags(e); });
+
+			// Set up bump section event handlers
 			e.find('.bump').click(function() { bumpEntry(e); });
 
-			e.show(); // Show element
-		}
+			// Set up note section event handlers
+			e.find('.note').off('click');
+			e.find('.note').click(function(event) { event.stopPropagation(); });
+			e.find('.note').off('blur');
+			e.find('.note').blur(function() { saveNote(e); });
+		
+			// Show entry widget
+			e.show();
 
-		// Update Frame based on FrameView for current user's Account
-		if (entry.visible === false) {
-			$(e).addClass('hidden')
-			$(e).find('.hide').attr('src', './img/plus-red.png');
-			$(e).hide();
-		}
+			// Request Tags from server
+			getTags(e);
 
-		// Request Tags from server
-		getTags(e);
+			// Request Note from server
+			getNote(e);
+		}
 
 	} else {
 
@@ -2574,6 +2618,9 @@ function addSketchWidget(entry) {
 			e.find('.bump-count').text(entry.bumps.length);
 		}
 
+		// Hide notes section
+		e.find('.note-section').hide();
+
 		//
 		// Question, Observation, Sequence
 		//
@@ -2634,33 +2681,43 @@ function addSketchWidget(entry) {
 			}
 		}
 
-		// Add Tags
-		e.find('.tags').off('blur');
-		e.find('.tags').blur(function() { saveTags(e); });
-
 		// Set image
 		var image = e.find('.element .image');
 		image.attr('src', sketch.imageData);
 
-		if ($("#frame-" + entry._id).length != 0) {
-		} else {
+		if ($("#frame-" + entry._id).length === 0) {
 
+			//
+			// Set up widget event handlers
+			//
+
+			// Add to list of entry widgets
 			e.prependTo('#narrative-list');
 
+			// Set up tags section event handlers
+			e.find('.tags').off('click');
+			e.find('.tags').click(function(event) { event.stopPropagation(); });
+			e.find('.tags').off('blur');
+			e.find('.tags').blur(function() { saveTags(e); });
+
+			// Set up bump section event handlers
 			e.find('.bump').click(function() { bumpEntry(e); });
 
-			e.show(); // Show element
-		}
+			// Set up note section event handlers
+			e.find('.note').off('click');
+			e.find('.note').click(function(event) { event.stopPropagation(); });
+			e.find('.note').off('blur');
+			e.find('.note').blur(function() { saveNote(e); });
 		
-		// Update Frame based on FrameView for current user's Account
-		if (entry.visible === false) {
-			$(e).addClass('hidden')
-			$(e).find('.hide').attr('src', './img/plus-red.png');
-			$(e).hide();
-		}
+			// Show entry widget
+			e.show();
 
-		// Request Tags from server
-		getTags(e);
+			// Request Tags from server
+			getTags(e);
+
+			// Request Note from server
+			getNote(e);
+		}
 
 		// Update the Widget (updates that can only happen after displaying the widget)
 		if (sketch.hasOwnProperty('imageWidth') && sketch.hasOwnProperty('imageHeight')) {
@@ -3023,6 +3080,34 @@ function getTags(e) {
 	});
 }
 
+function getNote(e) {
+
+	var entryId = $(e).find('.activity-widget .element').attr('data-entry');
+
+	if (entryId === undefined) {
+		return;
+	}
+
+	$.ajax({
+		type: 'GET',
+		beforeSend: function(request) {
+			request.setRequestHeader('Authorization', 'Bearer ' + localStorage['token']);
+		},
+		url: localStorage['host'] + '/api/note?entryId=' + entryId,
+		dataType: 'json',
+		success: function(data) {
+			// console.log('Received protected thoughts (success).');
+			console.log(data[0].note);
+
+			$(e).find('.note').html(data[0].note);
+
+			// for (tag in data) {
+			// 	$(e).find('.tags').append('<span id="tag-' + data[tag]._id + '" style="display:inline-block;" contenteditable="false"><a href="javascript:getTimeline({});">' + data[tag].text + '</a></span> ');
+			// }
+		}
+	});
+}
+
 function saveTags(e) {
 	console.log('saveTags');
 
@@ -3096,6 +3181,73 @@ function saveTags(e) {
 			}
 		});
 	}
+}
+
+function saveNote(e) {
+	console.log('saveNote');
+
+	var activityType = $(e).attr('data-activity-type');
+	// TODO: Make sure actiivtyType is valid (compare with retreived types from API?)
+
+	console.log('Saving note for activityType: ' + activityType);
+
+	var widget  = e.find('.activity-widget');
+	var element = e.find('.activity-widget .element');
+	var note    = e.find('.activity-widget .note');
+
+	// Get textual tags (i.e., the "raw" tag text, e.g., "mytag" in "#mytag")
+	// var rawTagText = e.find('.tags').text();
+	// rawTagText = rawTagText.replace(/#,/, '');
+	//rawTagText = rawTagText.replace(/^[A-Z0-9]/, '');
+	// rawTagText = rawTagText.toLowerCase();
+	// console.log(rawTagText);
+	// var tagText = rawTagText.split(/\s/);
+	var noteText = e.find('.note').text().trim();
+	var tagTextCount = noteText.length;
+	console.log(tagTextCount);
+
+	console.log('NOTE: ' + noteText);
+
+	// Save each tag
+
+	// Construct JSON object for element to save
+	var dataJSON = {
+		//"timeline": $("#narrative-list").attr("data-timeline"),
+		"entry": element.attr("data-entry"),
+		// "frameType": e.attr("data-activity-type"),
+		"note": noteText
+	};
+
+	//if(element.attr("data-frame")) dataJSON.frame = element.attr("data-frame");
+	//if(element.attr("data-id")) dataJSON.reference = element.attr("data-id"); // Set the element to the reference, since it was edited.
+
+	console.log("Saving Tag for Frame (JSON): ");
+	console.log(dataJSON);
+
+	// POST the JSON object 
+	$.ajax({
+		type: 'POST',
+		beforeSend: function(request) {
+			request.setRequestHeader('Authorization', 'Bearer ' + localStorage['token']);
+		},
+		url: localStorage['host'] + '/api/note',
+		dataType: 'json',
+		contentType: 'application/json; charset=utf-8',
+		data: JSON.stringify(dataJSON),
+		processData: false,
+		success: function(data) {
+			console.log('Saved Note: ');
+			console.log(data);
+
+			// TODO: Only update necessary tags
+			$(e).find('.note').html(data.note);
+
+			console.log('Updated Note.');
+		},
+		error: function() {
+			console.log('Failed to save Note.');
+		}
+	});
 }
 
 function bumpEntry(e) {
