@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
+	<false/>
+	<key>IDESourceControlProjectIdentifier</key>
+	<string>5FFF07BD-4588-461A-AC05-96E8A85A4C2D</string>
+	<key>IDESourceControlProjectName</key>
+	<string>ScienceKitClient</string>
+	<key>IDESourceControlProjectOriginsDictionary</key>
+	<dict>
+		<key>48887C83-AF2D-414E-B9DD-2F22C3CDA658</key>
+		<string>https://github.com/mokogobo/sciencekit-client.git</string>
+	</dict>
+	<key>IDESourceControlProjectPath</key>
+	<string>ios/ScienceKitClient.xcodeproj/project.xcworkspace</string>
+	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
+	<dict>
+		<key>48887C83-AF2D-414E-B9DD-2F22C3CDA658</key>
+		<string>../../..</string>
+	</dict>
+	<key>IDESourceControlProjectURL</key>
+	<string>https://github.com/mokogobo/sciencekit-client.git</string>
+	<key>IDESourceControlProjectVersion</key>
+	<integer>110</integer>
+	<key>IDESourceControlProjectWCCIdentifier</key>
+	<string>48887C83-AF2D-414E-B9DD-2F22C3CDA658</string>
+	<key>IDESourceControlProjectWCConfigurations</key>
+	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>48887C83-AF2D-414E-B9DD-2F22C3CDA658</string>
+			<key>IDESourceControlWCCName</key>
+			<string>sciencekit-client</string>
+		</dict>
+	</array>
+</dict>
+</plist>

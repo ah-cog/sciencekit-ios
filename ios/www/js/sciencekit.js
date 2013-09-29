@@ -1,3 +1,79 @@
+// (function($) {
+
+//   /**
+//    * Copyright 2012, Digital Fusion
+//    * Licensed under the MIT license.
+//    * http://teamdf.com/jquery-plugins/license/
+//    *
+//    * @author Sam Sehnert
+//    * @desc A small plugin that checks whether elements are within
+//    *     the user visible viewport of a web browser.
+//    *     only accounts for vertical position, not horizontal.
+//    */
+
+//   $.fn.visible = function(partial) {
+    
+//       var $t            = $(this),
+//           $w            = $(window),
+//           viewTop       = $w.scrollTop(),
+//           viewBottom    = viewTop + $w.height(),
+//           _top          = $t.offset().top,
+//           _bottom       = _top + $t.height(),
+//           compareTop    = partial === true ? _bottom : _top,
+//           compareBottom = partial === true ? _top : _bottom;
+    
+//     return ((compareBottom <= viewBottom) && (compareTop >= viewTop));
+
+//   };
+    
+// })(jQuery);
+
+// var win = $(window);
+// var allMods = $(".activity-template");
+
+// // Already visible modules
+// allMods.each(function(i, el) {
+//   var el = $(el);
+//   if (el.visible(true)) {
+//     // el.addClass("already-visible"); 
+//   } 
+// });
+
+// win.scroll(function(event) {
+  
+//   allMods.each(function(i, el) {
+//     var el = $(el);
+//     if (el.visible(true)) {
+//       // el.addClass("come-in"); 
+//       $(el).find('.image').css('visibility', 'visible');
+//     } 
+//   });
+  
+// });
+
+// $(window).scroll(function(event) {
+
+// 	$(".activity-template").each(function(i, el) {
+// 		var el = $(el);
+// 		if (el.visible(true)) {
+// 		// Show elements on screen
+// 		// el.addClass("come-in"); 
+// 		// console.log($(el).attr('id'));
+// 			$(el).find('.image').css('visibility', 'visible');
+// 			$(el).find('.video').css('visibility', 'visible');
+// 		}
+// 		// else {
+// 		// 	$(el).find('.image').css('visibility', 'hidden');
+// 		// 	$(el).find('.video').css('visibility', 'hidden');
+// 		// }
+// 		// else {
+// 		// 	// Hide elements off screen
+// 		// 	$(el).find('.image').css('display', 'block');
+// 		// }
+// 	});
+  
+// });
+
 // socket.io
 // Real-time event-driven sockets, client-side code.
 
@@ -201,7 +277,7 @@ function savePhoto(photoURI) {
 		var sequenceSteps = $('.sequence-tool-step');
 		var sequenceStepText = [];
 		$('.sequence-tool-step').each(function(i) {
-			console.log("step: " + $(this).val());
+			// console.log("step: " + $(this).val());
 			if ($(this).is(":visible")) {
 				sequenceStepText.push({ step: $(this).val() });
 			}
@@ -214,6 +290,25 @@ function savePhoto(photoURI) {
 
 	}
 
+	// Collaborators
+	var collaboratorsJSON = null;
+	var authors = [];
+	$("input[name='collaborators']:checked").each(function() {
+		authors.push({ author: $(this).val() });
+	});
+	if (authors.length > 0) {
+		collaboratorsJSON = {};
+		collaboratorsJSON.authors = authors;
+	}
+
+	// Feeling/Identity
+	var identityJSON = null;
+	if ($("input[name='identity-options']:checked").length > 0) {
+		identityJSON = {
+			"identity": $("input[name='identity-options']:checked").val()
+		};
+	}
+
     // Upload the image to server
     function success(response) {
         console.log("Photo uploaded successfully:");
@@ -221,19 +316,19 @@ function savePhoto(photoURI) {
         addPhotoWidget(data);
 
         // Save Concept
-		if (conceptJSON) {
+		if (conceptJSON !== null) {
 			conceptJSON.parent = data._id;
 			saveConceptTool(conceptJSON);
 		}
 
 		// Save Collaborators
-		if (collaboratorsJSON) {
+		if (collaboratorsJSON !== null) {
 			collaboratorsJSON.parent = data._id;
 			saveCollaborationTool(collaboratorsJSON);
 		}
 
 		// Save Identity
-		if (identityJSON) {
+		if (identityJSON !== null) {
 			identityJSON.parent = data._id;
 			saveIdentityTool(identityJSON);
 		}
@@ -509,7 +604,7 @@ window.onload = function() {
 	// OAuth2
 	$('#auth_link').click(function() {
 
-		console.log(localStorage['code']);
+		// console.log(localStorage['code']);
 		exchangeGrantForAccessToken({
 			'client_id': localStorage['client_id'],
 			'client_secret': localStorage['client_secret'],
@@ -696,6 +791,8 @@ currentConceptTool = null;
 
 function openInquiryPerspective() {
 
+	getTimeline();
+
 	currentPerspective = 'Inquiry';
 
 	$('#toolkit-list').fadeOut(function() {
@@ -718,6 +815,88 @@ function openInquiryPerspective() {
 	$('.activity-widget').closest('.activity-template').off('click');
 	$('.activity-widget').closest('.activity-template').removeClass('activity-template-left');
 	$('.activity-widget').closest('.activity-template').removeClass('activity-template-right');
+	$('.note-section').hide();
+}
+
+function openStoryPerspectiveHack() {
+
+	currentPerspective = 'Story';
+
+	$('#logo').fadeOut();
+	$('#top').fadeOut();
+	$('#bottom').fadeOut();
+
+	$('#story-title').hide();
+	$('#story-structure-options').hide();
+
+	$('#toolkit-list').fadeOut();
+
+	// $('#narrative-list').fadeOut(function() {
+		// $('#toolkit-tool-options').fadeIn();
+		$('#story-grid-template-row').hide();
+		// $('#story-grid').fadeIn();
+		// $('#story-perspective-list').fadeIn();
+	// });
+
+	// $('#narrative-list').fadeOut(function() {
+	// 	// $('#toolkit-tool-options').fadeIn();
+	// 	$('#story-grid-template-row').hide();
+	// 	$('#story-grid').fadeIn();
+	// 	$('#story-perspective-list').fadeIn();
+	// });
+
+	
+	
+	$('#toolkit-tool-options').fadeOut();
+	$('#toolkit-options').fadeOut();
+
+	// TODO: Only open Story Tool
+	getStoriesHack();
+}
+
+function getStoriesHack(options) {
+	console.log('getStoriesHack()');
+
+	//
+	// Request resources for new timeline and update the timeline widget
+	//
+
+	var requestUri = localStorage['host'] + '/api/storyhack';
+
+	if (typeof options !== "undefined") {
+		if (options.hasOwnProperty('id')) {
+			requestUri = requestUri + '?id=' + options['id'];
+		} else if (options.hasOwnProperty('moment_id')) {
+			requestUri = requestUri + '?moment_id=' + options['moment_id'];
+		} else if (options.hasOwnProperty('frameId')) {
+			requestUri = requestUri + '?frameId=' + options['frameId'];
+		}
+	}
+
+	$.ajax({
+		type: 'GET',
+		beforeSend: function(request) {
+			request.setRequestHeader('Authorization', 'Bearer ' + localStorage['token']);
+		},
+		url: requestUri,
+		dataType: 'json',
+		success: function(data) {
+			// console.log('Received protected thoughts (success).');
+			// console.log(data);
+
+			$('#narrative-list').html('');
+			$('#narrative-list').attr('data-timeline', data._id);
+			$('#narrative-list').attr('data-moment', data.moment);
+
+			// Add Moments to Timeline
+			for (moment in data.moments) {
+				addTimelineWidget(data.moments[moment]);
+			}
+		},
+		error: function() {
+			console.log('Failed to retreive protected resource.');
+		}
+	});
 }
 
 function openStoryPerspective() {
@@ -729,6 +908,7 @@ function openStoryPerspective() {
 	$('#bottom').fadeOut();
 
 	$('#story-title').hide();
+	$('#story-structure-options').hide();
 
 	$('#toolkit-list').fadeOut();
 
@@ -746,6 +926,127 @@ function openStoryPerspective() {
 
 	// TODO: Only open Story Tool
 	getStories();
+}
+
+// TODO: Finish this...
+function openStoryToolStructured(options) {
+
+	if (typeof options !== "undefined") {
+		if (options.hasOwnProperty('id')) {
+			requestUri = requestUri + '?id=' + options['id'];
+		} else if (options.hasOwnProperty('moment_id')) {
+			requestUri = requestUri + '?moment_id=' + options['moment_id'];
+		} else if (options.hasOwnProperty('frameId')) {
+			requestUri = requestUri + '?frameId=' + options['frameId'];
+		}
+	} else {
+		options = { 'readOnly': false };
+	}
+
+	currentTool = 'Story';
+
+	$('#logo').fadeOut();
+	$('#top').fadeOut();
+	$('#bottom').fadeOut();
+
+	$('#story-grid-template-row').hide();
+
+	$('#story-grid').fadeOut(function() {
+		$('#story-title').fadeIn(function () {
+			$('#story-structure-options').fadeIn();
+			$('#narrative-list').show();
+		});
+		// $('#toolkit-tool-options').fadeIn();
+		// $('#story-grid-template-row').hide();
+		// $('#story-perspective-list').show();
+	});
+
+
+	
+	$('#toolkit-options').fadeOut(function() {
+		if (options['readOnly'] !== true) {
+			$('#toolkit-tool-options').fadeIn();
+		}
+	});
+
+	// Set default chapter to first chapter
+	setStoryChapter({ chapter: 'beginning' });
+
+	// $('#narrative-list').show(function() {
+	// 	$('.toolkit-tool').hide();
+	// 	$('#media-toolkit').show();
+	// 	$('#media-type-options').show();
+	// 	$('#tool-extra-options').show();
+	// 	$('.text-tool').show();
+	// 	$('#toolkit-list').fadeIn();
+	// });
+
+
+
+	// $('#narrative-list').fadeOut(function() {
+	// 	$('#toolkit-list').fadeIn();
+	// });
+
+	// Intialize by setting all entires to the right.  By default, entries are added to a new Story.
+	if (options['readOnly'] !== true) {
+		// Set entry text
+		$('.note').text('');
+		$('.note-section').hide();
+
+		$('.activity-widget').closest('.activity-template').addClass('activity-template-right');
+
+		// TODO: Only open Story Tool
+		// getStories();
+
+		// Set up click handler for entries (to include/exclude in the story)
+		$('.activity-widget').closest('.activity-template').off('click');
+		$('.activity-widget').closest('.activity-template').on('click', function() {
+
+			// Move right
+			if ($(this).hasClass('activity-template-left') && !($(this).hasClass('activity-template-right'))) {
+				$(this).removeClass('activity-template-left');
+				$(this).addClass('activity-template-right');
+
+				// Remove from current chapter
+				if (currentStoryChapter !== null) {
+					$(this).removeClass(currentStoryChapter);
+				}
+
+				// $(this).find('.note-section').css('display', 'none');
+				$(this).find('.note-section').hide();
+
+			// Move left
+			} else if (!($(this).hasClass('activity-template-left')) && $(this).hasClass('activity-template-right')) {
+				$(this).removeClass('activity-template-right');
+				$(this).addClass('activity-template-left');
+
+				// Add to current chapter
+				if (currentStoryChapter !== null) {
+					$(this).addClass(currentStoryChapter);
+				}
+
+				// $(this).find('.note-section').css('display', 'table-row');
+				$(this).find('.note-section').show();
+
+			// Set default
+			} else {
+				$(this).removeClass('activity-template-left');
+				$(this).removeClass('activity-template-right');
+				$(this).addClass('activity-template-left');
+
+				$(this).find('.note-section').hide();
+
+				// $(this).find('.note-section').css('display', 'none');
+			}
+
+			// $('.activity-widget').removeClass('activity-widget-right');
+			// $('.activity-widget').addClass('activity-widget-left');
+		});
+	}
+
+	// if (options['readOnly'] === true) {
+	// 	$('.activity-template-right').hide();
+	// }
 }
 
 function openStoryTool(options) {
@@ -771,8 +1072,8 @@ function openStoryTool(options) {
 	$('#story-grid-template-row').hide();
 
 	$('#story-grid').fadeOut(function() {
-		$('#story-title').fadeIn(function () {
-			$('#narrative-list').slideDown();
+		$('#story-title').fadeIn(function() {
+			$('#narrative-list').show();
 		});
 		// $('#toolkit-tool-options').fadeIn();
 		// $('#story-grid-template-row').hide();
@@ -823,7 +1124,7 @@ function openStoryTool(options) {
 				$(this).addClass('activity-template-right');
 
 				// $(this).find('.note-section').css('display', 'none');
-				$(this).find('.note-section').slideUp();
+				$(this).find('.note-section').hide();
 
 			// Move left
 			} else if (!($(this).hasClass('activity-template-left')) && $(this).hasClass('activity-template-right')) {
@@ -831,15 +1132,13 @@ function openStoryTool(options) {
 				$(this).addClass('activity-template-left');
 
 				// $(this).find('.note-section').css('display', 'table-row');
-				$(this).find('.note-section').slideDown();
+				$(this).find('.note-section').show();
 
 			// Set default
 			} else {
 				$(this).removeClass('activity-template-left');
 				$(this).removeClass('activity-template-right');
 				$(this).addClass('activity-template-left');
-
-				$(this).find('.note-section').slideUp();
 
 				// $(this).find('.note-section').css('display', 'none');
 			}
@@ -864,6 +1163,7 @@ function openStoryTool(options) {
 function openTextTool() {
 
 	currentTool = 'Text';
+	currentConceptTool = null;
 
 	$('#logo').fadeOut();
 	$('#top').fadeOut();
@@ -878,8 +1178,8 @@ function openTextTool() {
 		$('.toolkit-tool').hide();
 		$('#media-toolkit').show();
 		$('#media-type-options').show();
-		$('#tool-extra-options').show();
 		$('#media-type-options .media-type-options').show();
+		$('#tool-extra-options').show();
 		$('.text-tool').show();
 		$('#toolkit-list').fadeIn();
 	});
@@ -890,6 +1190,7 @@ function openTextTool() {
 function openPhotoTool() {
 
 	currentTool = 'Photo';
+	currentConceptTool = null;
 
 	$('#logo').fadeOut();
 	$('#top').fadeOut();
@@ -904,6 +1205,7 @@ function openPhotoTool() {
 		$('.toolkit-tool').hide();
 		$('#media-toolkit').show();
 		$('#media-type-options').show();
+		$('#media-type-options .media-type-options').show();
 		$('#tool-extra-options').show();
 		$('.photo-tool').show();
 		$('#toolkit-list').fadeIn();
@@ -915,6 +1217,7 @@ function openPhotoTool() {
 function openVideoTool() {
 
 	currentTool = 'Video';
+	currentConceptTool = null;
 
 	$('#logo').fadeOut();
 	$('#top').fadeOut();
@@ -929,6 +1232,7 @@ function openVideoTool() {
 		$('.toolkit-tool').hide();
 		$('#media-toolkit').show();
 		$('#media-type-options').show();
+		$('#media-type-options .media-type-options').show();
 		$('#tool-extra-options').show();
 		$('.video-tool').show();
 		$('#toolkit-list').fadeIn();
@@ -940,6 +1244,7 @@ function openVideoTool() {
 function openSketchTool2() {
 
 	currentTool = 'Sketch';
+	currentConceptTool = null;
 
 	$('#logo').fadeOut();
 	$('#top').fadeOut();
@@ -954,6 +1259,7 @@ function openSketchTool2() {
 		$('.toolkit-tool').hide();
 		$('#media-toolkit').show();
 		$('#media-type-options').show();
+		$('#media-type-options .media-type-options').show();
 		$('#tool-extra-options').show();
 		$('.sketch-tool2').show();
 		$('#toolkit-list').fadeIn();
@@ -1027,7 +1333,8 @@ function openSequenceTool() {
 	});
 
 	// Reset form
-	$('#observation-tool-effect').val('');
+	$('.sequence-tool-step').val('');
+	$('.sequence-tool-step-dynamic').remove();
 
 	$('#narrative-list').fadeOut(function() {
 		$('.concept-tool').hide();
@@ -1051,6 +1358,7 @@ function addSequenceStep() {
 	// sequenceStep.addClass('activity-frame');
 	// sequenceStepLabel.removeAttr('id'); // Remove 'id' attribute
 	sequenceStepStep.removeAttr('id'); // Remove 'id' attribute
+	sequenceStepStep.addClass('sequence-tool-step-dynamic');
 	// sequenceStepLabel.show();
 	// sequenceStepLabel.attr('display', 'table-row');
 	sequenceStepStep.show();
@@ -1233,7 +1541,8 @@ function getStory(options) {
 
 				// Set entry text
 				$('.note').text('');
-				getNote(entryWidget);
+				// getNote(entryWidget);
+				getNote({ pageId: page._id });
 				$(entryWidget).find('.note-section').show();
 
 				$(entryWidget).show();
@@ -1248,7 +1557,7 @@ function getStory(options) {
 				if (options['readOnly'] !== true) {
 					$(entryWidget).addClass('activity-template-left');
 				}
-				console.log(entryWidget);
+				// console.log(entryWidget);
 			}
 
 			// $(e).find('.tags').html('');
@@ -1257,6 +1566,24 @@ function getStory(options) {
 			// }
 		}
 	});
+}
+
+currentStoryChapter = null;
+function setStoryChapter(options) {
+
+	if (typeof options !== "undefined") {
+		if (!options.hasOwnProperty('chapter')) {
+			options['chapter'] = "beginning";
+		}
+	}
+
+	// "beginning"
+	// "exploration"
+	// "reflection"
+
+	currentStoryChapter = options['chapter'];
+
+
 }
 
 function saveTool() {
@@ -1308,15 +1635,17 @@ function saveTool() {
 
 				var entryType = $(this).attr("data-activity-type");
 				var entryId = $(this).attr("data-id");
+				var entryNote = $(this).find(".note").text();
 
 				console.log(entryId + ' ' + entryType);
 
-				story.entries.push({ type: entryType, entry: entryId });
+				story.entries.push({ type: entryType, entry: entryId, note: entryNote });
 				// TODO: Create StoryEntry
 
 			});
 
 			var storyJSON = JSON.stringify(story);
+			console.log(storyJSON);
 
 			// var uniqueTags = [];
 			// $.each(tagText, function(i, el) {
@@ -1894,7 +2223,7 @@ function addTextWidget(entry) {
 		} else {
 
 			// Widget does not exist for element does not exist, so create it
-			console.log("Could not find existing widget for text. Creating new text widget.");
+			// console.log("Could not find existing widget for text. Creating new text widget.");
 
 			// Clone template structure and remove 'id' element to avoid 'id' conflict
 			e = $('#text-activity-template').clone().attr('id', 'volatile-activity');
@@ -2050,8 +2379,8 @@ function addTextWidget(entry) {
 			// Set up note section event handlers
 			e.find('.note').off('click');
 			e.find('.note').click(function(event) { event.stopPropagation(); });
-			e.find('.note').off('blur');
-			e.find('.note').blur(function() { saveNote(e); });
+			// e.find('.note').off('blur');
+			// e.find('.note').blur(function() { saveNote(e); });
 		
 			// Show entry widget
 			e.show();
@@ -2060,7 +2389,7 @@ function addTextWidget(entry) {
 			getTags(e);
 
 			// Request Note from server
-			getNote(e);
+			// getNote(e);
 		}
 
 	} else {
@@ -2076,7 +2405,6 @@ function addTextWidget(entry) {
 		e.addClass('activity-frame');
 		e.removeAttr('id'); // Remove 'id' attribute
 		e.prependTo('#narrative-list');
-		// e.find('.element .options .timeline').click(function() { getTimeline({ moment_id: moment._id }); });
 
 		// Show the Widget
 		e.show();
@@ -2143,8 +2471,6 @@ function updateEntryView(id) {
 function addPhotoWidget(entry) {
 	console.log("addPhotoWidget");
 
-	console.log(entry);
-
 	if(entry && entry.entry && entry.entry._id) {
 
 		var photo = entry.entry; // TODO: Update this based on current view for user
@@ -2160,13 +2486,11 @@ function addPhotoWidget(entry) {
 			console.log("Found existing photo widget. Updating widget.");
 
 			e = $('#frame-' + entry._id); // <li> element
-			e.find('.timeline').click(function() { getTimeline({ moment_id: entry._id }); });
-			//div = e.find('.element .text');
 
 		} else {
 
 			// Widget does not exist for element does not exist, so create it
-			console.log("Could not find existing widget for photo. Creating new photo widget.");
+			// console.log("Could not find existing widget for photo. Creating new photo widget.");
 
 			// Clone template structure and remove 'id' element to avoid 'id' conflict
 			e = $('#photo-template').clone().attr('id', 'volatile-activity');
@@ -2288,8 +2612,8 @@ function addPhotoWidget(entry) {
 		e.find('.tags').off('blur');
 		e.find('.tags').blur(function() { saveTags(e); });
 
-		e.find('.note').off('blur');
-		e.find('.note').blur(function() { saveNote(e); });
+		// e.find('.note').off('blur');
+		// e.find('.note').blur(function() { saveNote(e); });
 
 		// Set image
 		var image = e.find('.element .image');
@@ -2316,8 +2640,8 @@ function addPhotoWidget(entry) {
 			// Set up note section event handlers
 			e.find('.note').off('click');
 			e.find('.note').click(function(event) { event.stopPropagation(); });
-			e.find('.note').off('blur');
-			e.find('.note').blur(function() { saveNote(e); });
+			// e.find('.note').off('blur');
+			// e.find('.note').blur(function() { saveNote(e); });
 		
 			// Show entry widget
 			e.show();
@@ -2326,7 +2650,7 @@ function addPhotoWidget(entry) {
 			getTags(e);
 
 			// Request Note from server
-			getNote(e);
+			// getNote(e);
 		}
 
 	} else {
@@ -2349,8 +2673,6 @@ function addPhotoWidget(entry) {
 function addVideoWidget(entry) {
 	console.log("addVideoWidget");
 
-	console.log(entry);
-
 	if(entry && entry.entry && entry.entry._id) {
 
 		var video = entry.entry; // TODO: Update this based on current view for user
@@ -2364,13 +2686,10 @@ function addVideoWidget(entry) {
 
 			e = $('#frame-' + entry._id); // <li> element
 
-			e.find('.timeline').click(function() { getTimeline({ moment_id: entry._id }); });
-			//div = e.find('.element .text');
-
 		} else {
 
 			// Widget does not exist for element does not exist, so create it
-			console.log("Could not find existing widget for video. Creating new video widget.");
+			// console.log("Could not find existing widget for video. Creating new video widget.");
 
 			// Clone template structure and remove 'id' element to avoid 'id' conflict
 			e = $('#video-activity-template').clone().attr('id', 'volatile-activity');
@@ -2508,8 +2827,8 @@ function addVideoWidget(entry) {
 			// Set up note section event handlers
 			e.find('.note').off('click');
 			e.find('.note').click(function(event) { event.stopPropagation(); });
-			e.find('.note').off('blur');
-			e.find('.note').blur(function() { saveNote(e); });
+			// e.find('.note').off('blur');
+			// e.find('.note').blur(function() { saveNote(e); });
 		
 			// Show entry widget
 			e.show();
@@ -2518,7 +2837,7 @@ function addVideoWidget(entry) {
 			getTags(e);
 
 			// Request Note from server
-			getNote(e);
+			// getNote(e);
 		}
 
 	} else {
@@ -2541,8 +2860,6 @@ function addVideoWidget(entry) {
 function addSketchWidget(entry) {
 	console.log("addSketchWidget");
 
-	// console.log(entry);
-
 	if(entry && entry.entry && entry.entry._id) {
 
 		var sketch = entry.entry; // TODO: Update this based on current view for user
@@ -2563,15 +2880,12 @@ function addSketchWidget(entry) {
 		} else {
 
 			// Widget does not exist for element does not exist, so create it
-			console.log("Could not find existing widget for sketch. Creating new sketch widget.");
+			// console.log("Could not find existing widget for sketch. Creating new sketch widget.");
 
 			// Clone template structure and remove 'id' element to avoid 'id' conflict
 			e = $('#sketch-activity-template').clone().attr('id', 'volatile-activity');
 			e.addClass('activity-frame');
 			e.removeAttr('id'); // Remove 'id' attribute
-
-			e.find('.timeline').click(function() { getTimeline({ moment_id: entry._id }); });
-			//div = e.find('.element .text');
 		}
 
 		// Update 'li' for element
@@ -2706,8 +3020,8 @@ function addSketchWidget(entry) {
 			// Set up note section event handlers
 			e.find('.note').off('click');
 			e.find('.note').click(function(event) { event.stopPropagation(); });
-			e.find('.note').off('blur');
-			e.find('.note').blur(function() { saveNote(e); });
+			// e.find('.note').off('blur');
+			// e.find('.note').blur(function() { saveNote(e); });
 		
 			// Show entry widget
 			e.show();
@@ -2716,14 +3030,14 @@ function addSketchWidget(entry) {
 			getTags(e);
 
 			// Request Note from server
-			getNote(e);
+			// getNote(e);
 		}
 
 		// Update the Widget (updates that can only happen after displaying the widget)
 		if (sketch.hasOwnProperty('imageWidth') && sketch.hasOwnProperty('imageHeight')) {
 			var ratio = sketch.imageWidth / sketch.imageHeight;
 			// var adjustedImageWidth = $(image).parent().width();
-			var adjustedImageWidth = 250;
+			var adjustedImageWidth = 570;
 			var adjustedImageHeight = Math.floor(adjustedImageWidth / ratio);
 			console.log('adjustedWidth/Height: ' + ratio + ', ' + adjustedImageWidth + ', ' + adjustedImageHeight);
 			image.attr('width', adjustedImageWidth);
@@ -3074,17 +3388,18 @@ function getTags(e) {
 
 			$(e).find('.tags').html('');
 			for (tag in data) {
-				$(e).find('.tags').append('<span id="tag-' + data[tag]._id + '" style="display:inline-block;" contenteditable="false"><a href="javascript:getTimeline({});">' + data[tag].text + '</a></span> ');
+				$(e).find('.tags').append('<span id="tag-' + data[tag]._id + '" style="display:inline-block;" contenteditable="false">' + data[tag].text + '</span> ');
 			}
 		}
 	});
 }
 
-function getNote(e) {
+// function getNote(e) {
+function getNote(options) {
 
-	var entryId = $(e).find('.activity-widget .element').attr('data-entry');
+	var pageId = options['pageId'];
 
-	if (entryId === undefined) {
+	if (pageId === undefined) {
 		return;
 	}
 
@@ -3093,13 +3408,15 @@ function getNote(e) {
 		beforeSend: function(request) {
 			request.setRequestHeader('Authorization', 'Bearer ' + localStorage['token']);
 		},
-		url: localStorage['host'] + '/api/note?entryId=' + entryId,
+		url: localStorage['host'] + '/api/note?pageId=' + pageId,
 		dataType: 'json',
 		success: function(data) {
 			// console.log('Received protected thoughts (success).');
-			console.log(data[0].note);
+			console.log('note: ' + JSON.stringify(data));
 
-			$(e).find('.note').html(data[0].note);
+			var e = $('#frame-' + data.page.entry);
+
+			$(e).find('.note').text(data.note);
 
 			// for (tag in data) {
 			// 	$(e).find('.tags').append('<span id="tag-' + data[tag]._id + '" style="display:inline-block;" contenteditable="false"><a href="javascript:getTimeline({});">' + data[tag].text + '</a></span> ');

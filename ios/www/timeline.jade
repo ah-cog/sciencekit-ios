@@ -2,6 +2,10 @@ extends layout
 
 block content
 
+	script
+		// Populate timeline
+		getTimeline();
+
 	//
 	// "capture" and "story" Perspective Options
 	//
@@ -13,7 +17,7 @@ block content
 						div(style='background-image: url(./img/earth.png); background-size: 40px 40px; background-repeat:no-repeat; background-position:0px 8px; height: 50px; padding-left: 45px; padding-top: 8px; font-size: 30px; vertical-align: middle;')
 							| capture
 				div(style="display: table-cell;")
-					a(class="sequence-tool", href="javascript:void(0);", onclick='openStoryPerspective();')
+					a(class="sequence-tool", href="javascript:void(0);", onclick='openStoryPerspectiveHack();')
 						div(style='background-image: url(./img/story.png); background-size: 40px 40px; background-repeat:no-repeat; background-position:10px 8px; height: 50px; padding-left: 55px; padding-top: 8px; font-size: 30px; vertical-align: middle;')
 							| story
 
@@ -177,6 +181,51 @@ block content
 											img(id="hostAddressSave", src="./img/check.png", style="display: none;")
 											img(id="hostAddressInvalid", src="./img/cross-red.png", style="display: none;")
 
+
+		li(id="story-structure-options", class="")
+
+			//
+			// Story Structure
+			//
+
+			div(id="story-tool", class="story-tool toolkit-tool", style="display: table; width: 100%;")
+
+				div(style="display: table-row;")
+					div(style="display: table-cell; text-align: center; vertical-align: middle;")
+						img(src="./img/blank.png", width="50", height="0", style="padding: 10px;")
+					div(class="account", style="display: table-cell; position: relative; z-index: 0; width: 100%; border-left: 0px solid #f16521; vertical-align: middle; padding-left: 22px; padding-top: 10px; font-size: 20px; color: #666666;")
+						| <strong>Chapters</strong> (Choose)
+
+				div(style="display: table-row;")
+					div(style="display: table-cell; text-align: center; vertical-align: middle;")
+						img(src="./img/blank.png", width="50", height="50", style="padding: 10px;")
+
+					div(style="display: table-cell; position: relative; z-index: 0; width: 100%; border-left: 0px solid #f16521;")
+
+						div(class="tool-section")
+							div(class="story-grid-options")
+
+								div(id="story-grid-table", class="element-table", style="display: table; width: 100%;")
+									div(id="story-grid-template-row", style="display: table-row;")
+										div(style="display: table-cell; width: 33%; vertical-align: middle;")
+											div(class="story-section-left")
+												| Part 1<br />
+												| <strong>The Beginning</strong>
+										div(style="display: table-cell; width: 33%; vertical-align: middle;")
+											div(class="story-section-middle")
+												| Part 2<br />
+												| <strong>Exploration</strong>
+										div(style="display: table-cell; width: 33%; vertical-align: middle;")
+											div(class="story-section-right")
+												| Part 3<br />
+												| <strong>Reflection</strong>
+
+				div(style="display: table-row;")
+					div(style="display: table-cell; text-align: center; vertical-align: middle;")
+						img(src="./img/blank.png", width="50", height="0", style="padding: 10px;")
+					div(class="account", style="display: table-cell; position: relative; z-index: 0; width: 100%; border-left: 0px solid #f16521; vertical-align: middle; padding-left: 22px; padding-top: 10px; font-size: 20px; color: #666666;")
+						| How did you get started?
+
 	//
 	// Toolkit tool interfaces
 	//
@@ -213,7 +262,7 @@ block content
 
 									div(class="element", style="display: table-row;")
 										div(class="text", style="display: table-cell; min-width: 100%; vertical-align: middle;")
-											img(class="image", id="photo-tool-photo", src="./img/camera.png", width="250", height="250")
+											img(class="image", id="photo-tool-photo", src="./img/camera.png", width="570", height="570")
 
 										div(class="options", style="width: 75px; display: table-cell; text-align: right; vertical-align: middle;")
 											img(id="hostAddressSave", src="./img/check.png", style="display: none;")
@@ -238,7 +287,7 @@ block content
 
 									div(class="element", style="display: table-row;")
 										div(class="text", style="display: table-cell; min-width: 100%; vertical-align: middle;")
-											video(class="video", width="320", height="240", controls)
+											video(class="video", width="570", height="427", preload="none", controls)
 
 										div(class="options", style="width: 75px; display: table-cell; text-align: right; vertical-align: middle;")
 											img(id="hostAddressSave", src="./img/check.png", style="display: none;")
@@ -262,7 +311,7 @@ block content
 
 									div(class="element", style="display: table-row;")
 										div(class="text", style="display: table-cell; min-width: 100%; vertical-align: middle;")
-											img(class="image", src="./img/palette.png", width="250", height="250")
+											img(class="image", src="./img/palette.png", width="570", height="427")
 
 										div(class="options", style="width: 75px; display: table-cell; text-align: right; vertical-align: middle;")
 											img(id="hostAddressSave", src="./img/check.png", style="display: none;")
@@ -519,19 +568,19 @@ block content
 									div(class="text", style="display: table-cell; min-width: 100%; vertical-align: middle;")
 
 										input(name="identity-options", id="scientist-option", value="scientist", type="radio")
-										label(for="scientist-option") scientist
+										label(for="scientist-option") &nbsp;scientist
 										hr(style="margin-bottom: 14px; margin-top: 14px; margin-right: 0px; height: 1px; border: none; background-color: #dddddd;")
 
 										input(name="identity-options", id="creative-option", value="creative", type="radio")
-										label(for="creative-option") creative
+										label(for="creative-option") &nbsp;creative
 										hr(style="margin-bottom: 14px; margin-top: 14px; margin-right: 0px; height: 1px; border: none; background-color: #dddddd;")
 
 										input(name="identity-options", id="chemist-option", value="chemist", type="radio")
-										label(for="chemist-option") chemist
+										label(for="chemist-option") &nbsp;chemist
 										hr(style="margin-bottom: 14px; margin-top: 14px; margin-right: 0px; height: 1px; border: none; background-color: #dddddd;")
 
 										input(name="identity-options", id="baker-option", value="baker", type="radio")
-										label(for="baker-option") baker
+										label(for="baker-option") &nbsp;baker
 
 	//
 	// Timeline interface
@@ -637,14 +686,14 @@ block content
 			$('#previous-timeline-widget').hide();
 
 			// Populate timeline
-			getTimeline();
+			//getTimeline();
 
 			// Synchronize Accounts
 			getAccounts({}, function(accounts) {
 				for(var i = 0; i < accounts.length; i++) {
 					var option =
 						'<input name="collaborators" id="account-' + accounts[i]._id + '" value="' + accounts[i]._id + '" type="checkbox" />' + 
-						'<label for="account-' + accounts[i]._id + '">' + accounts[i].username + '</label>';
+						'<label for="account-' + accounts[i]._id + '"> ' + accounts[i].username + '</label>';
 					if (i < accounts.length - 1) {
 						option += '<hr style="margin-bottom: 14px; margin-top: 14px; margin-right: 0px; height: 1px; border: none; background-color: #dddddd;" />';
 					}

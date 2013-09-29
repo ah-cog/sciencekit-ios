@@ -10,6 +10,9 @@ body {
   font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
   font-weight: 300;
   -webkit-font-smoothing: antialiased;
+
+  /*-webkit-tap-highlight-color:rgba(0,0,0,0);*/
+  -webkit-tap-highlight-color:rgba(0,0,0,0);
 }
 a {
   color: #00b7ff;
@@ -183,6 +186,42 @@ narrative-templates {
   text-align: center;
 }
 
+.story-section-left {
+  padding: 10px 8px 10px 8px;
+  margin: 0px 13px 13px 0px;
+  border-width: 1px;
+  height: 70px;
+  border-color: #dddddd;
+  border-style: solid;
+  font-size: 25px;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.story-section-middle {
+  padding: 10px 8px 10px 8px;
+  margin: 0px 13px 13px 13px;
+  border-width: 1px;
+  height: 70px;
+  border-color: #dddddd;
+  border-style: solid;
+  font-size: 25px;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.story-section-right {
+  padding: 10px 8px 10px 8px;
+  margin: 0px 0px 13px 13px;
+  border-width: 1px;
+  height: 70px;
+  border-color: #dddddd;
+  border-style: solid;
+  font-size: 25px;
+  border-radius: 8px;
+  text-align: center;
+}
+
 
 
 
@@ -192,10 +231,10 @@ narrative-templates {
 
   padding: 0px 150px 0px 0px;
 
-  -webkit-transition: all 0.5s ease;
+  /*-webkit-transition: all 0.5s ease;
   -moz-transition: all 0.5s ease;
   -o-transition: all 0.5s ease;
-  transition: all 0.5s ease;
+  transition: all 0.5s ease;*/
 }
 
 .tool-template {

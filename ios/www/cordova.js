@@ -1,9 +1,5 @@
 // Platform: ios
-
-// commit 125dca530923a44a8f44f68f5e1970cbdd4e7faf
-
-// File generated at :: Thu Apr 04 2013 10:21:55 GMT-0700 (PDT)
-
+// 2.9.0-0-g83dc4bd
 /*
  Licensed to the Apache Software Foundation (ASF) under one
  or more contributor license agreements.  See the NOTICE file
@@ -22,26 +18,36 @@
  specific language governing permissions and limitations
  under the License.
 */
-
 ;(function() {
-
+var CORDOVA_JS_BUILD_LABEL = '2.9.0-0-g83dc4bd';
 // file: lib/scripts/require.js
 
 var require,
     define;
 
 (function () {
-    var modules = {};
+    var modules = {},
     // Stack of moduleIds currently being built.
-    var requireStack = [];
+        requireStack = [],
     // Map of module ID -> index into requireStack of modules currently being built.
-    var inProgressModules = {};
+        inProgressModules = {},
+        SEPERATOR = ".";
+
+
 
     function build(module) {
-        var factory = module.factory;
+        var factory = module.factory,
+            localRequire = function (id) {
+                var resultantId = id;
+                //Its a relative path, so lop off the last portion and add the id (minus "./")
+                if (id.charAt(0) === ".") {
+                    resultantId = module.id.slice(0, module.id.lastIndexOf(SEPERATOR)) + SEPERATOR + id.slice(2);
+                }
+                return require(resultantId);
+            };
         module.exports = {};
         delete module.factory;
-        factory(require, module.exports, module);
+        factory(localRequire, module.exports, module);
         return module.exports;
     }
 
@@ -219,6 +225,10 @@ var cordova = {
             }
             else {
               setTimeout(function() {
+                  // Fire deviceready on listeners that were registered before cordova.js was loaded.
+                  if (type == 'deviceready') {
+                      document.dispatchEvent(evt);
+                  }
                   documentEventHandlers[type].fire(evt);
               }, 0);
             }
@@ -742,6 +752,7 @@ channel.createSticky('onDestroy');
 // Channels that must fire before "deviceready" is fired.
 channel.waitForInitialization('onCordovaReady');
 channel.waitForInitialization('onCordovaConnectionReady');
+channel.waitForInitialization('onDOMContentLoaded');
 
 module.exports = channel;
 
@@ -904,11 +915,19 @@ function iOSExec() {
         // an invalid callbackId and passes it even if no callbacks were given.
         callbackId = 'INVALID';
     } else {
-        // FORMAT TWO
-        splitCommand = arguments[0].split(".");
-        action = splitCommand.pop();
-        service = splitCommand.join(".");
-        actionArgs = Array.prototype.splice.call(arguments, 1);
+        // FORMAT TWO, REMOVED
+       try {
+           splitCommand = arguments[0].split(".");
+           action = splitCommand.pop();
+           service = splitCommand.join(".");
+           actionArgs = Array.prototype.splice.call(arguments, 1);
+
+           console.log('The old format of this exec call has been removed (deprecated since 2.1). Change to: ' +
+                       "cordova.exec(null, null, \"" + service + "\", \"" + action + "\"," + JSON.stringify(actionArgs) + ");"
+                       );
+           return;
+       } catch (e) {
+       }
     }
 
     // Register the callbacks and add the callbackId to the positional
@@ -1288,8 +1307,6 @@ var CaptureAudioOptions = function(){
     this.limit = 1;
     // Maximum duration of a single sound clip in seconds.
     this.duration = 0;
-    // The selected audio mode. Must match with one of the elements in supportedAudioModes array.
-    this.mode = null;
 };
 
 module.exports = CaptureAudioOptions;
@@ -1330,8 +1347,6 @@ define("cordova/plugin/CaptureImageOptions", function(require, exports, module) 
 var CaptureImageOptions = function(){
     // Upper limit of images user can take. Value must be equal or greater than 1.
     this.limit = 1;
-    // The selected image mode. Must match with one of the elements in supportedImageModes array.
-    this.mode = null;
 };
 
 module.exports = CaptureImageOptions;
@@ -1349,8 +1364,6 @@ var CaptureVideoOptions = function(){
     this.limit = 1;
     // Maximum duration of a single video clip in seconds.
     this.duration = 0;
-    // The selected video mode. Must match with one of the elements in supportedVideoModes array.
-    this.mode = null;
 };
 
 module.exports = CaptureVideoOptions;
@@ -2370,11 +2383,7 @@ function initRead(reader, file) {
     reader._error = null;
     reader._readyState = FileReader.LOADING;
 
-    if (typeof file == 'string') {
-        // Deprecated in Cordova 2.4.
-        console.warning('Using a string argument with FileReader.readAs functions is deprecated.');
-        reader._fileName = file;
-    } else if (typeof file.fullPath == 'string') {
+    if (typeof file.fullPath == 'string') {
         reader._fileName = file.fullPath;
     } else {
         reader._fileName = '';
@@ -2730,7 +2739,7 @@ function getBasicAuthHeader(urlString) {
         var origin = protocol + url.host;
 
         // check whether there are the username:password credentials in the url
-        if (url.href.indexOf(origin) != 0) { // credentials found
+        if (url.href.indexOf(origin) !== 0) { // credentials found
             var atIndex = url.href.indexOf("@");
             credentials = url.href.substring(protocol.length, atIndex);
         }
@@ -2779,15 +2788,11 @@ FileTransfer.prototype.upload = function(filePath, server, successCallback, erro
     var params = null;
     var chunkedMode = true;
     var headers = null;
-
+    var httpMethod = null;
     var basicAuthHeader = getBasicAuthHeader(server);
     if (basicAuthHeader) {
-        if (!options) {
-            options = new FileUploadOptions();
-        }
-        if (!options.headers) {
-            options.headers = {};
-        }
+        options = options || {};
+        options.headers = options.headers || {};
         options.headers[basicAuthHeader.name] = basicAuthHeader.value;
     }
 
@@ -2796,6 +2801,12 @@ FileTransfer.prototype.upload = function(filePath, server, successCallback, erro
         fileName = options.fileName;
         mimeType = options.mimeType;
         headers = options.headers;
+        httpMethod = options.httpMethod || "POST";
+        if (httpMethod.toUpperCase() == "PUT"){
+            httpMethod = "PUT";
+        } else {
+            httpMethod = "POST";
+        }
         if (options.chunkedMode !== null || typeof options.chunkedMode != "undefined") {
             chunkedMode = options.chunkedMode;
         }
@@ -2822,7 +2833,7 @@ FileTransfer.prototype.upload = function(filePath, server, successCallback, erro
             successCallback && successCallback(result);
         }
     };
-    exec(win, fail, 'FileTransfer', 'upload', [filePath, server, fileKey, fileName, mimeType, params, trustAllHosts, chunkedMode, headers, this._id]);
+    exec(win, fail, 'FileTransfer', 'upload', [filePath, server, fileKey, fileName, mimeType, params, trustAllHosts, chunkedMode, headers, this._id, httpMethod]);
 };
 
 /**
@@ -2840,12 +2851,8 @@ FileTransfer.prototype.download = function(source, target, successCallback, erro
 
     var basicAuthHeader = getBasicAuthHeader(source);
     if (basicAuthHeader) {
-        if (!options) {
-            options = {};
-        }
-        if (!options.headers) {
-            options.headers = {};
-        }
+        options = options || {};
+        options.headers = options.headers || {};
         options.headers[basicAuthHeader.name] = basicAuthHeader.value;
     }
 
@@ -2884,12 +2891,11 @@ FileTransfer.prototype.download = function(source, target, successCallback, erro
 };
 
 /**
- * Aborts the ongoing file transfer on this object
- * @param successCallback {Function}  Callback to be invoked upon success
- * @param errorCallback {Function}    Callback to be invoked upon error
+ * Aborts the ongoing file transfer on this object. The original error
+ * callback for the file transfer will be called if necessary.
  */
-FileTransfer.prototype.abort = function(successCallback, errorCallback) {
-    exec(successCallback, errorCallback, 'FileTransfer', 'abort', [this._id]);
+FileTransfer.prototype.abort = function() {
+    exec(null, null, 'FileTransfer', 'abort', [this._id]);
 };
 
 module.exports = FileTransfer;
@@ -2933,12 +2939,13 @@ define("cordova/plugin/FileUploadOptions", function(require, exports, module) {
  * @param headers {Object}   Keys are header names, values are header values. Multiple
  *                           headers of the same name are not supported.
  */
-var FileUploadOptions = function(fileKey, fileName, mimeType, params, headers) {
+var FileUploadOptions = function(fileKey, fileName, mimeType, params, headers, httpMethod) {
     this.fileKey = fileKey || null;
     this.fileName = fileName || null;
     this.mimeType = mimeType || null;
     this.params = params || null;
     this.headers = headers || null;
+    this.httpMethod = httpMethod || null;
 };
 
 module.exports = FileUploadOptions;
@@ -3039,9 +3046,31 @@ FileWriter.prototype.abort = function() {
 /**
  * Writes data to the file
  *
- * @param text to be written
+ * @param data text or blob to be written
  */
-FileWriter.prototype.write = function(text) {
+FileWriter.prototype.write = function(data) {
+
+    var isBinary = false;
+
+    // If we don't have Blob or ArrayBuffer support, don't bother.
+    if (typeof window.Blob !== 'undefined' && typeof window.ArrayBuffer !== 'undefined') {
+
+        // Check to see if the incoming data is a blob
+        if (data instanceof Blob) {
+            var that=this;
+            var fileReader = new FileReader();
+            fileReader.onload = function() {
+                // Call this method again, with the arraybuffer as argument
+                FileWriter.prototype.write.call(that, this.result);
+            };
+            fileReader.readAsArrayBuffer(data);
+            return;
+        }
+
+        // Mark data type for safer transport over the binary bridge
+        isBinary = (data instanceof ArrayBuffer);
+    }
+
     // Throw an exception if we are already writing a file
     if (this.readyState === FileWriter.WRITING) {
         throw new FileError(FileError.INVALID_STATE_ERR);
@@ -3107,7 +3136,7 @@ FileWriter.prototype.write = function(text) {
             if (typeof me.onwriteend === "function") {
                 me.onwriteend(new ProgressEvent("writeend", {"target":me}));
             }
-        }, "File", "write", [this.fileName, text, this.position]);
+        }, "File", "write", [this.fileName, data, this.position, isBinary]);
 };
 
 /**
@@ -3273,6 +3302,7 @@ define("cordova/plugin/InAppBrowser", function(require, exports, module) {
 
 var exec = require('cordova/exec');
 var channel = require('cordova/channel');
+var modulemapper = require('cordova/modulemapper');
 
 function InAppBrowser() {
    this.channels = {
@@ -3292,6 +3322,9 @@ InAppBrowser.prototype = {
     close: function (eventname) {
         exec(null, null, "InAppBrowser", "close", []);
     },
+    show: function (eventname) {
+      exec(null, null, "InAppBrowser", "show", []);
+    },
     addEventListener: function (eventname,f) {
         if (eventname in this.channels) {
             this.channels[eventname].subscribe(f);
@@ -3301,6 +3334,26 @@ InAppBrowser.prototype = {
         if (eventname in this.channels) {
             this.channels[eventname].unsubscribe(f);
         }
+    },
+
+    executeScript: function(injectDetails, cb) {
+        if (injectDetails.code) {
+            exec(cb, null, "InAppBrowser", "injectScriptCode", [injectDetails.code, !!cb]);
+        } else if (injectDetails.file) {
+            exec(cb, null, "InAppBrowser", "injectScriptFile", [injectDetails.file, !!cb]);
+        } else {
+            throw new Error('executeScript requires exactly one of code or file to be specified');
+        }
+    },
+
+    insertCSS: function(injectDetails, cb) {
+        if (injectDetails.code) {
+            exec(cb, null, "InAppBrowser", "injectStyleCode", [injectDetails.code, !!cb]);
+        } else if (injectDetails.file) {
+            exec(cb, null, "InAppBrowser", "injectStyleFile", [injectDetails.file, !!cb]);
+        } else {
+            throw new Error('insertCSS requires exactly one of code or file to be specified');
+        }
     }
 };
 
@@ -3309,6 +3362,13 @@ module.exports = function(strUrl, strWindowName, strWindowFeatures) {
     var cb = function(eventname) {
        iab._eventHandler(eventname);
     };
+
+    // Don't catch calls that write to existing frames (e.g. named iframes).
+    if (window.frames && window.frames[strWindowName]) {
+        var origOpenFunc = modulemapper.getOriginalSymbol(window, 'open');
+        return origOpenFunc.apply(window, arguments);
+    }
+
     exec(cb, cb, "InAppBrowser", "open", [strUrl, strWindowName, strWindowFeatures]);
     return iab;
 };
@@ -4275,7 +4335,7 @@ console.debug = function() {
 console.assert = function(expression) {
     if (expression) return;
 
-    var message = utils.vformat(arguments[1], [].slice.call(arguments, 2));
+    var message = logger.format.apply(logger.format, [].slice.call(arguments, 1));
     console.log("ASSERT: " + message);
 };
 
@@ -4463,7 +4523,6 @@ function Device() {
     this.available = false;
     this.platform = null;
     this.version = null;
-    this.name = null;
     this.uuid = null;
     this.cordova = null;
     this.model = null;
@@ -4472,12 +4531,15 @@ function Device() {
 
     channel.onCordovaReady.subscribe(function() {
         me.getInfo(function(info) {
+            var buildLabel = info.cordova;
+            if (buildLabel != CORDOVA_JS_BUILD_LABEL) {
+                buildLabel += ' JS=' + CORDOVA_JS_BUILD_LABEL;
+            }
             me.available = true;
             me.platform = info.platform;
             me.version = info.version;
-            me.name = info.name;
             me.uuid = info.uuid;
-            me.cordova = info.cordova;
+            me.cordova = buildLabel;
             me.model = info.model;
             channel.onCordovaInfoReady.fire();
         },function(e) {
@@ -5257,93 +5319,6 @@ module.exports = {
 
 });
 
-// file: lib/ios/plugin/ios/console.js
-define("cordova/plugin/ios/console", function(require, exports, module) {
-
-var exec = require('cordova/exec');
-
-/**
- * create a nice string for an object
- */
-function stringify(message) {
-    try {
-        if (typeof message === "object" && JSON && JSON.stringify) {
-            try {
-                return JSON.stringify(message);
-            }
-            catch (e) {
-                return "error JSON.stringify()ing argument: " + e;
-            }
-        } else {
-            return (typeof message === "undefined") ? "undefined" : message.toString();
-        }
-    } catch (e) {
-        return e.toString();
-    }
-}
-
-/**
- * Wrapper one of the console logging methods, so that
- * the Cordova logging native is called, then the original.
- */
-function wrappedMethod(console, method) {
-    var origMethod = console[method];
-
-    return function() {
-
-        var args = [].slice.call(arguments),
-            len = args.length,
-            i = 0,
-            res = [];
-
-        for ( ; i < len; i++) {
-            res.push(stringify(args[i]));
-        }
-
-        exec(null, null,
-            'Debug Console', 'log',
-            [ res.join(' '), { logLevel: method.toUpperCase() } ]
-        );
-
-        if (!origMethod) return;
-
-        origMethod.apply(console, arguments);
-    };
-}
-
-var console = window.console || {};
-
-// 2012-10-06 pmuellr - marking setLevel() method and logLevel property
-// on console as deprecated;
-// it didn't do anything useful, since the level constants weren't accessible
-// to anyone
-
-console.setLevel = function() {};
-console.logLevel = 0;
-
-// wrapper the logging messages
-
-var methods = ["log", "debug", "info", "warn", "error"];
-
-for (var i=0; i<methods.length; i++) {
-    var method = methods[i];
-
-    console[method] = wrappedMethod(console, method);
-}
-
-module.exports = console;
-
-});
-
-// file: lib/ios/plugin/ios/console/symbols.js
-define("cordova/plugin/ios/console/symbols", function(require, exports, module) {
-
-var modulemapper = require('cordova/modulemapper');
-
-modulemapper.clobbers('cordova/plugin/ios/console', 'console');
-
-});
-
 // file: lib/ios/plugin/ios/contacts.js
 define("cordova/plugin/ios/contacts", function(require, exports, module) {
 
@@ -5417,7 +5392,17 @@ define("cordova/plugin/ios/logger/plugininit", function(require, exports, module
 
 // use the native logger
 var logger = require("cordova/plugin/logger");
-logger.useConsole(false);
+logger.useConsole(true);
+
+});
+
+// file: lib/ios/plugin/ios/logger/symbols.js
+define("cordova/plugin/ios/logger/symbols", function(require, exports, module) {
+
+
+var modulemapper = require('cordova/modulemapper');
+
+modulemapper.clobbers('cordova/plugin/logger', 'console');
 
 });
 
@@ -5464,9 +5449,12 @@ var exec    = require('cordova/exec');
 var utils   = require('cordova/utils');
 
 var UseConsole   = true;
+var UseLogger    = true;
 var Queued       = [];
 var DeviceReady  = false;
 var CurrentLevel;
+
+var originalConsole = console;
 
 /**
  * Logging levels
@@ -5528,8 +5516,7 @@ logger.level = function (value) {
  * Getter/Setter for the useConsole functionality
  *
  * When useConsole is true, the logger will log via the
- * browser 'console' object.  Otherwise, it will use the
- * native Logger plugin.
+ * browser 'console' object.
  */
 logger.useConsole = function (value) {
     if (arguments.length) UseConsole = !!value;
@@ -5551,6 +5538,18 @@ logger.useConsole = function (value) {
     }
 
     return UseConsole;
+};
+
+/**
+ * Getter/Setter for the useLogger functionality
+ *
+ * When useLogger is true, the logger will log via the
+ * native Logger plugin.
+ */
+logger.useLogger = function (value) {
+    // Enforce boolean
+    if (arguments.length) UseLogger = !!value;
+    return UseLogger;
 };
 
 /**
@@ -5605,10 +5604,10 @@ function logWithArgs(level, args) {
  * Parameters passed after message are used applied to
  * the message with utils.format()
  */
-logger.logLevel = function(level, message /* , ... */) {
+logger.logLevel = function(level /* , ... */) {
     // format the message with the parameters
-    var formatArgs = [].slice.call(arguments, 2);
-    message    = utils.vformat(message, formatArgs);
+    var formatArgs = [].slice.call(arguments, 1);
+    var message    = logger.format.apply(logger.format, formatArgs);
 
     if (LevelsMap[level] === null) {
         throw new Error("invalid logging level: " + level);
@@ -5622,27 +5621,115 @@ logger.logLevel = function(level, message /* , ... */) {
         return;
     }
 
-    // if not using the console, use the native logger
-    if (!UseConsole) {
+    // Log using the native logger if that is enabled
+    if (UseLogger) {
         exec(null, null, "Logger", "logLevel", [level, message]);
-        return;
     }
 
-    // make sure console is not using logger
-    if (console.__usingCordovaLogger) {
-        throw new Error("console and logger are too intertwingly");
-    }
+    // Log using the console if that is enabled
+    if (UseConsole) {
+        // make sure console is not using logger
+        if (console.__usingCordovaLogger) {
+            throw new Error("console and logger are too intertwingly");
+        }
 
-    // log to the console
-    switch (level) {
-        case logger.LOG:   console.log(message); break;
-        case logger.ERROR: console.log("ERROR: " + message); break;
-        case logger.WARN:  console.log("WARN: "  + message); break;
-        case logger.INFO:  console.log("INFO: "  + message); break;
-        case logger.DEBUG: console.log("DEBUG: " + message); break;
+        // log to the console
+        switch (level) {
+            case logger.LOG:   originalConsole.log(message); break;
+            case logger.ERROR: originalConsole.log("ERROR: " + message); break;
+            case logger.WARN:  originalConsole.log("WARN: "  + message); break;
+            case logger.INFO:  originalConsole.log("INFO: "  + message); break;
+            case logger.DEBUG: originalConsole.log("DEBUG: " + message); break;
+        }
     }
 };
 
+
+/**
+ * Formats a string and arguments following it ala console.log()
+ *
+ * Any remaining arguments will be appended to the formatted string.
+ *
+ * for rationale, see FireBug's Console API:
+ *    http://getfirebug.com/wiki/index.php/Console_API
+ */
+logger.format = function(formatString, args) {
+    return __format(arguments[0], [].slice.call(arguments,1)).join(' ');
+};
+
+
+//------------------------------------------------------------------------------
+/**
+ * Formats a string and arguments following it ala vsprintf()
+ *
+ * format chars:
+ *   %j - format arg as JSON
+ *   %o - format arg as JSON
+ *   %c - format arg as ''
+ *   %% - replace with '%'
+ * any other char following % will format it's
+ * arg via toString().
+ *
+ * Returns an array containing the formatted string and any remaining
+ * arguments.
+ */
+function __format(formatString, args) {
+    if (formatString === null || formatString === undefined) return [""];
+    if (arguments.length == 1) return [formatString.toString()];
+
+    if (typeof formatString != "string")
+        formatString = formatString.toString();
+
+    var pattern = /(.*?)%(.)(.*)/;
+    var rest    = formatString;
+    var result  = [];
+
+    while (args.length) {
+        var match = pattern.exec(rest);
+        if (!match) break;
+
+        var arg   = args.shift();
+        rest = match[3];
+        result.push(match[1]);
+
+        if (match[2] == '%') {
+            result.push('%');
+            args.unshift(arg);
+            continue;
+        }
+
+        result.push(__formatted(arg, match[2]));
+    }
+
+    result.push(rest);
+
+    var remainingArgs = [].slice.call(args);
+    remainingArgs.unshift(result.join(''));
+    return remainingArgs;
+}
+
+function __formatted(object, formatChar) {
+
+    try {
+        switch(formatChar) {
+            case 'j':
+            case 'o': return JSON.stringify(object);
+            case 'c': return '';
+        }
+    }
+    catch (e) {
+        return "error JSON.stringify()ing argument: " + e;
+    }
+
+    if ((object === null) || (object === undefined)) {
+        return Object.prototype.toString.call(object);
+    }
+
+    return object.toString();
+}
+
+
+//------------------------------------------------------------------------------
 // when deviceready fires, log queued messages
 logger.__onDeviceReady = function() {
     if (DeviceReady) return;
@@ -5811,13 +5898,13 @@ module.exports = {
             console.log("Notification.confirm(string, function, string, string) is deprecated.  Use Notification.confirm(string, function, string, array).");
         }
 
-        // Android and iOS take an array of button label names.
+        // Some platforms take an array of button label names.
         // Other platforms take a comma separated list.
         // For compatibility, we convert to the desired type based on the platform.
-        if (platform.id == "android" || platform.id == "ios") {
+        if (platform.id == "android" || platform.id == "ios" || platform.id == "windowsphone" || platform.id == "blackberry10") {
             if (typeof _buttonLabels === 'string') {
                 var buttonLabelString = _buttonLabels;
-                _buttonLabels = buttonLabelString.split(",");
+                _buttonLabels = _buttonLabels.split(","); // not crazy about changing the var type here
             }
         } else {
             if (Array.isArray(_buttonLabels)) {
@@ -5838,12 +5925,14 @@ module.exports = {
      * @param {Function} resultCallback     The callback that is called when user clicks on a button.
      * @param {String} title                Title of the dialog (default: "Prompt")
      * @param {Array} buttonLabels          Array of strings for the button labels (default: ["OK","Cancel"])
+     * @param {String} defaultText          Textbox input value (default: "Default text")
      */
-    prompt: function(message, resultCallback, title, buttonLabels) {
+    prompt: function(message, resultCallback, title, buttonLabels, defaultText) {
         var _message = (message || "Prompt message");
         var _title = (title || "Prompt");
         var _buttonLabels = (buttonLabels || ["OK","Cancel"]);
-        exec(resultCallback, null, "Notification", "prompt", [_message, _title, _buttonLabels]);
+        var _defaultText = (defaultText || "Default text");
+        exec(resultCallback, null, "Notification", "prompt", [_message, _title, _buttonLabels, _defaultText]);
     },
 
     /**
@@ -6168,62 +6257,6 @@ utils.alert = function(msg) {
     }
 };
 
-/**
- * Formats a string and arguments following it ala sprintf()
- *
- * see utils.vformat() for more information
- */
-utils.format = function(formatString /* ,... */) {
-    var args = [].slice.call(arguments, 1);
-    return utils.vformat(formatString, args);
-};
-
-/**
- * Formats a string and arguments following it ala vsprintf()
- *
- * format chars:
- *   %j - format arg as JSON
- *   %o - format arg as JSON
- *   %c - format arg as ''
- *   %% - replace with '%'
- * any other char following % will format it's
- * arg via toString().
- *
- * for rationale, see FireBug's Console API:
- *    http://getfirebug.com/wiki/index.php/Console_API
- */
-utils.vformat = function(formatString, args) {
-    if (formatString === null || formatString === undefined) return "";
-    if (arguments.length == 1) return formatString.toString();
-    if (typeof formatString != "string") return formatString.toString();
-
-    var pattern = /(.*?)%(.)(.*)/;
-    var rest    = formatString;
-    var result  = [];
-
-    while (args.length) {
-        var arg   = args.shift();
-        var match = pattern.exec(rest);
-
-        if (!match) break;
-
-        rest = match[3];
-
-        result.push(match[1]);
-
-        if (match[2] == '%') {
-            result.push('%');
-            args.unshift(arg);
-            continue;
-        }
-
-        result.push(formatted(arg, match[2]));
-    }
-
-    result.push(rest);
-
-    return result.join('');
-};
 
 //------------------------------------------------------------------------------
 function UUIDcreatePart(length) {
@@ -6238,35 +6271,37 @@ function UUIDcreatePart(length) {
     return uuidpart;
 }
 
-//------------------------------------------------------------------------------
-function formatted(object, formatChar) {
-
-    try {
-        switch(formatChar) {
-            case 'j':
-            case 'o': return JSON.stringify(object);
-            case 'c': return '';
-        }
-    }
-    catch (e) {
-        return "error JSON.stringify()ing argument: " + e;
-    }
-
-    if ((object === null) || (object === undefined)) {
-        return Object.prototype.toString.call(object);
-    }
-
-    return object.toString();
-}
 
 });
 
-
 window.cordova = require('cordova');
-
 // file: lib/scripts/bootstrap.js
 
 (function (context) {
+    if (context._cordovaJsLoaded) {
+        throw new Error('cordova.js included multiple times.');
+    }
+    context._cordovaJsLoaded = true;
+
+    var channel = require('cordova/channel');
+    var platformInitChannelsArray = [channel.onNativeReady, channel.onPluginsReady];
+
+    function logUnfiredChannels(arr) {
+        for (var i = 0; i < arr.length; ++i) {
+            if (arr[i].state != 2) {
+                console.log('Channel not fired: ' + arr[i].type);
+            }
+        }
+    }
+
+    window.setTimeout(function() {
+        if (channel.onDeviceReady.state != 2) {
+            console.log('deviceready has not fired after 5 seconds.');
+            logUnfiredChannels(platformInitChannelsArray);
+            logUnfiredChannels(channel.deviceReadyChannelsArray);
+        }
+    }, 5000);
+
     // Replace navigator before any modules are required(), to ensure it happens as soon as possible.
     // We replace it so that properties that can't be clobbered can instead be overridden.
     function replaceNavigator(origNavigator) {
@@ -6288,8 +6323,6 @@ window.cordova = require('cordova');
         context.navigator = replaceNavigator(context.navigator);
     }
 
-    var channel = require("cordova/channel");
-
     // _nativeReady is global variable that the native side can set
     // to signify that the native code is ready. It is a global since
     // it may be called before any cordova JS is ready.
@@ -6298,31 +6331,32 @@ window.cordova = require('cordova');
     }
 
     /**
-     * Create all cordova objects once page has fully loaded and native side is ready.
+     * Create all cordova objects once native side is ready.
      */
     channel.join(function() {
-        var builder = require('cordova/builder'),
-            platform = require('cordova/platform');
-
-        builder.buildIntoButDoNotClobber(platform.defaults, context);
-        builder.buildIntoAndClobber(platform.clobbers, context);
-        builder.buildIntoAndMerge(platform.merges, context);
-
         // Call the platform-specific initialization
-        platform.initialize();
+        require('cordova/platform').initialize();
 
         // Fire event to notify that all objects are created
         channel.onCordovaReady.fire();
 
-        // Fire onDeviceReady event once all constructors have run and
-        // cordova info has been received from native side.
+        // Fire onDeviceReady event once page has fully loaded, all
+        // constructors have run and cordova info has been received from native
+        // side.
+        // This join call is deliberately made after platform.initialize() in
+        // order that plugins may manipulate channel.deviceReadyChannelsArray
+        // if necessary.
         channel.join(function() {
             require('cordova').fireDocumentEvent('deviceready');
         }, channel.deviceReadyChannelsArray);
 
-    }, [ channel.onDOMContentLoaded, channel.onNativeReady, channel.onPluginsReady ]);
+    }, platformInitChannelsArray);
 
 }(window));
+
+// file: lib/scripts/bootstrap-ios.js
+
+require('cordova/channel').onNativeReady.fire();
 
 // file: lib/scripts/plugin_loader.js
 
@@ -6341,11 +6375,21 @@ window.cordova = require('cordova');
         }
     }
 
+    function scriptErrorCallback(err) {
+        // Open Question: If a script path specified in cordova_plugins.js does not exist, do we fail for all?
+        // this is currently just continuing.
+        scriptCounter--;
+        if (scriptCounter === 0) {
+            onScriptLoadingComplete && onScriptLoadingComplete();
+        }
+    }
+
     // Helper function to inject a <script> tag.
     function injectScript(path) {
         scriptCounter++;
         var script = document.createElement("script");
         script.onload = scriptLoadedCallback;
+        script.onerror = scriptErrorCallback;
         script.src = path;
         document.head.appendChild(script);
     }
@@ -6357,36 +6401,41 @@ window.cordova = require('cordova');
         context.cordova.require('cordova/channel').onPluginsReady.fire();
     }
 
-    // Handler for the cordova_plugins.json content.
+    // Handler for the cordova_plugins.js content.
     // See plugman's plugin_loader.js for the details of this object.
     // This function is only called if the really is a plugins array that isn't empty.
-    // Otherwise the XHR response handler will just call finishPluginLoading().
-    function handlePluginsObject(modules) {
+    // Otherwise the onerror response handler will just call finishPluginLoading().
+    function handlePluginsObject(modules, path) {
         // First create the callback for when all plugins are loaded.
         var mapper = context.cordova.require('cordova/modulemapper');
         onScriptLoadingComplete = function() {
             // Loop through all the plugins and then through their clobbers and merges.
             for (var i = 0; i < modules.length; i++) {
                 var module = modules[i];
-                if (!module) continue;
+                if (module) {
+                    try { 
+                        if (module.clobbers && module.clobbers.length) {
+                            for (var j = 0; j < module.clobbers.length; j++) {
+                                mapper.clobbers(module.id, module.clobbers[j]);
+                            }
+                        }
 
-                if (module.clobbers && module.clobbers.length) {
-                    for (var j = 0; j < module.clobbers.length; j++) {
-                        mapper.clobbers(module.id, module.clobbers[j]);
+                        if (module.merges && module.merges.length) {
+                            for (var k = 0; k < module.merges.length; k++) {
+                                mapper.merges(module.id, module.merges[k]);
+                            }
+                        }
+
+                        // Finally, if runs is truthy we want to simply require() the module.
+                        // This can be skipped if it had any merges or clobbers, though,
+                        // since the mapper will already have required the module.
+                        if (module.runs && !(module.clobbers && module.clobbers.length) && !(module.merges && module.merges.length)) {
+                            context.cordova.require(module.id);
+                        }
                     }
-                }
-
-                if (module.merges && module.merges.length) {
-                    for (var k = 0; k < module.merges.length; k++) {
-                        mapper.merges(module.id, module.merges[k]);
+                    catch(err) {
+                        // error with module, most likely clobbers, should we continue?
                     }
-                }
-
-                // Finally, if runs is truthy we want to simply require() the module.
-                // This can be skipped if it had any merges or clobbers, though,
-                // since the mapper will already have required the module.
-                if (module.runs && !(module.clobbers && module.clobbers.length) && !(module.merges && module.merges.length)) {
-                    context.cordova.require(module.id);
                 }
             }
 
@@ -6395,39 +6444,78 @@ window.cordova = require('cordova');
 
         // Now inject the scripts.
         for (var i = 0; i < modules.length; i++) {
-            injectScript(modules[i].file);
+            injectScript(path + modules[i].file);
         }
     }
 
-    // Try to XHR the cordova_plugins.json file asynchronously.
-    try { // we commented we were going to try, so let us actually try and catch 
-        var xhr = new context.XMLHttpRequest();
-        xhr.onreadystatechange = function() {
-            if (this.readyState != 4) { // not DONE
-                return;
-            }
-
-            // If the response is a JSON string which composes an array, call handlePluginsObject.
-            // If the request fails, or the response is not a JSON array, just call finishPluginLoading.
-            if (this.status == 200) {
-                var obj = JSON.parse(this.responseText);
-                if (obj && obj instanceof Array && obj.length > 0) {
-                    handlePluginsObject(obj);
-                } else {
-                    finishPluginLoading();
-                }
-            } else {
-                finishPluginLoading();
-            }
-        };
-        xhr.open('GET', 'cordova_plugins.json', true); // Async
-        xhr.send();
+    // Find the root of the app
+    var path = '';
+    var scripts = document.getElementsByTagName('script');
+    var term = 'cordova.js';
+    for (var n = scripts.length-1; n>-1; n--) {
+        var src = scripts[n].src;
+        if (src.indexOf(term) == (src.length - term.length)) {
+            path = src.substring(0, src.length - term.length);
+            break;
+        }
     }
-    catch(err) {
-        finishPluginLoading();
+
+    var plugins_json = path + 'cordova_plugins.json';
+    var plugins_js = path + 'cordova_plugins.js';
+
+    // One some phones (Windows) this xhr.open throws an Access Denied exception
+    // So lets keep trying, but with a script tag injection technique instead of XHR
+    var injectPluginScript = function injectPluginScript() {
+        try {
+            var script = document.createElement("script");
+            script.onload = function(){
+                var list = cordova.require("cordova/plugin_list");
+                handlePluginsObject(list,path);
+            };
+            script.onerror = function() {
+                // Error loading cordova_plugins.js, file not found or something
+                // this is an acceptable error, pre-3.0.0, so we just move on.
+                finishPluginLoading();
+            };
+            script.src = plugins_js;
+            document.head.appendChild(script);
+
+        } catch(err){
+            finishPluginLoading();
+        }
+    } 
+
+
+    // Try to XHR the cordova_plugins.json file asynchronously.
+    var xhr = new XMLHttpRequest();
+    xhr.onload = function() {
+        // If the response is a JSON string which composes an array, call handlePluginsObject.
+        // If the request fails, or the response is not a JSON array, just call finishPluginLoading.
+        var obj;
+        try {
+            obj = (this.status == 0 || this.status == 200) && this.responseText && JSON.parse(this.responseText);
+        } catch (err) {
+            // obj will be undefined.
+        }
+        if (Array.isArray(obj) && obj.length > 0) {
+            handlePluginsObject(obj, path);
+        } else {
+            finishPluginLoading();
+        }
+    };
+    xhr.onerror = function() {
+        // In this case, the json file was not present, but XHR was allowed, 
+        // so we should still try the script injection technique with the js file
+        // in case that is there.
+        injectPluginScript();
+    };
+    try { // we commented we were going to try, so let us actually try and catch
+        xhr.open('GET', plugins_json, true); // Async
+        xhr.send();
+    } catch(err){
+        injectPluginScript();
     }
 }(window));
 
 
-
-})();
+})();var PhoneGap = cordova;

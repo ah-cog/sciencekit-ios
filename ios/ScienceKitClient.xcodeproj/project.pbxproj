@@ -43,6 +43,8 @@
 		30E5649213A7FCAF007403D8 /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 30E5649113A7FCAF007403D8 /* CoreMedia.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		391CEB98C48F4BEE919F186D /* ChildBrowser.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 85D0ED457046479AA86FE811 /* ChildBrowser.bundle */; };
 		5B1594DD16A7569C00FEF299 /* AssetsLibrary.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5B1594DC16A7569C00FEF299 /* AssetsLibrary.framework */; };
+		65B7A75517F7B4C5004D9B1F /* OpenAL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 65B7A75417F7B4C5004D9B1F /* OpenAL.framework */; };
+		65B7A75717F7B4CE004D9B1F /* ImageIO.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 65B7A75617F7B4CE004D9B1F /* ImageIO.framework */; };
 		65F15A4D1722505D005E424F /* icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 65F15A4C1722505D005E424F /* icon.png */; };
 		65F15A4F17228D74005E424F /* icon-72.png in Resources */ = {isa = PBXBuildFile; fileRef = 65F15A4E17228D74005E424F /* icon-72.png */; };
 		833B985A03A04C06826726AA /* ChildBrowserCommand.m in Sources */ = {isa = PBXBuildFile; fileRef = D15A018169514815ABE95230 /* ChildBrowserCommand.m */; };
@@ -112,6 +114,8 @@
 		5B1594DC16A7569C00FEF299 /* AssetsLibrary.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AssetsLibrary.framework; path = System/Library/Frameworks/AssetsLibrary.framework; sourceTree = SDKROOT; };
 		65624D15170035A2005AC4C7 /* Default-Landscape~ipad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-Landscape~ipad.png"; sourceTree = "<group>"; };
 		65624D17170035C7005AC4C7 /* Default-Portrait~ipad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-Portrait~ipad.png"; sourceTree = "<group>"; };
+		65B7A75417F7B4C5004D9B1F /* OpenAL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenAL.framework; path = System/Library/Frameworks/OpenAL.framework; sourceTree = SDKROOT; };
+		65B7A75617F7B4CE004D9B1F /* ImageIO.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ImageIO.framework; path = System/Library/Frameworks/ImageIO.framework; sourceTree = SDKROOT; };
 		65F15A4C1722505D005E424F /* icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon.png; sourceTree = "<group>"; };
 		65F15A4E17228D74005E424F /* icon-72.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon-72.png"; sourceTree = "<group>"; };
 		6AADF211348F4F1097BA73DE /* ChildBrowserViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ChildBrowserViewController.m; sourceTree = "<group>"; };
@@ -128,6 +132,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				65B7A75717F7B4CE004D9B1F /* ImageIO.framework in Frameworks */,
+				65B7A75517F7B4C5004D9B1F /* OpenAL.framework in Frameworks */,
 				5B1594DD16A7569C00FEF299 /* AssetsLibrary.framework in Frameworks */,
 				301BF552109A68D80062928A /* libCordova.a in Frameworks */,
 				1D60589F0D05DD5A006BFB54 /* Foundation.framework in Frameworks */,
@@ -238,6 +244,8 @@
 		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				65B7A75617F7B4CE004D9B1F /* ImageIO.framework */,
+				65B7A75417F7B4C5004D9B1F /* OpenAL.framework */,
 				5B1594DC16A7569C00FEF299 /* AssetsLibrary.framework */,
 				1DF5F4DF0D08C38300B7A737 /* UIKit.framework */,
 				1D30AB110D05D00D00671497 /* Foundation.framework */,
@@ -498,8 +506,8 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ENABLE_OBJC_ARC = NO;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "iPhone Developer: June AHN (A96628N8P3)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: June AHN (A96628N8P3)";
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -508,11 +516,24 @@
 				GCC_THUMB_SUPPORT = NO;
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				INFOPLIST_FILE = "ScienceKitClient/ScienceKitClient-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				"OTHER_LDFLAGS[arch=*]" = (
+					"-weak_framework",
+					CoreFoundation,
+					"-weak_framework",
+					UIKit,
+					"-weak_framework",
+					AVFoundation,
+					"-weak_framework",
+					CoreMedia,
+					"-weak-lSystem",
+					"-all_load",
+					"-Obj-C",
+				);
 				PRODUCT_NAME = "#sciencekit";
-				PROVISIONING_PROFILE = "";
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
-				TARGETED_DEVICE_FAMILY = "1,2";
+				PROVISIONING_PROFILE = "B416E283-70DB-43E1-8963-F5B0D9425C8F";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "4F487B1B-1949-46DD-ADD3-46612BD41C7C";
+				TARGETED_DEVICE_FAMILY = 2;
 			};
 			name = Debug;
 		};
@@ -521,19 +542,32 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ENABLE_OBJC_ARC = NO;
-				CODE_SIGN_IDENTITY = "iPhone Distribution";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
+				CODE_SIGN_IDENTITY = "iPhone Distribution: June Ahn";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: June Ahn";
 				COPY_PHASE_STRIP = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "ScienceKitClient/ScienceKitClient-Prefix.pch";
 				GCC_THUMB_SUPPORT = NO;
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				INFOPLIST_FILE = "ScienceKitClient/ScienceKitClient-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				OTHER_LDFLAGS = (
+					"-weak_framework",
+					CoreFoundation,
+					"-weak_framework",
+					UIKit,
+					"-weak_framework",
+					AVFoundation,
+					"-weak_framework",
+					CoreMedia,
+					"-weak-lSystem",
+					"-all_load",
+					"-Obj-C",
+				);
 				PRODUCT_NAME = "#sciencekit";
-				PROVISIONING_PROFILE = "";
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
-				TARGETED_DEVICE_FAMILY = "1,2";
+				PROVISIONING_PROFILE = "D0F3C532-440D-4BBB-81B2-5C99D6331B53";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "D0F3C532-440D-4BBB-81B2-5C99D6331B53";
+				TARGETED_DEVICE_FAMILY = 2;
 			};
 			name = Release;
 		};
