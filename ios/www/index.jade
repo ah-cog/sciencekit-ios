@@ -2,7 +2,7 @@ extends layout
 
 block content
 	div(style='margin-top: 50px; margin-left: 50px;')
-			img(src="./img/sciencekit-logo.png", alt="sciencekit logo")
+		img(src="./img/sciencekit-logo.png", alt="sciencekit logo")
 
 	div(id="host-settings", style="display: table; width: 100%;")
 		p(style='margin: 4px 40px 4px 40px; font-size: 35px; color: #444444;')
@@ -34,7 +34,8 @@ block content
 		window.onload = function() {
 
 			// DEBUG: Hack for Kidsteam
-			$('#hostAddressInput').val('http://129.2.101.49:3000');
+			//$('#hostAddressInput').val('http://129.2.101.49:3000');
+			$('#hostAddressInput').val('http://10.109.163.238:3000');
 			//$('#hostAddressInput').val('http://10.10.0.140:3000');
 			//$('#hostAddressInput').val('http://10.109.92.150:3000');
 			updateAddressInput();

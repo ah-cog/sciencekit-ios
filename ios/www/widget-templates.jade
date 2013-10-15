@@ -234,7 +234,12 @@ ul(id="narrative-list-template")
 
 							// Core activity
 							div(class="element", style="display: table-row; text-align: center;")
+								//video(class="video", width="570", height="427", controls)
 								video(class="video", width="570", height="427", controls)
+
+								div(class="thumbnailContainer", style="width: 570; height: 427; position: relative; display: block;")
+									img(class="videoThumbnail", src="./img/camera.png", width="570", height="427")
+									img(src="./img/play-button.png", style="position: absolute; top: 130px; left: 165px;")
 
 							// Divider
 							div(class="question-section observation-section sequence-section", style="display: table-row;")

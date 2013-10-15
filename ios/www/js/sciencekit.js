@@ -2343,7 +2343,7 @@ function addTextWidget(entry) {
 				var entryDate = new Date(entry.date);
 				var formattedDate = entryDate.toString("MMMM d, yyyy");
 				var formattedTime = entryDate.toString("h:mm tt");
-				e.find('.account').html(currentHtml + ' on ' + formattedDate + ' at ' + formattedTime);
+				e.find('.account').html(currentHtml + '<br /> on ' + formattedDate + ' at ' + formattedTime);
 			}
 		//}
 
@@ -2534,7 +2534,7 @@ function addPhotoWidget(entry) {
 				var entryDate = new Date(entry.date);
 				var formattedDate = entryDate.toString("MMMM d, yyyy");
 				var formattedTime = entryDate.toString("h:mm tt");
-				e.find('.account').html(currentHtml + ' on ' + formattedDate + ' at ' + formattedTime);
+				e.find('.account').html(currentHtml + '<br /> on ' + formattedDate + ' at ' + formattedTime);
 			}
 		//}
 
@@ -2732,7 +2732,7 @@ function addVideoWidget(entry) {
 				var entryDate = new Date(entry.date);
 				var formattedDate = entryDate.toString("MMMM d, yyyy");
 				var formattedTime = entryDate.toString("h:mm tt");
-				e.find('.account').html(currentHtml + ' on ' + formattedDate + ' at ' + formattedTime);
+				e.find('.account').html(currentHtml + '<br /> on ' + formattedDate + ' at ' + formattedTime);
 			}
 		//}
 
@@ -2745,8 +2745,33 @@ function addVideoWidget(entry) {
 		e.find('.note-section').hide();
 
 		// Set video
+		// var videoElement = e.find('.element .video');
+		// videoElement.attr('src', '' + localStorage['host'] + video.uri + '');
+
+		// Hide video element
 		var videoElement = e.find('.element .video');
-		videoElement.attr('src', '' + localStorage['host'] + video.uri + '');
+		videoElement.hide();
+
+		// Show preview, but make it clickable. Once clicked, show the real video.
+		// var videoFilenameStart = video.uri.indexOf('/uploads/') + 9;
+		// var videoFilenameEnd = video.uri.indexOf('.');
+		// var videoFilename = video.uri.substring(videoFilenameStart, videoFilenameEnd);
+		var videoThumbnailUri = video.uri.replace('/uploads/', '/thumbnails/').replace('.MOV', '.jpg');
+		//e.find('.element .videoThumbnail').attr('src', videoThumbnailFilename);
+		//console.log(e.find('.element .videoThumbnail'));
+		var videoThumbnail = e.find('.videoThumbnail');
+
+		e.find('.thumbnailContainer').click(function () {
+			var videoElement = e.find('.element .video');
+			videoElement.show();
+			videoElement.attr('src', '' + localStorage['host'] + video.uri + '');
+			videoElement[0].play();
+			e.find('.thumbnailContainer').hide();
+		});
+
+		videoThumbnail.attr('src', '' + localStorage['host'] + videoThumbnailUri + '');
+
+		// alert(videoThumbnailFilename);
 
 		//
 		// Question, Observation, Sequence
@@ -2923,7 +2948,7 @@ function addSketchWidget(entry) {
 				var entryDate = new Date(entry.date);
 				var formattedDate = entryDate.toString("MMMM d, yyyy");
 				var formattedTime = entryDate.toString("h:mm tt");
-				e.find('.account').html(currentHtml + ' on ' + formattedDate + ' at ' + formattedTime);
+				e.find('.account').html(currentHtml + '<br /> on ' + formattedDate + ' at ' + formattedTime);
 			}
 		//}
 
