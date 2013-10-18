@@ -85,7 +85,7 @@ var socketio = null;
 //
 function connectWebSocket() {
 
-			socketio = io.connect(localStorage['host']);
+	socketio = io.connect(localStorage['host']);
 
 	// Error
 	socketio.socket.on('error', function(reason) {
@@ -1375,6 +1375,8 @@ function addSequenceStep() {
 // Get avatar for user of current Account
 function getStories(options) {
 
+	console.log('getStories');
+
 	if (typeof options !== "undefined") {
 		if (options.hasOwnProperty('id')) {
 			requestUri = requestUri + '?id=' + options['id'];
@@ -1466,6 +1468,8 @@ function getStories(options) {
 }
 
 function getStory(options) {
+
+	console.log('getStory');
 
 	if (typeof options !== "undefined") {
 		if (options.hasOwnProperty('id')) {
@@ -3439,9 +3443,10 @@ function getNote(options) {
 			// console.log('Received protected thoughts (success).');
 			console.log('note: ' + JSON.stringify(data));
 
-			var e = $('#frame-' + data.page.entry);
-
-			$(e).find('.note').text(data.note);
+			if (data.length > 0) { // Check if any results were returned
+				var e = $('#frame-' + data.page.entry);
+				$(e).find('.note').text(data.note);
+			}
 
 			// for (tag in data) {
 			// 	$(e).find('.tags').append('<span id="tag-' + data[tag]._id + '" style="display:inline-block;" contenteditable="false"><a href="javascript:getTimeline({});">' + data[tag].text + '</a></span> ');
