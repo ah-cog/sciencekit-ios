@@ -1072,6 +1072,7 @@ function openStoryTool(options) {
 	$('#story-grid-template-row').hide();
 
 	$('#story-grid').fadeOut(function() {
+		$('#story-tool-title').val(''); // Reset story entry form
 		$('#story-title').fadeIn(function() {
 			$('#narrative-list').show();
 		});
