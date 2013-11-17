@@ -199,6 +199,10 @@ function onDeviceReady() {
 
     console.log('Device is ready for PhoneGap.');
 
+    if (parseFloat(window.device.version) === 7.0) {
+          document.body.style.marginTop = "20px";
+    }
+
     //openInAppBrowser();
 }
 
@@ -793,6 +797,14 @@ currentConceptTool = null;
 
 function openInquiryPerspective() {
 
+	$('#capture-interface').css('width', '100%');
+
+	// Resize photo and video entries
+	$('.activity-widget').find('.image').attr('width', '570'); // Photo
+	$('.activity-widget').find('.image').attr('height', '570');
+	$('.activity-widget').find('.videoThumbnail').attr('width', '570'); // Video
+	$('.activity-widget').find('.videoThumbnail').attr('height', '427');
+
 	getTimeline();
 
 	currentPerspective = 'Inquiry';
@@ -818,6 +830,30 @@ function openInquiryPerspective() {
 	$('.activity-widget').closest('.activity-template').removeClass('activity-template-left');
 	$('.activity-widget').closest('.activity-template').removeClass('activity-template-right');
 	$('.note-section').hide();
+}
+
+function openEntrySelectionTool() {
+	// Resize photo and video entries
+	$('.activity-widget').find('.image').attr('width', '320'); // Photo
+	$('.activity-widget').find('.image').attr('height', '320');
+	$('.activity-widget').find('.videoThumbnail').attr('width', '320'); // Video
+	$('.activity-widget').find('.videoThumbnail').attr('height', '240');
+
+	$('#capture-interface').fadeIn();
+
+	$('#capture-interface').css('width', '450px');
+}
+
+function addEntryToStory() {
+	// TODO:
+	// - Get entry in selection tool
+	// - Add to end of array of current chapter elements...
+	// - ...and add to "story-list"
+	// - Remove from narrative-list in selection tool
+}
+
+function removeEntryFromStory() {
+
 }
 
 function openStoryPerspectiveHack() {
@@ -903,6 +939,8 @@ function getStoriesHack(options) {
 
 function openStoryPerspective() {
 
+	//$('#capture-interface').css('width', '450px');
+
 	currentPerspective = 'Story';
 
 	$('#logo').fadeOut();
@@ -910,11 +948,13 @@ function openStoryPerspective() {
 	$('#bottom').fadeOut();
 
 	$('#story-title').hide();
+	$('#story-driving-question').hide();
 	$('#story-structure-options').hide();
 
 	$('#toolkit-list').fadeOut();
 
-	$('#narrative-list').fadeOut(function() {
+	//$('#narrative-list').fadeOut(function() {
+	$('#capture-interface').fadeOut(function() {
 		// $('#toolkit-tool-options').fadeIn();
 		$('#story-grid-template-row').hide();
 		$('#story-grid').fadeIn();
@@ -1066,6 +1106,7 @@ function openStoryTool(options) {
 	}
 
 	currentTool = 'Story';
+	currentToolStep = 0;
 
 	$('#logo').fadeOut();
 	$('#top').fadeOut();
@@ -1076,7 +1117,11 @@ function openStoryTool(options) {
 	$('#story-grid').fadeOut(function() {
 		$('#story-tool-title').val(''); // Reset story entry form
 		$('#story-title').fadeIn(function() {
-			$('#narrative-list').show();
+			$('#story-driving-question').fadeIn();
+			//$('#narrative-list').show();
+			// $('#capture-interface').fadeIn();
+
+			$('#capture-interface').css('width', '450px');
 		});
 		// $('#toolkit-tool-options').fadeIn();
 		// $('#story-grid-template-row').hide();
@@ -1087,7 +1132,10 @@ function openStoryTool(options) {
 	
 	$('#toolkit-options').fadeOut(function() {
 		if (options['readOnly'] !== true) {
-			$('#toolkit-tool-options').fadeIn();
+			//$('#toolkit-tool-options').fadeIn();
+			$('#toolkit-tool-first-step-options').fadeIn();
+			$('#toolkit-tool-middle-step-options').fadeOut();
+			$('#toolkit-tool-last-step-options').fadeOut();
 		}
 	});
 
@@ -1112,7 +1160,13 @@ function openStoryTool(options) {
 		$('.note').text('');
 		$('.note-section').hide();
 
-		$('.activity-widget').closest('.activity-template').addClass('activity-template-right');
+		//$('.activity-widget').closest('.activity-template').addClass('activity-template-right');
+
+		// Resize photo and video entries
+		// $('.activity-widget').find('.image').attr('width', '320'); // Photo
+		// $('.activity-widget').find('.image').attr('height', '320');
+		// $('.activity-widget').find('.videoThumbnail').attr('width', '320'); // Video
+		// $('.activity-widget').find('.videoThumbnail').attr('height', '240');
 
 		// TODO: Only open Story Tool
 		// getStories();
@@ -1154,6 +1208,64 @@ function openStoryTool(options) {
 	// if (options['readOnly'] === true) {
 	// 	$('.activity-template-right').hide();
 	// }
+}
+
+function stepForwardStoryTool() {
+
+	// Update step
+	if (currentToolStep == 0) {
+		currentToolStep = 1;
+	} else if (currentToolStep == 1) {
+		currentToolStep = 2;
+	}
+
+	updateStoryTool();
+}
+
+function stepBackwardStoryTool() {
+
+	// Update step
+	if (currentToolStep == 1) {
+		currentToolStep = 0;
+	} else if (currentToolStep == 2) {
+		currentToolStep = 1;
+	}
+
+	updateStoryTool();
+}
+
+function updateStoryTool() {
+
+	// Update for step
+	if (currentToolStep == 0) {
+
+		// Remove "back arrow"
+		// Show "next arrow"
+		$('#toolkit-tool-first-step-options').fadeIn();
+		$('#toolkit-tool-middle-step-options').fadeOut();
+		$('#toolkit-tool-last-step-options').fadeOut();
+
+		// alert("1");
+
+	} else if (currentToolStep == 1) {
+
+		// Show "back arrow"
+		// Show "next arrow"
+		$('#toolkit-tool-first-step-options').fadeOut();
+		$('#toolkit-tool-middle-step-options').fadeIn();
+		$('#toolkit-tool-last-step-options').fadeOut();
+
+
+		// alert("2");
+
+	} else if (currentToolStep == 2) {
+
+		$('#toolkit-tool-first-step-options').fadeOut();
+		$('#toolkit-tool-middle-step-options').fadeOut();
+		$('#toolkit-tool-last-step-options').fadeIn();
+
+		// alert("3");
+	}
 }
 
 
@@ -1710,6 +1822,9 @@ function closeTool() {
 	});
 
 	$('#toolkit-tool-options').fadeOut(function() {
+		$('#toolkit-tool-first-step-options').fadeOut();
+		$('#toolkit-tool-middle-step-options').fadeOut();
+		$('#toolkit-tool-last-step-options').fadeOut();
 		$('#toolkit-options').fadeIn(function() {
 			$('#top').fadeIn();
 			$('#bottom').fadeIn();
@@ -3717,3 +3832,20 @@ function openInAppBrowser() {
     // Set up "loaderror" event listener
     // ref.addEventListener('loaderror', function(event) { alert('error: ' + event.message); });
 }
+
+// TODO: Figure out how this code can be used to make elements in story mode sortable.
+// $(function() {
+//   $( "#narrative-list" ).sortable({
+//     revert: true
+//   });
+//   $( "#draggable" ).draggable({
+//     connectToSortable: "#narrative-list",
+//     helper: "clone",
+//     revert: "invalid"
+//   });
+//   $( "ul, li" ).disableSelection();
+// });
+
+
+        // .demo ul { list-style-type: none; margin: 0; padding: 0; margin-bottom: 10px; }
+        // .demo li { margin: 5px; padding: 5px; width: 150px; }
