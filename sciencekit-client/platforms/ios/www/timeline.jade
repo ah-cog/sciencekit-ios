@@ -1,0 +1,727 @@
+extends layout
+
+block content
+
+	script
+		// Populate timeline
+		getTimeline();
+
+	//
+	// "capture" and "story" Perspective Options
+	//
+	.edge(id="mode-options", style="position: fixed; left: 10px; top: 0px; text-align: right; font-size: 30px; padding-right: 10px; z-index: 1001;")
+		div(style="display: table;")
+			div(style="display: table-row;")
+				div(style="display: table-cell;")
+					a(class="sequence-tool", href="javascript:void(0);", onclick='openInquiryPerspective();')
+						div(style='background-image: url(./img/earth.png); background-size: 40px 40px; background-repeat:no-repeat; background-position:0px 8px; height: 50px; padding-left: 45px; padding-top: 8px; font-size: 30px; vertical-align: middle;')
+							| capture
+				div(style="display: table-cell;")
+					a(class="sequence-tool", href="javascript:void(0);", onclick='openStoryPerspective();')
+						div(style='background-image: url(./img/story.png); background-size: 40px 40px; background-repeat:no-repeat; background-position:10px 8px; height: 50px; padding-left: 55px; padding-top: 8px; font-size: 30px; vertical-align: middle;')
+							| story
+
+	//.edge(id="logo", style="position: fixed; left: 80px; top: 0px; text-align: right; font-size: 30px; padding-right: 10px; z-index: 1001;")
+	//	img(id="logo", src="./img/sciencekit-logo.png", alt="sciencekit logo", style="margin-top: 0px; width: 230px;")
+
+	//
+	// Top-right floating options
+	//
+	.edge(id="top", style="text-align: right; font-size: 30px; padding-right: 10px; z-index: 1000;")
+		a(href="javascript:void(0);", onclick="scrollTickle();") 
+			img(src="./img/search.png", alt="search") 
+		a(href="./timeline.html") 
+			img(src="./img/refresh.png", alt="refresh") 
+		a(href="javscript:void(0);", onclick="scrollToTop();") 
+			img(src="./img/up-arrow.png", alt="top")
+
+	//
+	// Toolkit Options
+	//
+	.edge(id="toolkit-options", style="position: fixed; right: 0px; top: 100px; text-align: right; font-size: 30px; padding-right: 10px; z-index: 1000;")
+		a(href="javascript:void(0);", onclick="openTextTool();") 
+			img(src="./img/text.png", width="50px", alt="text")
+		br
+
+		a(href="javascript:void(0);", onclick="capturePhotoToURI();") 
+			img(src="./img/camera.png", width="50px", alt="image")
+		br
+
+		a(href="javascript:void(0);", onclick="captureVideo2();") 
+			img(src="./img/video.png", width="50px", alt="video")
+		br
+
+		a(href="javascript:void(0);", onclick="openSketchTool();") 
+			img(src="./img/palette.png", width="50px", alt="sketch")
+		br
+
+	//
+	// Toolkit Per-Tool Options
+	//
+	.edge(id="toolkit-tool-options", style="position: fixed; right: 0px; top: 100px; text-align: right; font-size: 30px; padding-right: 10px; z-index: 1000;")
+		a(href="javascript:void(0);", onclick="cancelTool();") 
+			img(src="./img/cross-red.png", width="50px", alt="cancel")
+		br
+
+		a(href="javascript:void(0);", onclick="saveTool();") 
+			img(src="./img/check.png", width="50px", alt="done")
+
+	//
+	// Templates for Timeline Widgets (this is not visible)
+	//
+
+	.narrative-templates(id="narrative-templates")
+
+		// Template timeline widgets
+		include widget-templates
+
+	//
+	// Top of interface
+	//
+
+	div(style="display: table; width: 100%; margin: 0px; margin-top: 0px; padding: 0px;")
+
+		//
+		// ScienceKit logo (shown on "default" timeline)
+		//
+
+		div(style="display: table-row;", id="sciencekit-logo")
+			div(style="display: table-cell; text-align: center; vertical-align: middle; width: 30px;")
+				img(src="./img/blank.png", width="50", height="50", style="padding: 10px;")
+				
+			div(style="display: table-cell; width: 100%; border-left: 0px solid #f16521; padding-left: 10px;")
+				&nbsp;
+
+	//
+	// Story Perspective
+	//
+
+	ul(id="story-perspective-list")
+
+		//
+		// "Think/Do" (Science/Art), Media/Concept
+		//
+
+		li(id="story-grid")
+
+			//
+			// Text
+			//
+
+			div(id="story-grid-tool", class="", style="display: table; width: 100%;")
+
+				div(style="display: table-row;")
+					div(style="display: table-cell; text-align: center; vertical-align: middle;")
+						img(src="./img/blank.png", width="50", height="0", style="padding: 10px;")
+					div(class="account", style="display: table-cell; position: relative; z-index: 0; width: 100%; border-left: 0px solid #f16521; vertical-align: middle; padding-left: 22px; padding-top: 10px; font-size: 20px; color: #666666;")
+						| <strong>Stories</strong> (Create or choose one)
+				div(style="display: table-row;")
+					div(style="display: table-cell; text-align: center; vertical-align: middle;")
+						img(src="./img/blank.png", width="50", height="0", style="padding: 10px;")
+					div(class="account", style="display: table-cell; position: relative; z-index: 0; width: 100%; border-left: 0px solid #f16521; vertical-align: middle; padding-left: 22px; padding-top: 10px; font-size: 20px; color: #666666;")
+						//
+						// Create new story
+						//
+						a(href="javascript:void(0);", onclick='openStoryTool();')
+							div(style='background-image: url(./img/plus-red.png); background-repeat:no-repeat; background-position:0px 0px; height: 50px; padding-left: 50px; padding-top: 2px; font-size: 30px; vertical-align: middle;')
+								| Create new story
+
+				div(style="display: table-row;")
+					div(style="display: table-cell; text-align: center; vertical-align: middle;")
+						img(src="./img/blank.png", width="50", height="50", style="padding: 10px;")
+
+					div(style="display: table-cell; position: relative; z-index: 0; width: 100%; border-left: 0px solid #f16521;")
+
+						div(class="tool-section")
+							div(class="story-grid-options")
+								div(id="story-grid-table", class="element-table", style="display: table; width: 100%;")
+
+									// div(id="sequence-tool-template-step", style="display: table-row;")
+									div(id="story-grid-template-row", style="display: table-row;")
+										div(style="display: table-cell; width: 33%; vertical-align: middle;")
+											div(class="story-cover-left")
+												| <strong>book one</strong><br />
+												| by ... with ...
+										div(style="display: table-cell; width: 33%; vertical-align: middle;")
+											div(class="story-cover-middle")
+												| book one
+										div(style="display: table-cell; width: 33%; vertical-align: middle;")
+											div(class="story-cover-right")
+												| book one
+
+		li(id="story-title", class="")
+
+			//
+			// Text
+			//
+
+			div(id="story-tool", class="story-tool toolkit-tool", style="display: table; width: 100%;")
+
+				div(style="display: table-row;")
+					div(style="display: table-cell; text-align: center; vertical-align: middle;")
+						img(src="./img/blank.png", width="50", height="0", style="padding: 10px;")
+					div(class="account", style="display: table-cell; position: relative; z-index: 0; width: 100%; border-left: 0px solid #f16521; vertical-align: middle; padding-left: 22px; padding-top: 10px; font-size: 20px; color: #666666;")
+						| <strong>Title</strong> (Type/Create)
+
+				div(style="display: table-row;")
+					div(style="display: table-cell; text-align: center; vertical-align: middle;")
+						img(src="./img/story.png", width="50", height="50", style="padding: 10px;")
+
+					div(style="display: table-cell; position: relative; z-index: 0; width: 100%; border-left: 0px solid #f16521;")
+
+						div(class="tool-section")
+							div(class="text-input-widget")
+								div(class="element-table", style="display: table; width: 100%;")
+
+									div(class="element", style="display: table-row;")
+										div(class="text", style="display: table-cell; min-width: 100%; vertical-align: middle;")
+											input(type='text', id='story-tool-title')
+
+										div(class="options", style="width: 75px; display: table-cell; text-align: right; vertical-align: middle;")
+											img(id="hostAddressSave", src="./img/check.png", style="display: none;")
+											img(id="hostAddressInvalid", src="./img/cross-red.png", style="display: none;")
+
+
+		li(id="story-structure-options", class="")
+
+			//
+			// Story Structure
+			//
+
+			div(id="story-tool", class="story-tool toolkit-tool", style="display: table; width: 100%;")
+
+				div(style="display: table-row;")
+					div(style="display: table-cell; text-align: center; vertical-align: middle;")
+						img(src="./img/blank.png", width="50", height="0", style="padding: 10px;")
+					div(class="account", style="display: table-cell; position: relative; z-index: 0; width: 100%; border-left: 0px solid #f16521; vertical-align: middle; padding-left: 22px; padding-top: 10px; font-size: 20px; color: #666666;")
+						| <strong>Chapters</strong> (Choose)
+
+				div(style="display: table-row;")
+					div(style="display: table-cell; text-align: center; vertical-align: middle;")
+						img(src="./img/blank.png", width="50", height="50", style="padding: 10px;")
+
+					div(style="display: table-cell; position: relative; z-index: 0; width: 100%; border-left: 0px solid #f16521;")
+
+						div(class="tool-section")
+							div(class="story-grid-options")
+
+								div(id="story-grid-table", class="element-table", style="display: table; width: 100%;")
+									div(id="story-grid-template-row", style="display: table-row;")
+										div(style="display: table-cell; width: 33%; vertical-align: middle;")
+											div(class="story-section-left")
+												| Part 1<br />
+												| <strong>The Beginning</strong>
+										div(style="display: table-cell; width: 33%; vertical-align: middle;")
+											div(class="story-section-middle")
+												| Part 2<br />
+												| <strong>Exploration</strong>
+										div(style="display: table-cell; width: 33%; vertical-align: middle;")
+											div(class="story-section-right")
+												| Part 3<br />
+												| <strong>Reflection</strong>
+
+				div(style="display: table-row;")
+					div(style="display: table-cell; text-align: center; vertical-align: middle;")
+						img(src="./img/blank.png", width="50", height="0", style="padding: 10px;")
+					div(class="account", style="display: table-cell; position: relative; z-index: 0; width: 100%; border-left: 0px solid #f16521; vertical-align: middle; padding-left: 22px; padding-top: 10px; font-size: 20px; color: #666666;")
+						| How did you get started?
+
+	//
+	// Toolkit tool interfaces
+	//
+
+	ul(id="toolkit-list")
+
+		//
+		// "Think/Do" (Science/Art), Media/Concept
+		//
+
+		li(id="media-toolkit", class="toolkit-tool media-toolkit tool-template")
+
+			//
+			// Text
+			//
+
+			//div(id="text-tool", class="text-tool toolkit-tool", style="display: table; width: 100%;")	
+
+			//
+			// Photo
+			//
+
+			div(id="photo-tool", class="photo-tool toolkit-tool", style="display: table; width: 100%;")
+
+				div(style="display: table-row;")
+					div(style="display: table-cell; text-align: center; vertical-align: middle;")
+						img(src="./img/camera.png", width="50", height="50", style="padding: 10px;")
+
+					div(style="display: table-cell; position: relative; z-index: 0; width: 100%; border-left: 0px solid #f16521;")
+
+						div(class="tool-section")
+							div(class="text-input-widget")
+								div(class="element-table", style="display: table; width: 100%;")
+
+									div(class="element", style="display: table-row;")
+										div(class="text", style="display: table-cell; min-width: 100%; vertical-align: middle;")
+											img(class="image", id="photo-tool-photo", src="./img/camera.png", width="570", height="570")
+
+										div(class="options", style="width: 75px; display: table-cell; text-align: right; vertical-align: middle;")
+											img(id="hostAddressSave", src="./img/check.png", style="display: none;")
+											img(id="hostAddressInvalid", src="./img/cross-red.png", style="display: none;")
+
+
+			//
+			// Video
+			//
+
+			div(id="video-tool", class="video-tool toolkit-tool", style="display: table; width: 100%;")
+
+				div(style="display: table-row;")
+					div(style="display: table-cell; text-align: center; vertical-align: middle;")
+						img(src="./img/video.png", width="50", height="50", style="padding: 10px;")
+
+					div(style="display: table-cell; position: relative; z-index: 0; width: 100%; border-left: 0px solid #f16521;")
+
+						div(class="tool-section")
+							div(class="text-input-widget")
+								div(class="element-table", style="display: table; width: 100%;")
+
+									div(class="element", style="display: table-row;")
+										div(class="text", style="display: table-cell; min-width: 100%; vertical-align: middle;")
+											video(class="video", width="570", height="427", preload="none", controls)
+
+										div(class="options", style="width: 75px; display: table-cell; text-align: right; vertical-align: middle;")
+											img(id="hostAddressSave", src="./img/check.png", style="display: none;")
+											img(id="hostAddressInvalid", src="./img/cross-red.png", style="display: none;")
+
+			//
+			// Sketch
+			//
+
+			div(id="sketch-tool2", class="sketch-tool2 toolkit-tool", style="display: table; width: 100%;")
+
+				div(style="display: table-row;")
+					div(style="display: table-cell; text-align: center; vertical-align: middle;")
+						img(src="./img/palette.png", width="50", height="50", style="padding: 10px;")
+
+					div(style="display: table-cell; position: relative; z-index: 0; width: 100%; border-left: 0px solid #f16521;")
+
+						div(class="tool-section")
+							div(class="text-input-widget")
+								div(class="element-table", style="display: table; width: 100%;")
+
+									div(class="element", style="display: table-row;")
+										div(class="text", style="display: table-cell; min-width: 100%; vertical-align: middle;")
+											img(class="image", src="./img/palette.png", width="570", height="427")
+
+										div(class="options", style="width: 75px; display: table-cell; text-align: right; vertical-align: middle;")
+											img(id="hostAddressSave", src="./img/check.png", style="display: none;")
+											img(id="hostAddressInvalid", src="./img/cross-red.png", style="display: none;")
+
+		//
+		// Media Type
+		//
+
+		li(id="media-type-options", class="toolkit-tool media-toolkit tool-template")
+			div(id="media-type-options", class="media-toolkit", style="display: table; width: 100%;")
+
+				//
+				// What kind of content is this?
+				//
+
+				div(class="media-type-options", style="display: table-row;")
+					div(style="display: table-cell; text-align: center; vertical-align: middle;")
+						img(src="./img/blank.png", width="50", height="0", style="padding: 10px;")
+					div(class="account", style="display: table-cell; position: relative; z-index: 0; width: 100%; border-left: 0px solid #f16521; vertical-align: middle; padding-left: 22px; padding-top: 10px; font-size: 20px; color: #666666;")
+						| <strong>What kind is it?</strong> (Choose one)
+
+				div(class="media-type-options", style="display: table-row;")
+					div(style="display: table-cell; text-align: center; vertical-align: middle;")
+						img(src="./img/blank.png", width="50", height="0", style="padding: 10px;")
+					div(class="account", style="display: table-cell; position: relative; z-index: 0; width: 100%; border-left: 0px solid #f16521; vertical-align: middle; padding-left: 22px; padding-top: 10px; font-size: 20px; color: #666666;")
+						a(href="javscript:void(0);", onclick="openQuestionTool();") 
+							div(style='background-image: url(./img/question.png); background-size:40px 40px; background-repeat:no-repeat; background-position:0px 0px; height: 50px; padding-left: 50px; padding-top: 8px; font-size: 20px; vertical-align: middle;')
+								| Question
+							// img(src="./img/question.png", width="50", height="50", style="padding: 0px 10px 0px 10px;")
+						a(href="javscript:void(0);", onclick="openObservationTool();") 
+							div(style='background-image: url(./img/observation.png); background-size:40px 40px; background-repeat:no-repeat; background-position:0px 0px; height: 50px; padding-left: 50px; padding-top: 8px; font-size: 20px; vertical-align: middle;')
+								| Observation
+						a(href="javscript:void(0);", onclick="openSequenceTool();") 
+							div(style='background-image: url(./img/sequence.png); background-size:40px 40px; background-repeat:no-repeat; background-position:0px 0px; height: 50px; padding-left: 50px; padding-top: 8px; font-size: 20px; vertical-align: middle;')
+								| Sequence
+
+		//
+		// Concept Toolkit
+		//
+
+		li(id="concept-toolkit", class="concept-tool toolkit-tool concept-toolkit tool-template")
+
+			//
+			// Question
+			//
+
+			div(id="question-tool", class="question-tool concept-tool", style="display: table; width: 100%;")
+
+				div(style="display: table-row;")
+					div(style="display: table-cell; text-align: center; vertical-align: middle;")
+						img(src="./img/blank.png", width="50", height="0", style="padding: 10px;")
+					div(class="account", style="display: table-cell; position: relative; z-index: 0; width: 100%; border-left: 0px solid #f16521; vertical-align: middle; padding-left: 22px; padding-top: 10px; font-size: 20px; color: #666666;")
+						| <strong>What do you wonder?</strong> (Type/Create)
+
+				div(style="display: table-row;")
+					div(style="display: table-cell; text-align: center; vertical-align: middle;")
+						img(src="./img/question.png", width="50", height="50", style="padding: 10px;")
+
+					div(style="display: table-cell; position: relative; z-index: 0; width: 100%; border-left: 0px solid #f16521;")
+
+						div(class="tool-section")
+							div(class="text-input-widget")
+								div(class="element-table", style="display: table; width: 100%;")
+
+										div(class="element", style="display: table-row;")
+											div(class="text", style="display: table-cell; min-width: 100%; vertical-align: middle;")
+												input(type='text', id='question-tool-text')
+
+											div(class="options", style="width: 75px; display: table-cell; text-align: right; vertical-align: middle;")
+												img(id="hostAddressSave", src="./img/check.png", style="display: none;")
+												img(id="hostAddressInvalid", src="./img/cross-red.png", style="display: none;")
+
+			//
+			// Observation
+			//
+
+			div(id="observation-tool", class="observation-tool concept-tool", style="display: table; width: 100%;")
+
+				div(style="display: table-row;")
+					div(style="display: table-cell; text-align: center; vertical-align: middle;")
+						img(src="./img/blank.png", width="50", height="0", style="padding: 10px;")
+					div(class="account", style="display: table-cell; position: relative; z-index: 0; width: 100%; border-left: 0px solid #f16521; vertical-align: middle; padding-left: 22px; padding-top: 10px; font-size: 20px; color: #666666;")
+						| <strong>What do you see?</strong> (Type/Create)
+
+				div(style="display: table-row;")
+					div(style="display: table-cell; text-align: center; vertical-align: middle;")
+						img(src="./img/observation.png", width="50", height="50", style="padding: 10px;")
+
+					div(style="display: table-cell; position: relative; z-index: 0; width: 100%; border-left: 0px solid #f16521;")
+
+						div(class="tool-section")
+							div(class="text-input-widget")
+								div(class="element-table", style="display: table; width: 100%;")
+
+									div(class="element", style="display: table-row;")
+										div(class="text", style="display: table-cell; min-width: 100%; vertical-align: middle;")
+											input(type='text', id='observation-tool-effect')
+
+										div(class="options", style="width: 75px; display: table-cell; text-align: right; vertical-align: middle;")
+											img(id="hostAddressSave", src="./img/check.png", style="display: none;")
+											img(id="hostAddressInvalid", src="./img/cross-red.png", style="display: none;")
+
+				div(style="display: table-row;")
+					div(style="display: table-cell; text-align: center; vertical-align: middle;")
+						img(src="./img/blank.png", width="50", height="0", style="padding: 10px;")
+					div(class="account", style="display: table-cell; position: relative; z-index: 0; width: 100%; border-left: 0px solid #f16521; vertical-align: middle; padding-left: 22px; padding-top: 10px; font-size: 20px; color: #666666;")
+						| <strong>Why did it happen?</strong> (Type/Create)
+
+				div(style="display: table-row;")
+					div(style="display: table-cell; text-align: center; vertical-align: middle;")
+						img(src="./img/blank.png", width="50", height="50", style="padding: 10px;")
+
+					div(style="display: table-cell; position: relative; z-index: 0; width: 100%; border-left: 0px solid #f16521;")
+
+						div(class="tool-section")
+							div(class="text-input-widget")
+								div(class="element-table", style="display: table; width: 100%;")
+
+										div(class="element", style="display: table-row;")
+											div(class="text", style="display: table-cell; min-width: 100%; vertical-align: middle;")
+												input(type='text', id='observation-tool-cause')
+
+											div(class="options", style="width: 75px; display: table-cell; text-align: right; vertical-align: middle;")
+												img(id="hostAddressSave", src="./img/check.png", style="display: none;")
+												img(id="hostAddressInvalid", src="./img/cross-red.png", style="display: none;")
+
+			//
+			// Sequence
+			//
+
+			div(id="sequence-tool", class="sequence-tool concept-tool", style="display: table; width: 100%;")
+
+				div(style="display: table-row;")
+					div(style="display: table-cell; text-align: center; vertical-align: middle;")
+						img(src="./img/blank.png", width="50", height="0", style="padding: 10px;")
+					div(class="account", style="display: table-cell; position: relative; z-index: 0; width: 100%; border-left: 0px solid #f16521; vertical-align: middle; padding-left: 22px; padding-top: 10px; font-size: 20px; color: #666666;")
+						| <strong>What is the first step?</strong> (Type/Create)
+
+				div(style="display: table-row;")
+					div(style="display: table-cell; text-align: center; vertical-align: middle;")
+						img(src="./img/sequence.png", width="50", height="50", style="padding: 10px;")
+
+					div(style="display: table-cell; position: relative; z-index: 0; width: 100%; border-left: 0px solid #f16521;")
+
+						div(class="tool-section")
+							div(class="text-input-widget")
+								div(class="element-table", style="display: table; width: 100%;")
+
+										div(class="element", style="display: table-row;")
+											div(class="text", style="display: table-cell; min-width: 100%; vertical-align: middle;")
+												input(type='text', class="sequence-tool-step")
+
+											div(class="options", style="width: 75px; display: table-cell; text-align: right; vertical-align: middle;")
+												img(id="hostAddressSave", src="./img/check.png", style="display: none;")
+												img(id="hostAddressInvalid", src="./img/cross-red.png", style="display: none;")
+
+				div(class="sequence-tool-add-step", style="display: table-row;")
+					div(style="display: table-cell; text-align: center; vertical-align: middle;")
+						img(src="./img/blank.png", width="50", height="0", style="padding: 10px;")
+					div(class="account", style="display: table-cell; position: relative; z-index: 0; width: 100%; border-left: 0px solid #f16521; vertical-align: middle; padding-left: 22px; padding-top: 10px; font-size: 20px; color: #666666;")
+						//
+						// Create new story
+						//
+						a(class="sequence-tool", href="javascript:void(0);", onclick='addSequenceStep();')
+							div(style='background-image: url(./img/plus-red.png); background-repeat:no-repeat; background-position:0px 0px; height: 50px; padding-left: 50px; padding-top: 2px; font-size: 30px; vertical-align: middle;')
+								| Add a step
+
+				// Sequence Step Template
+				// This is the template used for steps in the sequence.
+				//div(id="sequence-tool-template-label", style="display: table-row;")
+				//	div(style="display: table-cell; text-align: center; vertical-align: middle;")
+				//		img(src="./img/blank.png", width="50", height="0", style="padding: 10px;")
+				//	div(class="account", style="display: table-cell; position: relative; z-index: 0; width: 100%; border-left: 0px solid #f16521; vertical-align: middle; padding-left: 22px; padding-top: 10px; font-size: 20px; color: #666666;")
+				//		| What is <strong>first</strong>? (Type/Create)
+
+				div(id="sequence-tool-template-step", style="display: table-row;")
+					div(style="display: table-cell; text-align: center; vertical-align: middle;")
+						img(src="./img/blank.png", width="50", height="50", style="padding: 10px;")
+
+					div(style="display: table-cell; position: relative; z-index: 0; width: 100%; border-left: 0px solid #f16521;")
+
+						div(class="tool-section")
+							div(class="text-input-widget")
+								div(class="element-table", style="display: table; width: 100%;")
+
+										div(class="element", style="display: table-row;")
+											div(class="text", style="display: table-cell; min-width: 100%; vertical-align: middle;")
+												input(type='text', class="sequence-tool-step")
+
+											div(class="options", style="width: 75px; display: table-cell; text-align: right; vertical-align: middle;")
+												img(id="hostAddressSave", src="./img/check.png", style="display: none;")
+												img(id="hostAddressInvalid", src="./img/cross-red.png", style="display: none;")
+
+		li(id="tool-extra-options", class="toolkit-tool tool-template")
+			div(style="display: table; width: 100%;")
+
+				div(style="display: table-row;")
+					div(style="display: table-cell; text-align: center; vertical-align: middle;")
+						img(src="./img/blank.png", width="50", height="0", style="padding: 10px;")
+					div(class="account", style="display: table-cell; position: relative; z-index: 0; width: 100%; border-left: 0px solid #f16521; vertical-align: middle; padding-left: 22px; padding-top: 10px; padding-bottom: 0px; font-size: 20px; color: #666666;")
+						| OPTIONAL
+
+				div(style="display: table-row;")
+					div(style="display: table-cell; text-align: center; vertical-align: middle;")
+						img(src="./img/blank.png", width="50", height="0", style="padding: 0px;")
+					div(style="display: table-cell; position: relative; z-index: 0; width: 100%; border-left: 0px solid #f16521; vertical-align: middle; padding-left: 0px; padding-top: 0px; font-size: 20px; color: #666666;")
+						hr(style='margin-bottom: 14px; margin-top: 14px; margin-right: 70px; height: 1px; border: none; background-color: #dddddd;')
+
+				//
+				// Collaborate
+				//
+
+				div(style="display: table-row;")
+					div(style="display: table-cell; text-align: center; vertical-align: middle;")
+						img(src="./img/blank.png", width="50", height="0", style="padding: 10px;")
+					div(class="account", style="display: table-cell; position: relative; z-index: 0; width: 100%; border-left: 0px solid #f16521; vertical-align: middle; padding-left: 22px; padding-top: 10px; font-size: 20px; color: #666666;")
+						| <strong>Who else helped you with this just now?</strong> (Select everyone)
+
+				div(style="display: table-row;")
+					div(style="display: table-cell; text-align: center; vertical-align: middle;")
+						img(src="./img/blank.png", width="50", height="50", style="padding: 10px;")
+
+					div(style="display: table-cell; position: relative; z-index: 0; width: 100%; border-left: 0px solid #f16521;")
+
+						div(class="activity-widget")
+							div(class="element-table", style="display: table; width: 100%;")
+
+								// Core activity
+								div(class="element", style="display: table-row;")
+									div(id="collaborator-options", class="text", style="display: table-cell; min-width: 100%; vertical-align: middle;")
+
+				//
+				// Feel
+				//
+
+				div(style="display: table-row;")
+					div(style="display: table-cell; text-align: center; vertical-align: middle;")
+						img(src="./img/blank.png", width="50", height="0", style="padding: 10px;")
+					div(class="account", style="display: table-cell; position: relative; z-index: 0; width: 100%; border-left: 0px solid #f16521; vertical-align: middle; padding-left: 22px; padding-top: 10px; font-size: 20px; color: #666666;")
+						| <strong>What do you feel like?</strong> (Choose one)
+						
+				div(style="display: table-row;")
+					div(style="display: table-cell; text-align: center; vertical-align: middle;")
+						img(src="./img/blank.png", width="50", height="50", style="padding: 10px;")
+
+					div(style="display: table-cell; position: relative; z-index: 0; width: 100%; border-left: 0px solid #f16521;")
+
+						div(class="activity-widget")
+							div(class="element-table", style="display: table; width: 100%;")
+
+								// Core activity
+								div(class="element", style="display: table-row;")
+									div(class="text", style="display: table-cell; min-width: 100%; vertical-align: middle;")
+
+										input(name="identity-options", id="scientist-option", value="scientist", type="radio")
+										label(for="scientist-option") &nbsp;scientist
+										hr(style="margin-bottom: 14px; margin-top: 14px; margin-right: 0px; height: 1px; border: none; background-color: #dddddd;")
+
+										input(name="identity-options", id="creative-option", value="creative", type="radio")
+										label(for="creative-option") &nbsp;creative
+										hr(style="margin-bottom: 14px; margin-top: 14px; margin-right: 0px; height: 1px; border: none; background-color: #dddddd;")
+
+										input(name="identity-options", id="chemist-option", value="chemist", type="radio")
+										label(for="chemist-option") &nbsp;chemist
+										hr(style="margin-bottom: 14px; margin-top: 14px; margin-right: 0px; height: 1px; border: none; background-color: #dddddd;")
+
+										input(name="identity-options", id="baker-option", value="baker", type="radio")
+										label(for="baker-option") &nbsp;baker
+
+	//
+	// Timeline interface
+	//
+
+	ul(id="narrative-list")
+
+	.edge(id="bottom", style="text-align: right; font-size: 30px; padding-right: 10px;")
+		a(href="javscript:void(0);", onclick="scrollToBottom();") 
+			img(src="./img/down-arrow.png", alt="bottom", style="position: absolute; bottom: 0px; right: 0px;")
+
+	//
+	// Bottom of interface
+	//
+
+	mixin option(name, frameType, imageUri, clickEventHandler)
+		div(style='background-image: url(#{imageUri}); background-repeat:no-repeat; background-position:3px 0px; height: 70px; padding-left: 118px; padding-top: 34px; font-size: 30px;')
+			a(id="create-#{frameType}-button", data-artifact-type="#{frameType}", href="javascript:void(0);", onclick='#{clickEventHandler}') #{name}
+
+	div(style="display: table-row;", id="timeline-intro-text")
+		div(style="display: table-cell; text-align: center; vertical-align: middle; width: 30px;")
+			img(src="./img/blank.png", width="50", height="15", style="padding: 10px;")
+
+		div(style="display: table-cell; width: 100%; border-left: 0px solid #f16521; padding-left: 10px;")
+			p(id="beginning", class="tagline") &nbsp;
+
+	//
+	// "Sketch" tool interface
+	//
+	.tool-widget(id="sketch-tool")
+		.tool-table
+
+			//
+			// Header
+			//
+
+			.tool-table-row
+				.tool-table-cell(style='text-align: right; vertical-align: middle; padding-right: 30px; padding-top: 30px;')
+					img(class="close", src="./img/cross-gray.png")
+
+			//
+			// Body
+			//
+			.tool-table-row
+				.tool-table-cell(style="vertical-align: middle; text-align: center; height: 100%; width: 100%;")
+					canvas(class="canvas", width="768", height="512", style="background-color: #ffffff;")
+					// script to initialize canvas, graph event handlers
+					// - set up handler to grab buffered data upon close, format it, send it to the server, get response, create new element
+
+			//
+			// Footer
+			//
+
+			.tool-table-row
+				.tool-table-cell
+					| &nbsp;
+
+	script
+		window.onload = function() {
+
+			// Set up PhoneGap event listeners
+			document.addEventListener("deviceready", onDeviceReady, false);
+
+			// Initialize web socket connection for real-time collaboration
+			connectWebSocket();
+
+			//
+			// Define interaction event listeners
+			//
+
+			// Initialize GUI event listeners
+			$('#outgoingChatMessage').keypress(function(event) {
+				if(event.which == 13) {
+					event.preventDefault();
+
+					// var oauthAccessToken = $('#token_response').text(); // Get access token
+					var oauthAccessToken = localStorage['token'];
+					var messageText = $('#outgoingChatMessage').val();
+					var message = JSON.stringify({ 'token': oauthAccessToken, 'message': messageText });
+
+					console.log('Sending message: ' + message);
+					socketio.send(message);
+					$('#incomingChatMessages').append($('<li></li>').text($('#outgoingChatMessage').val()));
+					$('#outgoingChatMessage').val('');
+				}
+			});
+
+			//
+			// Initialize interface
+			//
+
+			$('#float-page').hide();
+			$('#photo-page').hide();
+			$('#video-page').hide();
+			$('#question-tool').hide();
+			$('#motion-tool').hide();
+			$('#sketch-tool').hide();
+
+			$('#story-perspective-list').hide();
+			$('#toolkit-list').hide();
+			$('#toolkit-tool-options').hide();
+
+			$('#previous-timeline-widget').hide();
+
+			// Populate timeline
+			//getTimeline();
+
+			// Synchronize Accounts
+			getAccounts({}, function(accounts) {
+				for(var i = 0; i < accounts.length; i++) {
+					var option =
+						'<input name="collaborators" id="account-' + accounts[i]._id + '" value="' + accounts[i]._id + '" type="checkbox" />' + 
+						'<label for="account-' + accounts[i]._id + '"> ' + accounts[i].username + '</label>';
+					if (i < accounts.length - 1) {
+						option += '<hr style="margin-bottom: 14px; margin-top: 14px; margin-right: 0px; height: 1px; border: none; background-color: #dddddd;" />';
+					}
+
+					$('#collaborator-options').append(option);
+				}
+			});
+		}
+
+		function scrollToTop() {
+			$('html,body').animate({ scrollTop: 0 }, 1000);
+		}
+
+		function scrollToBottom() {
+			//$('html,body').animate({ scrollTop: $('#sciencekit-small-logo').offset().top }, 1000);
+			//$('html,body').animate({ scrollTop: document.body.scrollHeight }, 1000);
+			$('html,body').animate({ scrollTop: document.body.clientHeight }, 1000);
+		}
+
+		function scrollTickle() {
+			var range = 70;
+			var ms = 110;
+			var iterations = 2;
+			var position = $(window).scrollTop();
+			for(var i = 0; i < iterations; i++) {
+				$('html,body').animate({ scrollTop: position + range }, ms);
+				$('html,body').animate({ scrollTop: position - range }, ms);
+			}
+			$('html,body').animate({ scrollTop: position }, ms);
+			return false;
+		}

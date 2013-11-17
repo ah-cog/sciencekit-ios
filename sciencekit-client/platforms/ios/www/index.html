@@ -1,102 +1,147 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <title>ScienceKit</title>
+<!DOCTYPE html><html><head><title>ScienceKit</title><link rel="stylesheet" href="./css/style.css"><script src="cordova.js"></script><script src="jquery.min.js"></script><script src="socket.io.min.js"></script><script src="js/easeljs-0.6.0.min.js"></script><script src="js/canvas2image.js"></script><script src="js/base64.js"></script><script src="js/date.js"></script><script src="js/sciencekit.js"></script></head><body><div style="margin-top: 50px; margin-left: 50px;"><img src="./img/sciencekit-logo.png" alt="sciencekit logo"></div><div id="host-settings" style="display: table; width: 100%;"><p style="margin: 4px 40px 4px 40px; font-size: 35px; color: #444444;">where's the story?</p><p style="margin: 4px 40px 4px 40px; font-size: 18px; color: #777777;">1. enter sciencekit server address<br />
+2. touch the green checkmark to proceed</p><div style="display: table-row;"><div style="display: table-cell; position: relative; z-index: 0; width: 100%;"><div style="margin: 4px 40px 4px 40px;" class="text-input-widget"><div style="display: table; width: 100%;" class="element-table"><div style="display: table-row;" class="element"><div style="display: table-cell; min-width: 100%; vertical-align: middle;" class="text"><input type="text" id="hostAddressInput" style="font-size: 35px;"></div><div style="width: 75px; display: table-cell; text-align: right; vertical-align: middle;" class="options"><img id="hostAddressSave" src="./img/check.png" style="display: none;"><img id="hostAddressInvalid" src="./img/cross-red.png" style="display: none;"></div></div></div></div></div></div></div><div id="authorize" style="display: none;"><p class="login-step"><a href="javascript:void(0);" onclick="openInAppBrowser();">connect</a></p></div><script>window.onload = function() {
 
-    <script type="text/javascript" charset="utf-8" src="cordova.js"></script>
-    <script type="text/javascript" charset="utf-8">
+ // DEBUG: Hack for Kidsteam
+ //$('#hostAddressInput').val('http://129.2.101.49:3000'); // Development/Test
+ //$('#hostAddressInput').val('http://129.2.101.49:3001'); // Kidsteam Session 1
+ //$('#hostAddressInput').val('http://129.2.101.49:3002'); // Sci-dentity
+ //$('#hostAddressInput').val('http://10.109.163.238:3000');
+ //$('#hostAddressInput').val('http://10.10.0.140:3000');
+ $('#hostAddressInput').val('http://192.168.1.144:3000');
+ //$('#hostAddressInput').val('http://10.109.92.150:3000');
+ updateAddressInput();
+ 
+ // Reset localStorage
+ // localStorage['timelineStack'] = {};
+ 
+ //
+ // Set up GUI
+ //
+ 
+ $('#hostAddressInput').change(function(event) {
+  updateAddressInput();
+ });
+ 
+ $('#hostAddressInput').keyup(function(event) {
+  updateAddressInput();
+ });
+ 
+ $('#hostAddressSave').click(function() {
+  saveHostAddress();
+ });
+}
 
-    //
-    // Open browser to authorize app using OAuth2.
-    //
-
-    function openInAppBrowser() {
-
-        //var uri = localStorage['host'] + "/dialog/authorize?client_id=client123&client_secret=ssh-secret&response_type=code&redirect_uri=/oauth/exchange";
-        // localStorage['host'] = "http://10.109.90.247:3000";
-        // localStorage['client_id'] = "client123";
-        // localStorage['client_secret'] = "ssh-secret";
-
-        var uri = localStorage['host'] + "/dialog/authorize?client_id=" + localStorage['client_id'] + "&client_secret=" + localStorage['client_secret'] + "&response_type=code&redirect_uri=/oauth/exchange";
-
-        console.log('Opening InAppBrowser at ' + uri);
-
-        // Create InAppBrowser object
-        var ref = window.open(uri, '_blank', 'location=yes');
-
-        // Set up "loadstart" event listener
-        ref.addEventListener('loadstart', function(event) { 
-            // alert('start: ' + event.url);
-            console.log("InAppBrowser loaded " + event.url);
-
-            // alert(event.url.indexOf("code="));
-
-            if(event.url.indexOf("code=") !== -1) {
-
-                var from = event.url.indexOf("code=") + 5;
-                var to = event.url.indexOf("&", from);
-                var code = null;
-                if (to !== -1) {
-                    code = event.url.substring(from, to);
-                    localStorage['code'] = code;
-                } else {
-                    code = event.url.substring(from);
-                    localStorage['code'] = code;
-                }
-
-                // Store code retreived from child browser
-                console.log("code = " + localStorage['code']);
-                ref.close();
-            }
-        });
-        
-        // Set up "exit" event listener
-        ref.addEventListener('exit', function(event) { 
-            console.log("InAppBrowser has closed.");
-
-            // Open timeline page
-            //$(location).attr('href', './timeline.html');
-
-            exchangeGrantForAccessToken({
-                'client_id': localStorage['client_id'],
-                'client_secret': localStorage['client_secret'],
-                'code': localStorage['code'],
-                'grant_type': 'authorization_code',
-                'redirect_uri': '/'
-            });
-        });
-
-        // Set up "loadstop" event listener
-        // ref.addEventListener('loadstop', function(event) { alert('stop: ' + event.url); });
-
-        // Set up "loaderror" event listener
-        // ref.addEventListener('loaderror', function(event) { alert('error: ' + event.message); });
-    }
-
-    //
-    // Wait for device API libraries to load
-    //
-
-    document.addEventListener("deviceready", onDeviceReady, false);
-
-    //
-    // Device APIs are available
-    //
-
-    function onDeviceReady() {
-
-        openInAppBrowser();
-         // var ref = window.open('http://apache.org', '_blank', 'location=yes');
-         // ref.addEventListener('loadstart', function(event) { alert('start: ' + event.url); });
-         // ref.addEventListener('loadstop', function(event) { alert('stop: ' + event.url); });
-         // ref.addEventListener('loaderror', function(event) { alert('error: ' + event.message); });
-         // ref.addEventListener('exit', function(event) { alert(event.type); });
-    }
-
-    </script>
-  </head>
-
-  <body>
-  </body>
+function updateAddressInput() {
+ // TODO: Check if input matches regular expression
+ var hostAddress = $('input[id=hostAddressInput]').val();
+ 
+ // Matches URIs that contain a protocol, subdomain, domain, IP address, port number, path name or file name
+ var addressRegExp = /\b((([hH][tT][tT][pP][sS]?|[fF][tT][pP])\:\/\/)?([\w\.\-]+(\:[\w\.\&%\$\-]+)*@)?((([^\s\(\)\<\>\\\"\.\[\]\,@;:]+)(\.[^\s\(\)\<\>\\\"\.\[\]\,@;:]+)*(\.[a-zA-Z]{2,4}))|((([01]?\d{1,2}|2[0-4]\d|25[0-5])\.){3}([01]?\d{1,2}|2[0-4]\d|25[0-5])))(\b\:(6553[0-5]|655[0-2]\d|65[0-4]\d{2}|6[0-4]\d{3}|[1-5]\d{4}|[1-9]\d{0,3}|0)\b)?((\/[^\/][\w\.\,\?\'\\\/\+&%\$#\=~_\-@]*)*[^\.\,\?\"\'\(\)\[\]!;<>{}\s\x7F-\xFF])?)\b/;
+ 
+ if (hostAddress.match(addressRegExp) !== null) {
+  console.log(hostAddress);
   
-</html>
+  // TODO: Send "ack" request to host at valid hostAddress, then continue if it responds with an "ack" of being a ScienceKit host.
+  
+  $('#hostAddressInvalid').hide(function() {
+   $('#hostAddressSave').fadeIn(function() {
+   
+    // TODO: Add delay here...
+    
+    //saveHostAddress();
+    
+   });
+  });;
+  
+ } else {
+ 
+  // Host address is not valid, show visual feedback
+  if ($('#hostAddressSave').is(":visible")) {
+   $('#hostAddressSave').hide(0, function() {
+    $('#hostAddressInvalid').show(0, function() {
+     $('#hostAddressInvalid').fadeOut();
+    });
+   });
+  }
+ }
+}
+
+function saveHostAddress() {
+ var hostAddress = $('input[id=hostAddressInput]').val();
+ localStorage['host'] = hostAddress;
+ console.log('Stored address: ' + hostAddress);
+ 
+ // Update GUI
+ $('#host-settings').fadeOut('fast', function() {
+  saveClientProfile();
+ });
+}
+
+function saveClientProfile() {
+ // TODO: Get client_id and client_secret from server
+ localStorage['client_id'] = 'abc123';
+ localStorage['client_secret'] = 'ssh-secret';
+ 
+ openInAppBrowser();
+}
+
+//delete localStorage['host'];
+//delete localStorage['client_id'];
+//delete localStorage['client_secret'];
+//delete localStorage['token'];
+
+function updateGui() {
+ if(!localStorage['host']) {
+ 
+  $('#host-settings').show();
+  
+ } else if(!localStorage['client_id'] || !localStorage['client_secret']) {
+ 
+  // TODO: Get client_id and client_secret from server
+  localStorage['client_id'] = 'abc123';
+  localStorage['client_secret'] = 'ssh-secret';
+  
+  updateGui();
+  
+ } else if(!localStorage['token']) {
+ 
+  $('#authorize').fadeIn();
+  
+ } else {
+ 
+  console.log('OAuth2 token exists.  Loading timeline.');
+  $(location).attr('href', './timeline.html');
+ }
+}
+
+//
+// Determine initial state of GUI
+//
+
+function verifyServer() {
+ if (localStorage['host'] !== undefined && localStorage['host'] !== null) {
+  $.ajax({
+   type: 'GET',
+   url: localStorage['host'] + '/api/status',
+   dataType: 'json',
+   timeout: 4000,
+   success: function(data) {
+   
+    // Success
+    updateGui();
+   },
+   error: function(x, t, m) {
+   
+    delete localStorage['host'];
+    updateGui();
+   },
+  });
+ }
+}
+
+verifyServer();
+
+// host
+// client_id
+// client_secret
+// token</script></body></html>
