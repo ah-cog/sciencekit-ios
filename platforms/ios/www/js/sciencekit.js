@@ -815,6 +815,7 @@ function openInquiryPerspective() {
 	});
 
 	$('#story-perspective-list').fadeOut();
+	$('#story-entry-queue').fadeOut();
 
 	$('#toolkit-tool-options').fadeOut(function() {
 		$('#toolkit-options').fadeIn(function() {
@@ -839,18 +840,33 @@ function openEntrySelectionTool() {
 	$('.activity-widget').find('.videoThumbnail').attr('width', '320'); // Video
 	$('.activity-widget').find('.videoThumbnail').attr('height', '240');
 
-	$('#capture-interface').fadeIn();
+	if ($('#capture-interface').is(":visible")) {
 
-	$('#capture-interface').css('width', '450px');
+		// Hide capture UI
+		$('#capture-interface').fadeOut(function() {
+
+			// Show mode options
+			$('#mode-options').fadeIn();
+		});
+	} else {
+
+		// Hide mode options
+		$('#mode-options').fadeOut(function() {
+
+			// Show capture UI
+			$('#capture-interface').fadeIn();
+			$('#capture-interface').css('width', '450px');
+		});
+	}
 }
 
-function addEntryToStory() {
-	// TODO:
-	// - Get entry in selection tool
-	// - Add to end of array of current chapter elements...
-	// - ...and add to "story-list"
-	// - Remove from narrative-list in selection tool
-}
+// function addEntryToStory() {
+// 	// TODO:
+// 	// - Get entry in selection tool
+// 	// - Add to end of array of current chapter elements...
+// 	// - ...and add to "story-list"
+// 	// - Remove from narrative-list in selection tool
+// }
 
 function removeEntryFromStory() {
 
@@ -948,17 +964,21 @@ function openStoryPerspective() {
 	$('#bottom').fadeOut();
 
 	$('#story-title').hide();
-	$('#story-driving-question').hide();
+	$('#story-step-one-prompt').hide();
+	$('#story-step-two-prompt').hide();
+	$('#story-step-three-prompt').hide();
 	$('#story-structure-options').hide();
 
 	$('#toolkit-list').fadeOut();
 
 	//$('#narrative-list').fadeOut(function() {
+	$('#story-interface').hide();
 	$('#capture-interface').fadeOut(function() {
 		// $('#toolkit-tool-options').fadeIn();
 		$('#story-grid-template-row').hide();
 		$('#story-grid').fadeIn();
 		$('#story-perspective-list').fadeIn();
+		$('#story-entry-queue').fadeOut();
 	});
 
 	
@@ -1035,7 +1055,7 @@ function openStoryToolStructured(options) {
 		$('.note').text('');
 		$('.note-section').hide();
 
-		$('.activity-widget').closest('.activity-template').addClass('activity-template-right');
+		// $('.activity-widget').closest('.activity-template').addClass('activity-template-right');
 
 		// TODO: Only open Story Tool
 		// getStories();
@@ -1059,6 +1079,7 @@ function openStoryToolStructured(options) {
 
 			// Move left
 			} else if (!($(this).hasClass('activity-template-left')) && $(this).hasClass('activity-template-right')) {
+
 				$(this).removeClass('activity-template-right');
 				$(this).addClass('activity-template-left');
 
@@ -1072,6 +1093,7 @@ function openStoryToolStructured(options) {
 
 			// Set default
 			} else {
+
 				$(this).removeClass('activity-template-left');
 				$(this).removeClass('activity-template-right');
 				$(this).addClass('activity-template-left');
@@ -1091,6 +1113,11 @@ function openStoryToolStructured(options) {
 	// }
 }
 
+var storyStepEntries = [];
+storyStepEntries[0] = [];
+storyStepEntries[1] = [];
+storyStepEntries[2] = [];
+
 function openStoryTool(options) {
 
 	if (typeof options !== "undefined") {
@@ -1107,6 +1134,7 @@ function openStoryTool(options) {
 
 	currentTool = 'Story';
 	currentToolStep = 0;
+	updateStoryTool();
 
 	$('#logo').fadeOut();
 	$('#top').fadeOut();
@@ -1117,9 +1145,10 @@ function openStoryTool(options) {
 	$('#story-grid').fadeOut(function() {
 		$('#story-tool-title').val(''); // Reset story entry form
 		$('#story-title').fadeIn(function() {
-			$('#story-driving-question').fadeIn();
+			$('#story-step-one-prompt').fadeIn();
 			//$('#narrative-list').show();
 			// $('#capture-interface').fadeIn();
+			$('#story-entry-queue').fadeIn();
 
 			$('#capture-interface').css('width', '450px');
 		});
@@ -1156,6 +1185,7 @@ function openStoryTool(options) {
 
 	// Intialize by setting all entires to the right.  By default, entries are added to a new Story.
 	if (options['readOnly'] !== true) {
+
 		// Set entry text
 		$('.note').text('');
 		$('.note-section').hide();
@@ -1174,6 +1204,23 @@ function openStoryTool(options) {
 		// Set up click handler for entries (to include/exclude in the story)
 		$('.activity-widget').closest('.activity-template').off('click');
 		$('.activity-widget').closest('.activity-template').on('click', function() {
+
+			// Upon click, add the entry to the story queue: Make HTTP request, put it in the story queue
+
+			// alert("REQUEST FOR STORY");
+			var entryId = $(this).attr('data-id');
+			// alert(entryId);
+			addEntryToStory(entryId);
+
+			// Put the following in a callback
+			storyStepEntries[currentToolStep].push({ id: entryId }); // Add entry to story for current step
+			//$(this).remove(); // Remove entry from capture queue
+			$(this).slideUp(); // Remove entry from capture queue
+
+			return;
+
+
+
 
 			// Move right
 			if ($(this).hasClass('activity-template-left') && !($(this).hasClass('activity-template-right'))) {
@@ -1239,32 +1286,66 @@ function updateStoryTool() {
 	// Update for step
 	if (currentToolStep == 0) {
 
-		// Remove "back arrow"
-		// Show "next arrow"
-		$('#toolkit-tool-first-step-options').fadeIn();
+		// Remove "back arrow", show "next arrow"
 		$('#toolkit-tool-middle-step-options').fadeOut();
 		$('#toolkit-tool-last-step-options').fadeOut();
+		$('#toolkit-tool-first-step-options').fadeIn(function() {
 
-		// alert("1");
+			// Show step scaffolding
+			$('#story-step-two-prompt').fadeOut(function() {
+				$('#story-step-three-prompt').fadeOut(function() {
+					$('#story-step-one-prompt').fadeIn();
+				});
+			});
+		});
 
 	} else if (currentToolStep == 1) {
 
-		// Show "back arrow"
-		// Show "next arrow"
+		// Show "back arrow" and "next arrow"
 		$('#toolkit-tool-first-step-options').fadeOut();
-		$('#toolkit-tool-middle-step-options').fadeIn();
 		$('#toolkit-tool-last-step-options').fadeOut();
+		$('#toolkit-tool-middle-step-options').fadeIn(function() {
 
-
-		// alert("2");
+			// Show step scaffolding
+			$('#story-step-one-prompt').fadeOut(function() {
+				$('#story-step-three-prompt').fadeOut(function() {
+					$('#story-step-two-prompt').fadeIn();
+				});
+			});
+		});
 
 	} else if (currentToolStep == 2) {
 
 		$('#toolkit-tool-first-step-options').fadeOut();
 		$('#toolkit-tool-middle-step-options').fadeOut();
-		$('#toolkit-tool-last-step-options').fadeIn();
+		$('#toolkit-tool-last-step-options').fadeIn(function() {
 
-		// alert("3");
+			// Show step scaffolding
+			$('#story-step-one-prompt').fadeOut(function() {
+				$('#story-step-two-prompt').fadeOut(function() {
+					$('#story-step-three-prompt').fadeIn();
+				});
+			});
+		});
+	}
+
+	// Restore all entries to data queue
+	$('#narrative-list').find('.activity-frame').show();
+
+	// Clear current entries from story queue
+	$('#story-entry-queue').empty();
+
+	// Populate story queue with step's entries
+	// TODO: Make sure that entires are added to the queue in the correct order. That is, make sure the entires are added based on the array order, not the order in which the HTTP requests are completed (the current case). One way to do this is to pre-populate the list with "empty" entries for the given entry IDs then populate those entries when the request completes.
+	var entryCount = storyStepEntries[currentToolStep].length;
+	for (var i = 0; i < entryCount; i++) {
+
+		// Add the entry to the story queue
+		var entry = storyStepEntries[currentToolStep][i];
+		addEntryToStory(entry['id']);
+
+		// Remove the entries that are in the story queue from the data queue
+		$('#narrative-list').find('#frame-' + entry['id']).hide();
 	}
 }
 
@@ -2314,6 +2395,20 @@ function handleMouseUp(event) {
 
 function addTextWidget(entry) {
 
+	// Set up default options
+	var defaults = {
+		'destination': '#narrative-list'
+	};
+
+	// Combine options with default values
+	var options = $.extend({}, defaults, options);
+
+	//console.log("options['destination'] = " + options['destination']);
+
+	var destination = $(options['destination']);
+
+	
+
 	var type = 'text';
 
 	//
@@ -2330,12 +2425,18 @@ function addTextWidget(entry) {
 		var e;
 		var div;
 
+		var entryExists = false; // Flag indicating whether entry exists in the destination element. If not, create a new entry.
+		if ($(options['destination']).find("#frame-" + entry._id).length != 0) {
+			entryExists = true;
+		}
+
 		//
 		// Check if a widget for the Activity already exists. If so, store a reference 
 		// to it.  If not, create the widget and store a reference to it.
 		//
 
-		if ($("#frame-" + entry._id).length != 0) {
+		//if ($("#frame-" + entry._id).length != 0) {
+		if (entryExists) {
 			// Element exists, so update it
 			console.log("Found existing text widget. Updating widget.");
 
@@ -2480,14 +2581,16 @@ function addTextWidget(entry) {
 		// Update options for widget
 		var options = e.find('.activity-widget .element .options');
 
-		if ($("#frame-" + entry._id).length === 0) {
+		//if ($("#frame-" + entry._id).length === 0) {
+		if (!entryExists) {
 
 			//
 			// Set up widget event handlers
 			//
 
 			// Add to list of entry widgets
-			e.prependTo('#narrative-list');
+			// e.prependTo('#narrative-list');
+			e.prependTo($(options['destination']));
 
 			// Set up tags section event handlers
 			e.find('.tags').off('click');
@@ -2520,16 +2623,18 @@ function addTextWidget(entry) {
 		// Widget does not exist for the Activity.  Create new Widget.
 		//
 
-		console.log("Creating new Widget for Text.");
+		console.log("Error: Invalid text entry received.");
 
-		// Clone template structure and remove 'id' element to avoid 'id' conflict
-		e = $('#text-activity-template').clone().attr('id', 'volatile-activity');
-		e.addClass('activity-frame');
-		e.removeAttr('id'); // Remove 'id' attribute
-		e.prependTo('#narrative-list');
+		// console.log("Creating new Widget for Text.");
 
-		// Show the Widget
-		e.show();
+		// // Clone template structure and remove 'id' element to avoid 'id' conflict
+		// e = $('#text-activity-template').clone().attr('id', 'volatile-activity');
+		// e.addClass('activity-frame');
+		// e.removeAttr('id'); // Remove 'id' attribute
+		// e.prependTo('#narrative-list');
+
+		// // Show the Widget
+		// e.show();
 	}
 }
 
@@ -2537,19 +2642,37 @@ function addTextWidget(entry) {
 // Timeline
 //
 
-function addTimelineWidget(entry) {
+function addTimelineWidget(entry, options) {
 
-	console.log(entry.entryType);
+	// Set up default options
+	var defaults = {
+		'destination': '#narrative-list'
+	};
+
+	// Combine options with default values
+	var options = $.extend({}, defaults, options);
+
+	// if (typeof options !== "undefined") {
+	// 	if (options.hasOwnProperty('id')) {
+	// 		requestUri = requestUri + '?id=' + options['id'];
+	// 	} else if (options.hasOwnProperty('moment_id')) {
+	// 		requestUri = requestUri + '?moment_id=' + options['moment_id'];
+	// 	} else if (options.hasOwnProperty('frameId')) {
+	// 		requestUri = requestUri + '?frameId=' + options['frameId'];
+	// 	}
+	// }
+
+	// console.log(entry.entryType);
 
 	// Add entry to inquiry
 	if(entry.entryType === 'Text') {
-		addTextWidget(entry);
+		addTextWidget(entry, options);
 	} else if(entry.entryType === 'Photo') {
-		addPhotoWidget(entry);
+		addPhotoWidget(entry, options);
 	} else if(entry.entryType === 'Video') {
-		addVideoWidget(entry);
+		addVideoWidget(entry, options);
 	} else if(entry.entryType === 'Sketch') {
-		addSketchWidget(entry);
+		addSketchWidget(entry, options);
 
 	}
 }
@@ -2586,24 +2709,82 @@ function updateEntryView(id) {
 	});
 }
 
+// Get entry and add it to the story
+// TODO: Update this to accept options parameter, not just an id
+function addEntryToStory (id) {
+	console.log('addEntryToStory');
+
+	// console.log("Saving Question (JSON): ");
+	// console.log(jsonData);
+	// POST the JSON object
+
+	$.ajax({
+		type: 'GET',
+		beforeSend: function(request) {
+			request.setRequestHeader('Authorization', 'Bearer ' + localStorage['token']);
+		},
+		url: localStorage['host'] + '/api/entry/' + id,
+		dataType: 'json',
+		contentType: 'application/json; charset=utf-8',
+		// data: JSON.stringify(jsonData),
+		processData: false,
+		success: function(data) {
+			console.log('Retreived entry: ');
+			console.log(data);
+
+			// Set element container (e.g., Thought). Only gets set once.
+			// $(e).attr('id', 'frame-' + data.frame._id); // e.data('id', data._id);
+			//addTimelineWidget(data);
+			//var options = { destination: '#story-list' };
+			var options = { destination: '#story-entry-queue' };
+			addTimelineWidget(data, options);
+			console.log(data);
+		},
+		error: function() {
+			console.log('GET failed to retreive entry.');
+		}
+	});
+}
+
 //
 // Photos
 //
 
-function addPhotoWidget(entry) {
+function addPhotoWidget(entry, options) {
 	console.log("addPhotoWidget");
 
-	if(entry && entry.entry && entry.entry._id) {
+	// Set up default options
+	var defaults = {
+		'destination': '#narrative-list'
+	};
+
+	// Combine options with default values
+	var options = $.extend({}, defaults, options);
+
+	//console.log("options['destination'] = " + options['destination']);
+
+	var destination = $(options['destination']);
+
+	// Add entry
+	if (entry && entry.entry && entry.entry._id) { // Validate entry object
 
 		var photo = entry.entry; // TODO: Update this based on current view for user
 
-		// Only continue if Thought frame is valid
+		// Only continue if Photo entry is valid
 		if (!photo) return;
 
 		var e;
 		var div;
 
-		if ($("#frame-" + entry._id).length != 0) {
+		var entryExists = false; // Flag indicating whether entry exists in the destination element. If not, create a new entry.
+		if ($(options['destination']).find("#frame-" + entry._id).length != 0) {
+			entryExists = true;
+		}
+
+		//if ($("#frame-" + entry._id).length != 0) {
+		//console.log('length = ' + $(options['destination']).find("#frame-" + entry._id).length);
+		if (entryExists) {
+
 			// Frame exists, so update it
 			console.log("Found existing photo widget. Updating widget.");
 
@@ -2612,7 +2793,7 @@ function addPhotoWidget(entry) {
 		} else {
 
 			// Widget does not exist for element does not exist, so create it
-			// console.log("Could not find existing widget for photo. Creating new photo widget.");
+			console.log("Could not find existing widget for photo. Creating new photo widget.");
 
 			// Clone template structure and remove 'id' element to avoid 'id' conflict
 			e = $('#photo-template').clone().attr('id', 'volatile-activity');
@@ -2741,14 +2922,23 @@ function addPhotoWidget(entry) {
 		var image = e.find('.element .image');
 		image.attr('src', '' + localStorage['host'] + photo.uri + '');
 
-		if ($("#frame-" + entry._id).length === 0) {
+		// console.log("ABOUT TO ADD PHOTO WIDGET");
+		// console.log($("#frame-" + entry._id).length);
+
+		// Make sure that entry does not exist already
+		if (!entryExists) {
+		//if ($("#frame-" + entry._id).length === 0) { // Check if entry exists
+		//if ($(options['destination']).find("#frame-" + entry._id).length === 0) {
+
+			console.log("Adding photo entry.");
 
 			//
 			// Set up widget event handlers
 			//
 
 			// Add to list of entry widgets
-			e.prependTo('#narrative-list');
+			// e.prependTo('#narrative-list');
+			e.prependTo($(options['destination']));
 
 			// Set up tags section event handlers
 			e.find('.tags').off('click');
@@ -2777,14 +2967,15 @@ function addPhotoWidget(entry) {
 
 	} else {
 
-		console.log("Creating new photo widget.");
+		console.log("Error: Invalid photo entry received.");
 
-		// Clone template structure and remove 'id' element to avoid 'id' conflict
-		e = $('#photo-template').clone().attr('id', 'volatile-activity');
-		e.addClass('activity-frame');
-		e.removeAttr('id'); // Remove 'id' attribute
-		e.prependTo('#narrative-list');
-		e.show(); // Show element
+		// // Clone template structure and remove 'id' element to avoid 'id' conflict
+		// e = $('#photo-template').clone().attr('id', 'volatile-activity');
+		// e.addClass('activity-frame');
+		// e.removeAttr('id'); // Remove 'id' attribute
+		// // e.prependTo('#narrative-list');
+		// e.prependTo(options['destination']);
+		// e.show(); // Show element
 	}
 }
 
@@ -2792,17 +2983,34 @@ function addPhotoWidget(entry) {
 // Videos
 //
 
-function addVideoWidget(entry) {
+function addVideoWidget(entry, options) {
 	console.log("addVideoWidget");
 
-	if(entry && entry.entry && entry.entry._id) {
+	// Set up default options
+	var defaults = {
+		'destination': '#narrative-list'
+	};
+
+	// Combine options with default values
+	var options = $.extend({}, defaults, options);
+
+	var destination = $(options['destination']);
+
+	// Add entry
+	if(entry && entry.entry && entry.entry._id) { // Validate entry object
 
 		var video = entry.entry; // TODO: Update this based on current view for user
 
 		var e;
 		var div;
 
-		if ($("#frame-" + entry._id).length != 0) {
+		var entryExists = false; // Flag indicating whether entry exists in the destination element. If not, create a new entry.
+		if ($(options['destination']).find("#frame-" + entry._id).length != 0) {
+			entryExists = true;
+		}
+
+		//if ($("#frame-" + entry._id).length != 0) {
+		if (entryExists) {
 			// Element exists, so update it
 			console.log("Found existing Video widget. Updating widget.");
 
@@ -2953,14 +3161,16 @@ function addVideoWidget(entry) {
 			}
 		}
 
-		if ($("#frame-" + entry._id).length === 0) {
+		if (!entryExists) {
+		// if ($("#frame-" + entry._id).length === 0) {
 
 			//
 			// Set up widget event handlers
 			//
 
 			// Add to list of entry widgets
-			e.prependTo('#narrative-list');
+			// e.prependTo('#narrative-list');
+			e.prependTo($(options['destination']));
 
 			// Set up tags section event handlers
 			e.find('.tags').off('click');
@@ -2991,12 +3201,12 @@ function addVideoWidget(entry) {
 
 		console.log("Creating new video widget.");
 
-		// Clone template structure and remove 'id' element to avoid 'id' conflict
-		e = $('#video-activity-template').clone().attr('id', 'volatile-activity');
-		e.addClass('activity-frame');
-		e.removeAttr('id'); // Remove 'id' attribute
-		e.prependTo('#narrative-list');
-		e.show(); // Show element
+		// // Clone template structure and remove 'id' element to avoid 'id' conflict
+		// e = $('#video-activity-template').clone().attr('id', 'volatile-activity');
+		// e.addClass('activity-frame');
+		// e.removeAttr('id'); // Remove 'id' attribute
+		// e.prependTo('#narrative-list');
+		// e.show(); // Show element
 	}
 }
 
@@ -3004,8 +3214,18 @@ function addVideoWidget(entry) {
 // Sketch
 //
 
-function addSketchWidget(entry) {
+function addSketchWidget(entry, options) {
 	console.log("addSketchWidget");
+
+	// Set up default options
+	var defaults = {
+		'destination': '#narrative-list'
+	};
+
+	// Combine options with default values
+	var options = $.extend({}, defaults, options);
+
+	var destination = $(options['destination']);
 
 	if(entry && entry.entry && entry.entry._id) {
 
@@ -3017,7 +3237,13 @@ function addSketchWidget(entry) {
 		var e;
 		var div;
 
-		if ($("#frame-" + entry._id).length != 0) {
+		var entryExists = false; // Flag indicating whether entry exists in the destination element. If not, create a new entry.
+		if ($(options['destination']).find("#frame-" + entry._id).length != 0) {
+			entryExists = true;
+		}
+
+		if (entryExists) {
+		//if ($("#frame-" + entry._id).length != 0) {
 			// Frame exists, so update it
 			console.log("Found existing sketch widget. Updating widget.");
 
@@ -3146,14 +3372,16 @@ function addSketchWidget(entry) {
 		var image = e.find('.element .image');
 		image.attr('src', sketch.imageData);
 
-		if ($("#frame-" + entry._id).length === 0) {
+		if (!entryExists) {
+		//if ($("#frame-" + entry._id).length === 0) {
 
 			//
 			// Set up widget event handlers
 			//
 
 			// Add to list of entry widgets
-			e.prependTo('#narrative-list');
+			//e.prependTo('#narrative-list');
+			e.prependTo($(options['destination']));
 
 			// Set up tags section event handlers
 			e.find('.tags').off('click');
@@ -3193,15 +3421,15 @@ function addSketchWidget(entry) {
 
 	} else {
 
-		console.log("Creating new Sketch widget.");
+		console.log("Error: Invalid sketch entry received.");
 
-		// Clone template structure and remove 'id' element to avoid 'id' conflict
-		e = $('#sketch-activity-template').clone().attr('id', 'volatile-activity');
-		e.addClass('activity-frame');
-		e.removeAttr('id'); // Remove 'id' attribute
-		e.prependTo('#narrative-list');
-		//e.find('.element .image').click(function() { changeSketch(e) });
-		e.show(); // Show element
+		// // Clone template structure and remove 'id' element to avoid 'id' conflict
+		// e = $('#sketch-activity-template').clone().attr('id', 'volatile-activity');
+		// e.addClass('activity-frame');
+		// e.removeAttr('id'); // Remove 'id' attribute
+		// e.prependTo('#narrative-list');
+		// //e.find('.element .image').click(function() { changeSketch(e) });
+		// e.show(); // Show element
 	}
 }
 
