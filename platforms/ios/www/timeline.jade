@@ -742,11 +742,8 @@ block content
 	// Timeline interface
 	//
 
-	//.edge(id="story-interface", style="background-color: #ffffff; overflow-y: scroll; -webkit-overflow-scrolling: touch; width: 100%; height:100%; position: fixed; left: 0px; top: 0px; text-align: left; font-size: 13px; padding-left: 10px; z-index: 990;")
-	//	ul(id="story-list")
-
-	.edge(id="capture-interface", style="background-color: #ffffff; overflow-y: scroll; -webkit-overflow-scrolling: touch; width: 100%; height:100%; position: fixed; left: 0px; top: 0px; text-align: left; font-size: 13px; padding-top: 60px; padding-left: 10px; z-index: 999; border-right: 5px black solid;")
-		ul(id="narrative-list")
+	.edge(id="capture-interface", style="border-right: 5px solid #333333; border-image: url(./img/left.png) 0 100% repeat; border-width: 0px 150px 0px 0px; overflow-y: scroll; -webkit-overflow-scrolling: touch; width: 100%; height:100%; position: fixed; left: 0px; top: 0px; text-align: left; font-size: 13px; padding-top: 60px; padding-left: 10px; z-index: 999;")
+		ul(id="narrative-list", style="background-color: #ffffff;")
 
 	.edge(id="bottom", style="text-align: right; font-size: 30px; padding-right: 10px;")
 		a(href="javscript:void(0);", onclick="scrollToBottom();") 

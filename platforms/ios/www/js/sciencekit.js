@@ -811,11 +811,15 @@ function openInquiryPerspective() {
 
 	$('#toolkit-list').fadeOut(function() {
 		$('.activity-frame').show();
-		$('#narrative-list').fadeIn();
+		$('#capture-interface').fadeIn();
 	});
 
+	// Hide story mode elements
 	$('#story-perspective-list').fadeOut();
 	$('#story-entry-queue').fadeOut();
+	$('#toolkit-tool-first-step-options').fadeOut();
+	$('#toolkit-tool-middle-step-options').fadeOut();
+	$('#toolkit-tool-last-step-options').fadeOut();
 
 	$('#toolkit-tool-options').fadeOut(function() {
 		$('#toolkit-options').fadeIn(function() {
@@ -1143,7 +1147,7 @@ function openStoryTool(options) {
 	$('#story-grid-template-row').hide();
 
 	$('#story-grid').fadeOut(function() {
-		$('#story-tool-title').val(''); // Reset story entry form
+		//$('#story-tool-title').val(''); // Reset story entry form
 		$('#story-title').fadeIn(function() {
 			$('#story-step-one-prompt').fadeIn();
 			//$('#narrative-list').show();
@@ -1369,7 +1373,7 @@ function openTextTool() {
 		$('#toolkit-tool-options').fadeIn();
 	});
 
-	$('#narrative-list').fadeOut(function() {
+	$('#capture-interface').fadeOut(function() {
 		scrollToTop();
 		$('.toolkit-tool').hide();
 		$('#media-toolkit').show();
@@ -1396,7 +1400,7 @@ function openPhotoTool() {
 		$('#toolkit-tool-options').fadeIn();
 	});
 
-	$('#narrative-list').fadeOut(function() {
+	$('#capture-interface').fadeOut(function() {
 		scrollToTop();
 		$('.toolkit-tool').hide();
 		$('#media-toolkit').show();
@@ -1423,7 +1427,7 @@ function openVideoTool() {
 		$('#toolkit-tool-options').fadeIn();
 	});
 
-	$('#narrative-list').fadeOut(function() {
+	$('#capture-interface').fadeOut(function() {
 		scrollToTop();
 		$('.toolkit-tool').hide();
 		$('#media-toolkit').show();
@@ -1450,7 +1454,7 @@ function openSketchTool2() {
 		$('#toolkit-tool-options').fadeIn();
 	});
 
-	$('#narrative-list').fadeOut(function() {
+	$('#capture-interface').fadeOut(function() {
 		scrollToTop();
 		$('.toolkit-tool').hide();
 		$('#media-toolkit').show();
@@ -1479,7 +1483,7 @@ function openQuestionTool() {
 	// Reset form
 	$('#question-tool-text').val('');
 
-	$('#narrative-list').fadeOut(function() {
+	$('#capture-interface').fadeOut(function() {
 		$('.concept-tool').hide();
 		$('#concept-toolkit').show();
 		$('#toolkit-list').fadeIn();
@@ -1506,7 +1510,7 @@ function openObservationTool() {
 	$('#observation-tool-effect').val('');
 	$('#observation-tool-cause').val('');
 
-	$('#narrative-list').fadeOut(function() {
+	$('#capture-interface').fadeOut(function() {
 		$('.concept-tool').hide();
 		$('#concept-toolkit').show();
 		$('#toolkit-list').fadeIn();
@@ -1532,7 +1536,7 @@ function openSequenceTool() {
 	$('.sequence-tool-step').val('');
 	$('.sequence-tool-step-dynamic').remove();
 
-	$('#narrative-list').fadeOut(function() {
+	$('#capture-interface').fadeOut(function() {
 		$('.concept-tool').hide();
 
 		$('#sequence-tool-template-label').hide();
@@ -1699,6 +1703,7 @@ function getStory(options) {
 		url: localStorage['host'] + '/api/story?timelineId=' + options['timeline'],
 		dataType: 'json',
 		success: function(data) {
+
 			console.log('Received Story for Timeline.');
 			console.log(data);
 
@@ -1730,11 +1735,26 @@ function getStory(options) {
 
 			var story = currentStory;
 
+			// Set title of story
+			$('#story-tool-title').val(story.title);
+
+			// Populate story entries
+			for (pageIndex in story.pages) {
+
+				// Create local copy of entry
+				storyStepEntries[story.pages[pageIndex].group][story.pages[pageIndex].position] = {
+					id: story.pages[pageIndex].entry._id
+				};
+			}
+			updateStoryTool();
+
+			return;
+
 			for (pageIndex in story.pages) {
 				var page = story.pages[pageIndex];
 				var entry = page.entry;
 
-				$('#story-tool-title').val(story.title);
+				//$('#story-tool-title').val(story.title);
 
 				// Check if Entry exists in Inquiry, and if so, denote it as part of the Story.
 				var entryWidget = $('#frame-' + entry._id);
@@ -1742,23 +1762,25 @@ function getStory(options) {
 				// Set entry text
 				$('.note').text('');
 				// getNote(entryWidget);
-				getNote({ pageId: page._id });
+				// getNote({ pageId: page._id });
 				$(entryWidget).find('.note-section').show();
 
 				$(entryWidget).show();
 
 				// Reset widget
-				if ($(entryWidget).hasClass('activity-template-right'))
-					$(entryWidget).removeClass('activity-template-right');
-				if ($(entryWidget).hasClass('activity-template-left'))
-					$(entryWidget).removeClass('activity-template-left');
+				// if ($(entryWidget).hasClass('activity-template-right'))
+				// 	$(entryWidget).removeClass('activity-template-right');
+				// if ($(entryWidget).hasClass('activity-template-left'))
+				// 	$(entryWidget).removeClass('activity-template-left');
 				$(entryWidget).off('click');
 
 				if (options['readOnly'] !== true) {
-					$(entryWidget).addClass('activity-template-left');
+					// $(entryWidget).addClass('activity-template-left');
 				}
 				// console.log(entryWidget);
 			}
+
+			$('#story-tool-title').val(story.title);
 
 			// $(e).find('.tags').html('');
 			// for (tag in data) {
@@ -1829,7 +1851,60 @@ function saveTool() {
 				entries: []
 			};
 
+			// Get title of story and prepare for POST request
 			story.title = e.find('#story-tool-title').val();
+
+			// Get entries and prepare for POST request
+			for (var i = 0; i < storyStepEntries.length; i++) {
+
+				// Create array to store entries for current entry group
+				story['entries'][i] = [];
+
+				for (var j = 0; j < storyStepEntries[i].length; j++) {
+
+					// Add current entry to current entry group
+					story['entries'][i].push({ 
+						entry: storyStepEntries[i][j].id, 
+						group: i, 
+						position: j 
+					});
+				}
+			}
+
+			var storyJSON = JSON.stringify(story);
+
+			// alert(storyJSON);
+
+			// POST the JSON object
+			$.ajax({
+				type: 'POST',
+				beforeSend: function(request) {
+					request.setRequestHeader('Authorization', 'Bearer ' + localStorage['token']);
+				},
+				url: localStorage['host'] + '/api/story',
+				dataType: 'json',
+				contentType: 'application/json; charset=utf-8',
+				data: storyJSON,
+				processData: false,
+				success: function(data) {
+					console.log('Saved Story: ');
+					console.log(data);
+
+					alert(JSON.stringify(data));
+
+					// Set element container (e.g., Thought). Only gets set once.
+					// $(e).attr('id', 'frame-' + data.frame._id); // e.data('id', data._id);
+					// addTimelineWidget(data);
+					//addSketchWidget();
+
+					console.log('Saved Story.');
+				},
+				error: function() {
+					console.log('Failed to save Story.');
+				}
+			});
+
+			return;
 
 			$('.activity-template-left').closest('.activity-template').each(function(i) {
 
@@ -1899,7 +1974,8 @@ function closeTool() {
 	openInquiryPerspective();
 
 	$('#toolkit-list').fadeOut(function() {
-		$('#narrative-list').fadeIn();
+		$('#mode-options').fadeIn();
+		$('#capture-interface').fadeIn();
 	});
 
 	$('#toolkit-tool-options').fadeOut(function() {
@@ -1912,6 +1988,11 @@ function closeTool() {
 			$('#logo').fadeIn();
 		});
 	});
+
+	// Empty each of the story step arrays
+	for (var i = 0; i < storyStepEntries.length; i++) {
+		storyStepEntries[i].length = 0;
+	}
 }
 
 
@@ -3769,37 +3850,36 @@ function getTags(e) {
 	});
 }
 
-// function getNote(e) {
-function getNote(options) {
+// function getNote(options) {
 
-	var pageId = options['pageId'];
+// 	var pageId = options['pageId'];
 
-	if (pageId === undefined) {
-		return;
-	}
+// 	if (pageId === undefined) {
+// 		return;
+// 	}
 
-	$.ajax({
-		type: 'GET',
-		beforeSend: function(request) {
-			request.setRequestHeader('Authorization', 'Bearer ' + localStorage['token']);
-		},
-		url: localStorage['host'] + '/api/note?pageId=' + pageId,
-		dataType: 'json',
-		success: function(data) {
-			// console.log('Received protected thoughts (success).');
-			console.log('note: ' + JSON.stringify(data));
+// 	$.ajax({
+// 		type: 'GET',
+// 		beforeSend: function(request) {
+// 			request.setRequestHeader('Authorization', 'Bearer ' + localStorage['token']);
+// 		},
+// 		url: localStorage['host'] + '/api/note?pageId=' + pageId,
+// 		dataType: 'json',
+// 		success: function(data) {
+// 			// console.log('Received protected thoughts (success).');
+// 			console.log('note: ' + JSON.stringify(data));
 
-			if (data.length > 0) { // Check if any results were returned
-				var e = $('#frame-' + data.page.entry);
-				$(e).find('.note').text(data.note);
-			}
+// 			if (data.length > 0) { // Check if any results were returned
+// 				var e = $('#frame-' + data.page.entry);
+// 				$(e).find('.note').text(data.note);
+// 			}
 
-			// for (tag in data) {
-			// 	$(e).find('.tags').append('<span id="tag-' + data[tag]._id + '" style="display:inline-block;" contenteditable="false"><a href="javascript:getTimeline({});">' + data[tag].text + '</a></span> ');
-			// }
-		}
-	});
-}
+// 			// for (tag in data) {
+// 			// 	$(e).find('.tags').append('<span id="tag-' + data[tag]._id + '" style="display:inline-block;" contenteditable="false"><a href="javascript:getTimeline({});">' + data[tag].text + '</a></span> ');
+// 			// }
+// 		}
+// 	});
+// }
 
 function saveTags(e) {
 	console.log('saveTags');
