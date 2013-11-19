@@ -1,78 +1,12 @@
-// (function($) {
+//
+// Define global variables
+//
 
-//   /**
-//    * Copyright 2012, Digital Fusion
-//    * Licensed under the MIT license.
-//    * http://teamdf.com/jquery-plugins/license/
-//    *
-//    * @author Sam Sehnert
-//    * @desc A small plugin that checks whether elements are within
-//    *     the user visible viewport of a web browser.
-//    *     only accounts for vertical position, not horizontal.
-//    */
-
-//   $.fn.visible = function(partial) {
-    
-//       var $t            = $(this),
-//           $w            = $(window),
-//           viewTop       = $w.scrollTop(),
-//           viewBottom    = viewTop + $w.height(),
-//           _top          = $t.offset().top,
-//           _bottom       = _top + $t.height(),
-//           compareTop    = partial === true ? _bottom : _top,
-//           compareBottom = partial === true ? _top : _bottom;
-    
-//     return ((compareBottom <= viewBottom) && (compareTop >= viewTop));
-
-//   };
-    
-// })(jQuery);
-
-// var win = $(window);
-// var allMods = $(".activity-template");
-
-// // Already visible modules
-// allMods.each(function(i, el) {
-//   var el = $(el);
-//   if (el.visible(true)) {
-//     // el.addClass("already-visible"); 
-//   } 
-// });
-
-// win.scroll(function(event) {
-  
-//   allMods.each(function(i, el) {
-//     var el = $(el);
-//     if (el.visible(true)) {
-//       // el.addClass("come-in"); 
-//       $(el).find('.image').css('visibility', 'visible');
-//     } 
-//   });
-  
-// });
-
-// $(window).scroll(function(event) {
-
-// 	$(".activity-template").each(function(i, el) {
-// 		var el = $(el);
-// 		if (el.visible(true)) {
-// 		// Show elements on screen
-// 		// el.addClass("come-in"); 
-// 		// console.log($(el).attr('id'));
-// 			$(el).find('.image').css('visibility', 'visible');
-// 			$(el).find('.video').css('visibility', 'visible');
-// 		}
-// 		// else {
-// 		// 	$(el).find('.image').css('visibility', 'hidden');
-// 		// 	$(el).find('.video').css('visibility', 'hidden');
-// 		// }
-// 		// else {
-// 		// 	// Hide elements off screen
-// 		// 	$(el).find('.image').css('display', 'block');
-// 		// }
-// 	});
-  
-// });
+// Array to buffer entries for the current story
+var storyStepEntries = [];
+storyStepEntries[0] = [];
+storyStepEntries[1] = [];
+storyStepEntries[2] = [];
 
 // socket.io
 // Real-time event-driven sockets, client-side code.
@@ -802,8 +736,8 @@ function openInquiryPerspective() {
 	// Resize photo and video entries
 	$('.activity-widget').find('.image').attr('width', '570'); // Photo
 	$('.activity-widget').find('.image').attr('height', '570');
-	$('.activity-widget').find('.videoThumbnail').attr('width', '570'); // Video
-	$('.activity-widget').find('.videoThumbnail').attr('height', '427');
+	// $('.activity-widget').find('.videoThumbnail').attr('width', '570'); // Video
+	// $('.activity-widget').find('.videoThumbnail').attr('height', '427');
 
 	getTimeline();
 
@@ -832,129 +766,66 @@ function openInquiryPerspective() {
 	// TODO: Only open Story Tool
 
 	$('.activity-widget').closest('.activity-template').off('click');
-	$('.activity-widget').closest('.activity-template').removeClass('activity-template-left');
-	$('.activity-widget').closest('.activity-template').removeClass('activity-template-right');
+	// $('.activity-widget').closest('.activity-template').removeClass('activity-template-left');
+	// $('.activity-widget').closest('.activity-template').removeClass('activity-template-right');
 	$('.note-section').hide();
 }
 
 function openEntrySelectionTool() {
-	// Resize photo and video entries
-	$('.activity-widget').find('.image').attr('width', '320'); // Photo
-	$('.activity-widget').find('.image').attr('height', '320');
-	$('.activity-widget').find('.videoThumbnail').attr('width', '320'); // Video
-	$('.activity-widget').find('.videoThumbnail').attr('height', '240');
 
 	if ($('#capture-interface').is(":visible")) {
 
-		// Hide capture UI
-		$('#capture-interface').fadeOut(function() {
+		closeEntrySelectionTool();
 
-			// Show mode options
-			$('#mode-options').fadeIn();
-		});
 	} else {
+
+		//
+		// Show data collection overlay
+		//
 
 		// Hide mode options
 		$('#mode-options').fadeOut(function() {
 
+			$('#capture-overlay').fadeIn();
+
 			// Show capture UI
 			$('#capture-interface').fadeIn();
 			$('#capture-interface').css('width', '450px');
+
+			// Resize photo and video entries
+			$('#narrative-list').find('.activity-widget').find('.image').attr('width', '320'); // Photo
+			$('#narrative-list').find('.activity-widget').find('.image').attr('height', '320');
+			$('#narrative-list').find('.activity-widget').find('.thumbnailContainer').css('background-size', '320px 240px'); // Video thumbnail
+			$('#narrative-list').find('.activity-widget').find('.thumbnailOverlay').css('width', '320px'); // Video thumbnail overlay
+			$('#narrative-list').find('.activity-widget').find('.thumbnailOverlay').css('height', '240px');
+			$('#narrative-list').find('.activity-widget').find('.video').attr('width', '320'); // Video
+			$('#narrative-list').find('.activity-widget').find('.video').attr('height', '240');
 		});
 	}
 }
 
-// function addEntryToStory() {
-// 	// TODO:
-// 	// - Get entry in selection tool
-// 	// - Add to end of array of current chapter elements...
-// 	// - ...and add to "story-list"
-// 	// - Remove from narrative-list in selection tool
-// }
+function closeEntrySelectionTool() {
+	// Hide capture UI
+	$('#capture-interface').fadeOut(function() {
+
+		$('#capture-overlay').fadeOut();
+
+		// Show mode options
+		$('#mode-options').fadeIn();
+
+		// Resize photo and video entries
+		$('#narrative-list').find('.activity-widget').find('.image').attr('width', '570'); // Photo
+		$('#narrative-list').find('.activity-widget').find('.image').attr('height', '570');
+		$('#narrative-list').find('.activity-widget').find('.thumbnailContainer').css('background-size', '570px 427px'); // Video thumbnail
+		$('#narrative-list').find('.activity-widget').find('.thumbnailOverlay').css('width', '570px'); // Video thumbnail overlay
+		$('#narrative-list').find('.activity-widget').find('.thumbnailOverlay').css('height', '427px');
+		$('#narrative-list').find('.activity-widget').find('.video').attr('width', '570'); // Video
+		$('#narrative-list').find('.activity-widget').find('.video').attr('height', '427');
+	});
+}
 
 function removeEntryFromStory() {
 
-}
-
-function openStoryPerspectiveHack() {
-
-	currentPerspective = 'Story';
-
-	$('#logo').fadeOut();
-	$('#top').fadeOut();
-	$('#bottom').fadeOut();
-
-	$('#story-title').hide();
-	$('#story-structure-options').hide();
-
-	$('#toolkit-list').fadeOut();
-
-	// $('#narrative-list').fadeOut(function() {
-		// $('#toolkit-tool-options').fadeIn();
-		$('#story-grid-template-row').hide();
-		// $('#story-grid').fadeIn();
-		// $('#story-perspective-list').fadeIn();
-	// });
-
-	// $('#narrative-list').fadeOut(function() {
-	// 	// $('#toolkit-tool-options').fadeIn();
-	// 	$('#story-grid-template-row').hide();
-	// 	$('#story-grid').fadeIn();
-	// 	$('#story-perspective-list').fadeIn();
-	// });
-
-	
-	
-	$('#toolkit-tool-options').fadeOut();
-	$('#toolkit-options').fadeOut();
-
-	// TODO: Only open Story Tool
-	getStoriesHack();
-}
-
-function getStoriesHack(options) {
-	console.log('getStoriesHack()');
-
-	//
-	// Request resources for new timeline and update the timeline widget
-	//
-
-	var requestUri = localStorage['host'] + '/api/storyhack';
-
-	if (typeof options !== "undefined") {
-		if (options.hasOwnProperty('id')) {
-			requestUri = requestUri + '?id=' + options['id'];
-		} else if (options.hasOwnProperty('moment_id')) {
-			requestUri = requestUri + '?moment_id=' + options['moment_id'];
-		} else if (options.hasOwnProperty('frameId')) {
-			requestUri = requestUri + '?frameId=' + options['frameId'];
-		}
-	}
-
-	$.ajax({
-		type: 'GET',
-		beforeSend: function(request) {
-			request.setRequestHeader('Authorization', 'Bearer ' + localStorage['token']);
-		},
-		url: requestUri,
-		dataType: 'json',
-		success: function(data) {
-			// console.log('Received protected thoughts (success).');
-			// console.log(data);
-
-			$('#narrative-list').html('');
-			$('#narrative-list').attr('data-timeline', data._id);
-			$('#narrative-list').attr('data-moment', data.moment);
-
-			// Add Moments to Timeline
-			for (moment in data.moments) {
-				addTimelineWidget(data.moments[moment]);
-			}
-		},
-		error: function() {
-			console.log('Failed to retreive protected resource.');
-		}
-	});
 }
 
 function openStoryPerspective() {
@@ -994,134 +865,6 @@ function openStoryPerspective() {
 	getStories();
 }
 
-// TODO: Finish this...
-function openStoryToolStructured(options) {
-
-	if (typeof options !== "undefined") {
-		if (options.hasOwnProperty('id')) {
-			requestUri = requestUri + '?id=' + options['id'];
-		} else if (options.hasOwnProperty('moment_id')) {
-			requestUri = requestUri + '?moment_id=' + options['moment_id'];
-		} else if (options.hasOwnProperty('frameId')) {
-			requestUri = requestUri + '?frameId=' + options['frameId'];
-		}
-	} else {
-		options = { 'readOnly': false };
-	}
-
-	currentTool = 'Story';
-
-	$('#logo').fadeOut();
-	$('#top').fadeOut();
-	$('#bottom').fadeOut();
-
-	$('#story-grid-template-row').hide();
-
-	$('#story-grid').fadeOut(function() {
-		$('#story-title').fadeIn(function () {
-			$('#story-structure-options').fadeIn();
-			$('#narrative-list').show();
-		});
-		// $('#toolkit-tool-options').fadeIn();
-		// $('#story-grid-template-row').hide();
-		// $('#story-perspective-list').show();
-	});
-
-
-	
-	$('#toolkit-options').fadeOut(function() {
-		if (options['readOnly'] !== true) {
-			$('#toolkit-tool-options').fadeIn();
-		}
-	});
-
-	// Set default chapter to first chapter
-	setStoryChapter({ chapter: 'beginning' });
-
-	// $('#narrative-list').show(function() {
-	// 	$('.toolkit-tool').hide();
-	// 	$('#media-toolkit').show();
-	// 	$('#media-type-options').show();
-	// 	$('#tool-extra-options').show();
-	// 	$('.text-tool').show();
-	// 	$('#toolkit-list').fadeIn();
-	// });
-
-
-
-	// $('#narrative-list').fadeOut(function() {
-	// 	$('#toolkit-list').fadeIn();
-	// });
-
-	// Intialize by setting all entires to the right.  By default, entries are added to a new Story.
-	if (options['readOnly'] !== true) {
-		// Set entry text
-		$('.note').text('');
-		$('.note-section').hide();
-
-		// $('.activity-widget').closest('.activity-template').addClass('activity-template-right');
-
-		// TODO: Only open Story Tool
-		// getStories();
-
-		// Set up click handler for entries (to include/exclude in the story)
-		$('.activity-widget').closest('.activity-template').off('click');
-		$('.activity-widget').closest('.activity-template').on('click', function() {
-
-			// Move right
-			if ($(this).hasClass('activity-template-left') && !($(this).hasClass('activity-template-right'))) {
-				$(this).removeClass('activity-template-left');
-				$(this).addClass('activity-template-right');
-
-				// Remove from current chapter
-				if (currentStoryChapter !== null) {
-					$(this).removeClass(currentStoryChapter);
-				}
-
-				// $(this).find('.note-section').css('display', 'none');
-				$(this).find('.note-section').hide();
-
-			// Move left
-			} else if (!($(this).hasClass('activity-template-left')) && $(this).hasClass('activity-template-right')) {
-
-				$(this).removeClass('activity-template-right');
-				$(this).addClass('activity-template-left');
-
-				// Add to current chapter
-				if (currentStoryChapter !== null) {
-					$(this).addClass(currentStoryChapter);
-				}
-
-				// $(this).find('.note-section').css('display', 'table-row');
-				$(this).find('.note-section').show();
-
-			// Set default
-			} else {
-
-				$(this).removeClass('activity-template-left');
-				$(this).removeClass('activity-template-right');
-				$(this).addClass('activity-template-left');
-
-				$(this).find('.note-section').hide();
-
-				// $(this).find('.note-section').css('display', 'none');
-			}
-
-			// $('.activity-widget').removeClass('activity-widget-right');
-			// $('.activity-widget').addClass('activity-widget-left');
-		});
-	}
-
-	// if (options['readOnly'] === true) {
-	// 	$('.activity-template-right').hide();
-	// }
-}
-
-var storyStepEntries = [];
-storyStepEntries[0] = [];
-storyStepEntries[1] = [];
-storyStepEntries[2] = [];
-
 function openStoryTool(options) {
 
 	if (typeof options !== "undefined") {
@@ -1147,7 +890,7 @@ function openStoryTool(options) {
 	$('#story-grid-template-row').hide();
 
 	$('#story-grid').fadeOut(function() {
-		//$('#story-tool-title').val(''); // Reset story entry form
+		$('#story-tool-title').val(''); // Reset story entry form
 		$('#story-title').fadeIn(function() {
 			$('#story-step-one-prompt').fadeIn();
 			//$('#narrative-list').show();
@@ -1217,7 +960,7 @@ function openStoryTool(options) {
 			addEntryToStory(entryId);
 
 			// Put the following in a callback
-			storyStepEntries[currentToolStep].push({ id: entryId }); // Add entry to story for current step
+			storyStepEntries[currentToolStep].push({ id: entryId, type: 'Entry' }); // Add entry to story for current step
 			//$(this).remove(); // Remove entry from capture queue
 			$(this).slideUp(); // Remove entry from capture queue
 
@@ -1226,30 +969,30 @@ function openStoryTool(options) {
 
 
 
-			// Move right
-			if ($(this).hasClass('activity-template-left') && !($(this).hasClass('activity-template-right'))) {
-				$(this).removeClass('activity-template-left');
-				$(this).addClass('activity-template-right');
+			// // Move right
+			// if ($(this).hasClass('activity-template-left') && !($(this).hasClass('activity-template-right'))) {
+			// 	$(this).removeClass('activity-template-left');
+			// 	$(this).addClass('activity-template-right');
 
-				// $(this).find('.note-section').css('display', 'none');
-				$(this).find('.note-section').hide();
+			// 	// $(this).find('.note-section').css('display', 'none');
+			// 	$(this).find('.note-section').hide();
 
-			// Move left
-			} else if (!($(this).hasClass('activity-template-left')) && $(this).hasClass('activity-template-right')) {
-				$(this).removeClass('activity-template-right');
-				$(this).addClass('activity-template-left');
+			// // Move left
+			// } else if (!($(this).hasClass('activity-template-left')) && $(this).hasClass('activity-template-right')) {
+			// 	$(this).removeClass('activity-template-right');
+			// 	$(this).addClass('activity-template-left');
 
-				// $(this).find('.note-section').css('display', 'table-row');
-				$(this).find('.note-section').show();
+			// 	// $(this).find('.note-section').css('display', 'table-row');
+			// 	$(this).find('.note-section').show();
 
-			// Set default
-			} else {
-				$(this).removeClass('activity-template-left');
-				$(this).removeClass('activity-template-right');
-				$(this).addClass('activity-template-left');
+			// // Set default
+			// } else {
+			// 	$(this).removeClass('activity-template-left');
+			// 	$(this).removeClass('activity-template-right');
+			// 	$(this).addClass('activity-template-left');
 
-				// $(this).find('.note-section').css('display', 'none');
-			}
+			// 	// $(this).find('.note-section').css('display', 'none');
+			// }
 
 			// $('.activity-widget').removeClass('activity-widget-right');
 			// $('.activity-widget').addClass('activity-widget-left');
@@ -1298,7 +1041,9 @@ function updateStoryTool() {
 			// Show step scaffolding
 			$('#story-step-two-prompt').fadeOut(function() {
 				$('#story-step-three-prompt').fadeOut(function() {
-					$('#story-step-one-prompt').fadeIn();
+					$('#story-step-one-prompt').fadeIn(function() {
+						populateStep();
+					});
 				});
 			});
 		});
@@ -1313,7 +1058,9 @@ function updateStoryTool() {
 			// Show step scaffolding
 			$('#story-step-one-prompt').fadeOut(function() {
 				$('#story-step-three-prompt').fadeOut(function() {
-					$('#story-step-two-prompt').fadeIn();
+					$('#story-step-two-prompt').fadeIn(function() {
+						populateStep();
+					});
 				});
 			});
 		});
@@ -1327,29 +1074,49 @@ function updateStoryTool() {
 			// Show step scaffolding
 			$('#story-step-one-prompt').fadeOut(function() {
 				$('#story-step-two-prompt').fadeOut(function() {
-					$('#story-step-three-prompt').fadeIn();
+					$('#story-step-three-prompt').fadeIn(function() {
+						populateStep();
+					});
 				});
 			});
 		});
 	}
 
-	// Restore all entries to data queue
-	$('#narrative-list').find('.activity-frame').show();
+	function populateStep () {
+		console.log('called populateStep()');
 
-	// Clear current entries from story queue
-	$('#story-entry-queue').empty();
+		// Restore all entries to data queue
+		$('#narrative-list').find('.activity-frame').show();
 
-	// Populate story queue with step's entries
-	// TODO: Make sure that entires are added to the queue in the correct order. That is, make sure the entires are added based on the array order, not the order in which the HTTP requests are completed (the current case). One way to do this is to pre-populate the list with "empty" entries for the given entry IDs then populate those entries when the request completes.
-	var entryCount = storyStepEntries[currentToolStep].length;
-	for (var i = 0; i < entryCount; i++) {
+		// TODO: Reverse the entries in data collection mode
 
-		// Add the entry to the story queue
-		var entry = storyStepEntries[currentToolStep][i];
-		addEntryToStory(entry['id']);
+		// Clear current entries from story queue
+		$('#story-entry-queue').empty();
 
-		// Remove the entries that are in the story queue from the data queue
-		$('#narrative-list').find('#frame-' + entry['id']).hide();
+		// Populate story queue with step's entries
+		// TODO: Make sure that entires are added to the queue in the correct order. That is, make sure the entires are added based on the array order, not the order in which the HTTP requests are completed (the current case). One way to do this is to pre-populate the list with "empty" entries for the given entry IDs then populate those entries when the request completes.
+		var entryCount = storyStepEntries[currentToolStep].length;
+		for (var i = 0; i < entryCount; i++) {
+
+			// Add the entry to the story queue
+			var entry = storyStepEntries[currentToolStep][i];
+
+			console.log(entry);
+
+			//if (entry.type === 'Entry') {
+			if (entry.hasOwnProperty('id')) {
+				addEntryToStory(entry['id']);
+			} else if (entry.type === 'Reflection') {
+				// storyStepEntries[currentToolStep].push({ type: 'Reflection', element: e });
+				var reflectionText = $(entry.element).find('#reflection-text').val();
+				//alert(reflectionText);
+				$(entry.element).remove();
+				addEmptyReflectionWidget(entry);
+			}
+
+			// Remove the entries that are in the story queue from the data queue
+			$('#narrative-list').find('#frame-' + entry['id']).hide();
+		}
 	}
 }
 
@@ -1466,6 +1233,42 @@ function openSketchTool2() {
 	});
 
 	// TODO: Only open Question Tool
+}
+
+function openReflectionTool() {
+
+	//storyStepEntries[currentToolStep].push({ type: 'Reflection', text: '' }); // id: entryId });
+
+	addEmptyReflectionWidget();
+
+	return;
+
+	// currentConceptTool = 'Reflection';
+	currentTool = 'Reflection';
+
+	$('#logo').fadeOut();
+	$('#top').fadeOut();
+	$('#bottom').fadeOut();
+	
+	$('#toolkit-options').fadeOut(function() {
+		$('.story-toolkit-tool-options').fadeOut();
+		$('#toolkit-tool-options').fadeIn();
+	});
+
+	// Reset form
+	$('#story-text-tool-text').val('');
+
+	//$('#story-entry-queue').fadeOut(function() {
+	$('#story-perspective-list').fadeOut(function() {
+		$('.story-concept-tool').hide();
+		$('#story-concept-toolkit').show();
+		$('#story-toolkit-list').fadeIn();
+
+		// $('#media-type-options .media-type-options').fadeOut(function () {
+			//$('.story-text-tool').fadeIn();
+			$('#story-text-tool').fadeIn();
+		// });
+	});
 }
 
 function openQuestionTool() {
@@ -1707,20 +1510,18 @@ function getStory(options) {
 			console.log('Received Story for Timeline.');
 			console.log(data);
 
-			// Create the story grid
-
+			// Create the selected story
 			var currentRow = -1;
 			var currentColumn = 0;
 			for(var i = 0; i < data.length; i++) {
 
-				// Find current Story
+				// Set the current story to the story selected by the user
 				if (data[i]._id === options['id']) {
 					currentStory = data[i];
 					break;
 				}
 
 			}
-
 
 			// Hide all Entries
 			if (options['readOnly'] === true) {
@@ -1749,6 +1550,10 @@ function getStory(options) {
 			updateStoryTool();
 
 			return;
+
+
+
+
 
 			for (pageIndex in story.pages) {
 				var page = story.pages[pageIndex];
@@ -1823,144 +1628,28 @@ function saveTool() {
 		if (currentTool === 'Text') {
 			e = $('#text-tool');
 			saveText(e);
-
 		} else if (currentTool === 'Photo') {
-
-			// Upload the photo
-    		savePhoto(lastImageUri);
-
+    		savePhoto(lastImageUri); // Upload the photo
 		} else if (currentTool === 'Video') {
-
 			saveVideo(lastVideo);
-			
 		} else if (currentTool === 'Sketch') {
-			
 			saveSketchTool();
 		}
 
-
+		closeTool();
 
 	} else if (currentPerspective === 'Story') {
 
 		if (currentTool === 'Story') {
-			e = $('#story-tool');
-			// saveText(e);
-
-			var story = {
-				title: '',
-				entries: []
-			};
-
-			// Get title of story and prepare for POST request
-			story.title = e.find('#story-tool-title').val();
-
-			// Get entries and prepare for POST request
-			for (var i = 0; i < storyStepEntries.length; i++) {
-
-				// Create array to store entries for current entry group
-				story['entries'][i] = [];
-
-				for (var j = 0; j < storyStepEntries[i].length; j++) {
-
-					// Add current entry to current entry group
-					story['entries'][i].push({ 
-						entry: storyStepEntries[i][j].id, 
-						group: i, 
-						position: j 
-					});
-				}
-			}
-
-			var storyJSON = JSON.stringify(story);
-
-			// alert(storyJSON);
-
-			// POST the JSON object
-			$.ajax({
-				type: 'POST',
-				beforeSend: function(request) {
-					request.setRequestHeader('Authorization', 'Bearer ' + localStorage['token']);
-				},
-				url: localStorage['host'] + '/api/story',
-				dataType: 'json',
-				contentType: 'application/json; charset=utf-8',
-				data: storyJSON,
-				processData: false,
-				success: function(data) {
-					console.log('Saved Story: ');
-					console.log(data);
-
-					alert(JSON.stringify(data));
-
-					// Set element container (e.g., Thought). Only gets set once.
-					// $(e).attr('id', 'frame-' + data.frame._id); // e.data('id', data._id);
-					// addTimelineWidget(data);
-					//addSketchWidget();
-
-					console.log('Saved Story.');
-				},
-				error: function() {
-					console.log('Failed to save Story.');
-				}
+			saveStoryTool(function() {
+				//closeTool();
 			});
-
-			return;
-
-			$('.activity-template-left').closest('.activity-template').each(function(i) {
-
-				var entryType = $(this).attr("data-activity-type");
-				var entryId = $(this).attr("data-id");
-				var entryNote = $(this).find(".note").text();
-
-				console.log(entryId + ' ' + entryType);
-
-				story.entries.push({ type: entryType, entry: entryId, note: entryNote });
-				// TODO: Create StoryEntry
-
-			});
-
-			var storyJSON = JSON.stringify(story);
-			console.log(storyJSON);
-
-			// var uniqueTags = [];
-			// $.each(tagText, function(i, el) {
-			// 	if($.inArray(el, uniqueTags) === -1) uniqueTags.push(el);
-			// });
-
-
-
-			// POST the JSON object
-
-			$.ajax({
-				type: 'POST',
-				beforeSend: function(request) {
-					request.setRequestHeader('Authorization', 'Bearer ' + localStorage['token']);
-				},
-				url: localStorage['host'] + '/api/story',
-				dataType: 'json',
-				contentType: 'application/json; charset=utf-8',
-				data: storyJSON,
-				processData: false,
-				success: function(data) {
-					console.log('Saved Story: ');
-					console.log(data);
-
-					// Set element container (e.g., Thought). Only gets set once.
-					// $(e).attr('id', 'frame-' + data.frame._id); // e.data('id', data._id);
-					// addTimelineWidget(data);
-					//addSketchWidget();
-
-					console.log('Saved Story.');
-				},
-				error: function() {
-					console.log('Failed to save Story.');
-				}
-			});
-
+		} else if (currentTool === 'Reflection') {
+			saveReflectionTool();
 		}
 	}
 
-	closeTool();
+	//closeTool();
 }
 
 function cancelTool() {
@@ -2671,7 +2360,17 @@ function addTextWidget(entry) {
 
 			// Add to list of entry widgets
 			// e.prependTo('#narrative-list');
-			e.prependTo($(options['destination']));
+			if (options['queueingMethod'] === 'top') {
+				e.prependTo($(options['destination']));
+			} else {
+				e.appendTo($(options['destination']));
+
+				// Scroll to bottom of story
+				// var scrollableDivElement = $('#story-interface');
+				// var height = scrollableDivElement[0].scrollHeight;
+				// scrollableDivElement.scrollTop (height);
+				$('html,body').animate({ scrollTop: document.body.clientHeight }, 1000);
+			}
 
 			// Set up tags section event handlers
 			e.find('.tags').off('click');
@@ -2727,7 +2426,8 @@ function addTimelineWidget(entry, options) {
 
 	// Set up default options
 	var defaults = {
-		'destination': '#narrative-list'
+		'destination': '#narrative-list',
+		'queueingMethod': 'top'
 	};
 
 	// Combine options with default values
@@ -2754,7 +2454,43 @@ function addTimelineWidget(entry, options) {
 		addVideoWidget(entry, options);
 	} else if(entry.entryType === 'Sketch') {
 		addSketchWidget(entry, options);
+	}
+}
 
+function addStoryWidget(entry, options) {
+
+	// Set up default options
+	var defaults = {
+		'destination': '#story-entry-queue',
+		'queueingMethod': 'bottom'
+	};
+
+	// Combine options with default values
+	var options = $.extend({}, defaults, options);
+
+	// if (typeof options !== "undefined") {
+	// 	if (options.hasOwnProperty('id')) {
+	// 		requestUri = requestUri + '?id=' + options['id'];
+	// 	} else if (options.hasOwnProperty('moment_id')) {
+	// 		requestUri = requestUri + '?moment_id=' + options['moment_id'];
+	// 	} else if (options.hasOwnProperty('frameId')) {
+	// 		requestUri = requestUri + '?frameId=' + options['frameId'];
+	// 	}
+	// }
+
+	// console.log(entry.entryType);
+
+	// Add entry to inquiry
+	if(entry.entryType === 'Text') {
+		addTextWidget(entry, options);
+	} else if(entry.entryType === 'Photo') {
+		addPhotoWidget(entry, options);
+	} else if(entry.entryType === 'Video') {
+		addVideoWidget(entry, options);
+	} else if(entry.entryType === 'Sketch') {
+		addSketchWidget(entry, options);
+	} else if(entry.entryType === 'Reflection') {
+		addReflectionWidget(entry, options);
 	}
 }
 
@@ -2798,6 +2534,49 @@ function addEntryToStory (id) {
 	// console.log("Saving Question (JSON): ");
 	// console.log(jsonData);
 	// POST the JSON object
+
+	$.ajax({
+		type: 'GET',
+		beforeSend: function(request) {
+			request.setRequestHeader('Authorization', 'Bearer ' + localStorage['token']);
+		},
+		url: localStorage['host'] + '/api/entry/' + id,
+		dataType: 'json',
+		contentType: 'application/json; charset=utf-8',
+		// data: JSON.stringify(jsonData),
+		processData: false,
+		success: function(data) {
+			console.log('Retreived entry: ');
+			console.log(data);
+
+			// Set element container (e.g., Thought). Only gets set once.
+			// $(e).attr('id', 'frame-' + data.frame._id); // e.data('id', data._id);
+			//addTimelineWidget(data);
+			//var options = { destination: '#story-list' };
+			var options = { destination: '#story-entry-queue' };
+			//addTimelineWidget(data, options);
+			addStoryWidget(data, options);
+			closeEntrySelectionTool(); // TODO: Move this into a callback
+			console.log(data);
+		},
+		error: function() {
+			console.log('GET failed to retreive entry.');
+		}
+	});
+}
+
+function addReflectionToStory () {
+	console.log('addReflectionToStory');
+
+	// console.log("Saving Question (JSON): ");
+	// console.log(jsonData);
+	// POST the JSON object
+
+	var options = { destination: '#story-entry-queue' };
+	//addTimelineWidget(data, options);
+	console.log(data);
+
+	// return;
 
 	$.ajax({
 		type: 'GET',
@@ -3019,7 +2798,18 @@ function addPhotoWidget(entry, options) {
 
 			// Add to list of entry widgets
 			// e.prependTo('#narrative-list');
-			e.prependTo($(options['destination']));
+			// e.prependTo($(options['destination']));
+			if (options['queueingMethod'] === 'top') {
+				e.prependTo($(options['destination']));
+			} else {
+				e.appendTo($(options['destination']));
+
+				// Scroll to bottom of story
+				// var scrollableDivElement = $('#story-interface');
+				// var height = scrollableDivElement[0].scrollHeight;
+				// scrollableDivElement.scrollTop (height);
+				$('html,body').animate({ scrollTop: document.body.clientHeight }, 1000);
+			}
 
 			// Set up tags section event handlers
 			e.find('.tags').off('click');
@@ -3180,7 +2970,9 @@ function addVideoWidget(entry, options) {
 			e.find('.thumbnailContainer').hide();
 		});
 
-		videoThumbnail.attr('src', '' + localStorage['host'] + videoThumbnailUri + '');
+		//videoThumbnail.attr('src', '' + localStorage['host'] + videoThumbnailUri + '');
+		e.find('.thumbnailContainer').css('background', 'url(' + localStorage['host'] + videoThumbnailUri + ') center center no-repeat no-repeat')
+		e.find('.thumbnailContainer').css('background-size', '570px 427px')
 
 		// alert(videoThumbnailFilename);
 
@@ -3251,7 +3043,18 @@ function addVideoWidget(entry, options) {
 
 			// Add to list of entry widgets
 			// e.prependTo('#narrative-list');
-			e.prependTo($(options['destination']));
+			// e.prependTo($(options['destination']));
+			if (options['queueingMethod'] === 'top') {
+				e.prependTo($(options['destination']));
+			} else {
+				e.appendTo($(options['destination']));
+
+				// Scroll to bottom of story
+				// var scrollableDivElement = $('#story-interface');
+				// var height = scrollableDivElement[0].scrollHeight;
+				// scrollableDivElement.scrollTop (height);
+				$('html,body').animate({ scrollTop: document.body.clientHeight }, 1000);
+			}
 
 			// Set up tags section event handlers
 			e.find('.tags').off('click');
@@ -3462,7 +3265,18 @@ function addSketchWidget(entry, options) {
 
 			// Add to list of entry widgets
 			//e.prependTo('#narrative-list');
-			e.prependTo($(options['destination']));
+			// e.prependTo($(options['destination']));
+			if (options['queueingMethod'] === 'top') {
+				e.prependTo($(options['destination']));
+			} else {
+				e.appendTo($(options['destination']));
+
+				// Scroll to bottom of story
+				// var scrollableDivElement = $('#story-interface');
+				// var height = scrollableDivElement[0].scrollHeight;
+				// scrollableDivElement.scrollTop (height);
+				$('html,body').animate({ scrollTop: document.body.clientHeight }, 1000);
+			}
 
 			// Set up tags section event handlers
 			e.find('.tags').off('click');
@@ -3512,6 +3326,382 @@ function addSketchWidget(entry, options) {
 		// //e.find('.element .image').click(function() { changeSketch(e) });
 		// e.show(); // Show element
 	}
+}
+
+//
+// Empty Reflection (for Story)
+//
+
+function addEmptyReflectionWidget(entry, options) {
+	console.log("addEmptyReflectionWidget");
+
+	// Set up default options
+	var defaults = {
+		'destination': '#story-entry-queue'
+	};
+
+	// Combine options with default values
+	var options = $.extend({}, defaults, options);
+
+	var destination = $(options['destination']);
+
+	// Add entry
+	// if (entry && entry.entry && entry.entry._id) { // Validate entry object
+
+		//var reflection = entry.entry; // TODO: Update this based on current view for user
+
+		// Only continue if Photo entry is valid
+		//if (!reflection) return;
+
+		var e;
+		var div;
+
+		var entryExists = false; // Flag indicating whether entry exists in the destination element. If not, create a new entry.
+		// if ($(options['destination']).find("#frame-" + entry._id).length != 0) {
+		// 	entryExists = true;
+		// }
+
+		//if ($("#frame-" + entry._id).length != 0) {
+		//console.log('length = ' + $(options['destination']).find("#frame-" + entry._id).length);
+		// if (entryExists) {
+
+		// 	// // Frame exists, so update it
+		// 	// console.log("Found existing reflection widget. Updating widget.");
+
+		// 	// e = $('#frame-' + entry._id); // <li> element
+
+		// } else {
+
+			// Widget does not exist for element does not exist, so create it
+			console.log("Could not find existing widget for reflection. Creating new reflection widget.");
+
+			// Clone template structure and remove 'id' element to avoid 'id' conflict
+			e = $('#reflection-template').clone().attr('id', 'volatile-activity');
+			e.addClass('activity-frame');
+			e.removeAttr('id'); // Remove 'id' attribute
+			//div = e.find('.element .text');
+		// }
+
+		// Update 'li' for element
+		// e.attr('id', 'frame-' + entry._id);
+		// e.attr('data-id', entry._id);
+		// e.attr('data-timeline', entry.timeline);
+
+		// Update element
+		var div2 = e.find('.activity-widget .element');
+		// div2.attr('id', 'reflection-' + reflection._id);
+		// div2.attr('data-id', reflection._id);
+		// div2.attr('data-entry', entry._id);
+
+
+
+		// div2.attr('data-reference', reflection.reference);
+		// div.attr('contenteditable', 'true');
+		// div.html(activity.text);
+
+		// // Update Account that authored the contribution
+		// var authorEntryAction = 'snapped a reflection';
+		// // Update Account that authored the contribution
+		// //if (text.author && text.username) {
+		// 	e.find('.account').html('<strong>' + entry.author.username + '</strong> ' + authorEntryAction);
+		// 	if (entry.hasOwnProperty('collaborations')) {
+		// 		var authors = entry.collaborations[0].authors;
+
+		// 		if (authors.length > 0) {
+		// 			e.find('.account').html('<strong>' + entry.author.username + '</strong>'  + ' ' + authorEntryAction + ' with ' + authors.length + ' others');
+		// 		}
+		// 	}
+
+		// 	//
+		// 	// Date
+		// 	//
+		// 	if (entry.hasOwnProperty('date')) {
+		// 		var currentHtml = e.find('.account').html();
+		// 		var entryDate = new Date(entry.date);
+		// 		var formattedDate = entryDate.toString("MMMM d, yyyy");
+		// 		var formattedTime = entryDate.toString("h:mm tt");
+		// 		e.find('.account').html(currentHtml + '<br /> on ' + formattedDate + ' at ' + formattedTime);
+		// 	}
+		// //}
+
+		// Update bumps
+		// if (entry.hasOwnProperty('bumps')) {
+		// 	e.find('.bump-count').text(entry.bumps.length);
+		// }
+
+		// Hide notes section
+		// e.find('.note-section').hide();
+
+		// // Add Tags
+		// e.find('.tags').off('blur');
+		// e.find('.tags').blur(function() { saveTags(e); });
+
+		// e.find('.note').off('blur');
+		// e.find('.note').blur(function() { saveNote(e); });
+
+		// TODO: Set reflection text
+		// Set image
+		// var image = e.find('.element .image');
+		// image.attr('src', '' + localStorage['host'] + reflection.uri + '');
+
+		// console.log("ABOUT TO ADD REFLECTION WIDGET");
+		// console.log($("#frame-" + entry._id).length);
+
+		// Make sure that entry does not exist already
+		// if (!entryExists) {
+		//if ($("#frame-" + entry._id).length === 0) { // Check if entry exists
+		//if ($(options['destination']).find("#frame-" + entry._id).length === 0) {
+
+			console.log("Adding reflection entry.");
+
+			//
+			// Set up widget event handlers
+			//
+
+			// Add to list of entry widgets
+			// e.prependTo('#narrative-list');
+			// e.prependTo($(options['destination']));
+			if (options['queueingMethod'] === 'top') {
+				e.prependTo($(options['destination']));
+			} else {
+				e.appendTo($(options['destination']));
+
+				// Scroll to bottom of story
+				// var scrollableDivElement = $('#story-interface');
+				// var height = scrollableDivElement[0].scrollHeight;
+				// scrollableDivElement.scrollTop (height);
+				$('html,body').animate({ scrollTop: document.body.clientHeight }, 1000);
+			}
+
+			// Set up tags section event handlers
+			// e.find('.tags').off('click');
+			// e.find('.tags').click(function(event) { event.stopPropagation(); });
+			// e.find('.tags').off('blur');
+			// e.find('.tags').blur(function() { saveTags(e); });
+
+			// Set up bump section event handlers
+			// e.find('.bump').click(function() { bumpEntry(e); });
+
+			// Set up note section event handlers
+			// e.find('.note').off('click');
+			// e.find('.note').click(function(event) { event.stopPropagation(); });
+			// e.find('.note').off('blur');
+			// e.find('.note').blur(function() { saveNote(e); });
+		
+			// Show entry widget
+			e.show();
+
+			// Request Tags from server
+			// getTags(e);
+
+			// Request Note from server
+			// getNote(e);
+		// }
+
+	// } else {
+
+	// 	console.log("Error: Invalid reflection entry received.");
+	// }
+
+	//alert('Here:' + entry);
+
+	//if (entry['text'] !== '') {
+	if (entry && entry.element) {
+		var reflectionText = $(entry.element).find('#reflection-text').val();
+		$(e).find('#reflection-text').val(reflectionText);
+	} else {
+		storyStepEntries[currentToolStep].push({ type: 'Reflection', element: e }); // id: entryId });
+	}
+}
+
+//
+// Reflection (for Story)
+//
+
+function addReflectionWidget(entry, options) {
+	console.log("addReflectionWidget");
+	console.log(entry);
+
+	// Set up default options
+	var defaults = {
+		'destination': '#story-entry-queue'
+	};
+
+	// Combine options with default values
+	var options = $.extend({}, defaults, options);
+
+	var destination = $(options['destination']);
+
+	// Add entry
+	if (entry && entry.entry && entry.entry._id) { // Validate entry object
+
+		var reflection = entry.entry; // TODO: Update this based on current view for user
+
+		// Only continue if Photo entry is valid
+		if (!reflection) return;
+
+		var e;
+		var div;
+
+		var entryExists = false; // Flag indicating whether entry exists in the destination element. If not, create a new entry.
+		if ($(options['destination']).find("#frame-" + entry._id).length != 0) {
+			entryExists = true;
+		}
+
+		//if ($("#frame-" + entry._id).length != 0) {
+		//console.log('length = ' + $(options['destination']).find("#frame-" + entry._id).length);
+		if (entryExists) {
+
+			// Frame exists, so update it
+			console.log("Found existing reflection widget. Updating widget.");
+
+			e = $('#frame-' + entry._id); // <li> element
+
+		} else {
+
+			// Widget does not exist for element does not exist, so create it
+			console.log("Could not find existing widget for reflection. Creating new reflection widget.");
+
+			// Clone template structure and remove 'id' element to avoid 'id' conflict
+			e = $('#reflection-template').clone().attr('id', 'volatile-activity');
+			e.addClass('activity-frame');
+			e.removeAttr('id'); // Remove 'id' attribute
+			//div = e.find('.element .text');
+		}
+
+		// Update 'li' for element
+		e.attr('id', 'frame-' + entry._id);
+		e.attr('data-id', entry._id);
+		e.attr('data-timeline', entry.timeline);
+
+		// Update element
+		var div2 = e.find('.activity-widget .element');
+		div2.attr('id', 'reflection-' + reflection._id);
+		div2.attr('data-id', reflection._id);
+		div2.attr('data-entry', entry._id);
+
+		//var reflectionText = $(entry.element).find('#reflection-text').val();
+		$(e).find('#reflection-text').val(reflection.text);
+
+
+
+		// div2.attr('data-reference', reflection.reference);
+		// div.attr('contenteditable', 'true');
+		// div.html(activity.text);
+
+		// // Update Account that authored the contribution
+		// var authorEntryAction = 'snapped a reflection';
+		// // Update Account that authored the contribution
+		// //if (text.author && text.username) {
+		// 	e.find('.account').html('<strong>' + entry.author.username + '</strong> ' + authorEntryAction);
+		// 	if (entry.hasOwnProperty('collaborations')) {
+		// 		var authors = entry.collaborations[0].authors;
+
+		// 		if (authors.length > 0) {
+		// 			e.find('.account').html('<strong>' + entry.author.username + '</strong>'  + ' ' + authorEntryAction + ' with ' + authors.length + ' others');
+		// 		}
+		// 	}
+
+		// 	//
+		// 	// Date
+		// 	//
+		// 	if (entry.hasOwnProperty('date')) {
+		// 		var currentHtml = e.find('.account').html();
+		// 		var entryDate = new Date(entry.date);
+		// 		var formattedDate = entryDate.toString("MMMM d, yyyy");
+		// 		var formattedTime = entryDate.toString("h:mm tt");
+		// 		e.find('.account').html(currentHtml + '<br /> on ' + formattedDate + ' at ' + formattedTime);
+		// 	}
+		// //}
+
+		// Update bumps
+		// if (entry.hasOwnProperty('bumps')) {
+		// 	e.find('.bump-count').text(entry.bumps.length);
+		// }
+
+		// Hide notes section
+		// e.find('.note-section').hide();
+
+		// // Add Tags
+		// e.find('.tags').off('blur');
+		// e.find('.tags').blur(function() { saveTags(e); });
+
+		// e.find('.note').off('blur');
+		// e.find('.note').blur(function() { saveNote(e); });
+
+		// TODO: Set reflection text
+		// Set image
+		// var image = e.find('.element .image');
+		// image.attr('src', '' + localStorage['host'] + reflection.uri + '');
+
+		// console.log("ABOUT TO ADD REFLECTION WIDGET");
+		// console.log($("#frame-" + entry._id).length);
+
+		// Make sure that entry does not exist already
+		if (!entryExists) {
+		//if ($("#frame-" + entry._id).length === 0) { // Check if entry exists
+		//if ($(options['destination']).find("#frame-" + entry._id).length === 0) {
+
+			console.log("Adding reflection entry.");
+
+			//
+			// Set up widget event handlers
+			//
+
+			// Add to list of entry widgets
+			// e.prependTo('#narrative-list');
+			// e.prependTo($(options['destination']));
+			if (options['queueingMethod'] === 'top') {
+				e.prependTo($(options['destination']));
+			} else {
+				e.appendTo($(options['destination']));
+
+				// Scroll to bottom of story
+				// var scrollableDivElement = $('#story-interface');
+				// var height = scrollableDivElement[0].scrollHeight;
+				// scrollableDivElement.scrollTop (height);
+				$('html,body').animate({ scrollTop: document.body.clientHeight }, 1000);
+			}
+
+			// Set up tags section event handlers
+			// e.find('.tags').off('click');
+			// e.find('.tags').click(function(event) { event.stopPropagation(); });
+			// e.find('.tags').off('blur');
+			// e.find('.tags').blur(function() { saveTags(e); });
+
+			// Set up bump section event handlers
+			// e.find('.bump').click(function() { bumpEntry(e); });
+
+			// Set up note section event handlers
+			// e.find('.note').off('click');
+			// e.find('.note').click(function(event) { event.stopPropagation(); });
+			// e.find('.note').off('blur');
+			// e.find('.note').blur(function() { saveNote(e); });
+		
+			// Show entry widget
+			e.show();
+
+			// Request Tags from server
+			// getTags(e);
+
+			// Request Note from server
+			// getNote(e);
+		}
+		
+	} else {
+
+		console.log("Error: Invalid reflection entry received.");
+	}
+
+	//alert('Here:' + entry);
+
+	//if (entry['text'] !== '') {
+	// if (entry && entry.element) {
+	// 	var reflectionText = $(entry.element).find('#reflection-text').val();
+	// 	$(e).find('#reflection-text').val(reflectionText);
+	// } else {
+	// 	storyStepEntries[currentToolStep].push({ type: 'Reflection', element: e }); // id: entryId });
+	// }
 }
 
 //
@@ -3634,6 +3824,365 @@ function saveText(e) {
 			console.log('Failed to save Text.');
 		}
 	});
+}
+
+var reflectionCount = 0;
+function saveStoryTool(fn) {
+	e = $('#story-tool');
+	// saveText(e);
+
+	// Clone array of entries in story
+	// for (var i = 0; i < storyTemplate.storyStepEntries.length; i++) {
+	// 	for (var j = 0; j < storyTemplate.storyStepEntries[i].length; j++) {
+
+	// 	}
+	// }
+
+	// Create story template to convert to JSON
+	var storyTemplate = {
+		title: '',
+		entries: [],
+		//storyStepEntries: storyStepEntries
+	};
+
+	// Get title of story and prepare for POST request
+	storyTemplate.title = e.find('#story-tool-title').val();
+
+	saveStory(storyTemplate, function (storyObject) {
+		//alert('success: ' + storyObject);
+
+		for (var i = 0; i < storyStepEntries.length; i++) {
+
+			// Create array to store entries for current entry group
+			storyTemplate['entries'][i] = [];
+
+			for (var j = 0; j < storyStepEntries[i].length; j++) {
+
+				var group = i;
+				var position = j;
+
+				// Add current entry to current entry group
+				if (storyStepEntries[i][j].type === 'Reflection') {
+
+					var reflectionText = $(storyStepEntries[i][j].element).find('#reflection-text').val();
+
+					var reflectionTemplate = {
+						"type": 'Reflection',
+						"text": reflectionText,
+						"group": group,
+						"position": position
+					};
+
+					// POST reflection to server
+					saveReflection(reflectionTemplate, function(reflectionObject) {
+						//alert('saved reflection: ' + JSON.stringify(reflectionObject));
+
+						console.log("i: " + reflectionObject.group + ", j: " + reflectionObject.position);
+
+						// TODO: Save Page with returned reflection
+						var pageTemplate = {
+							"story": storyObject._id,
+							"entry": reflectionObject._id,
+							"group": reflectionObject.group,
+							"position": reflectionObject.position
+						};
+
+						savePage(pageTemplate, function(pageObject) {
+							console.log('Saved Page: ' + JSON.stringify(pageObject));
+						});
+					});
+
+				} else if (storyStepEntries[i][j].type === 'Entry') {
+
+					var pageTemplate = {
+						"story": storyObject._id,
+						"entry": storyStepEntries[group][position].entry,
+						"group": group,
+						"position": position
+					};
+
+					savePage(pageTemplate, function(pageObject) {
+						console.log('Saved Page: ' + JSON.stringify(pageObject));
+					});
+				}
+			}
+		}
+	});
+
+	// while(reflectionCount > 0) {};
+
+	function saveStory(storyTemplate, fn) {
+
+		var storyJSON = JSON.stringify(storyTemplate);
+
+		// POST the JSON object
+		$.ajax({
+			type: 'POST',
+			beforeSend: function(request) {
+				request.setRequestHeader('Authorization', 'Bearer ' + localStorage['token']);
+			},
+			url: localStorage['host'] + '/api/story',
+			dataType: 'json',
+			contentType: 'application/json; charset=utf-8',
+			data: storyJSON,
+			processData: false,
+			success: function(data) {
+				console.log('Saved Story: ');
+				console.log(data);
+
+				// alert(JSON.stringify(data));
+
+				// Set element container (e.g., Thought). Only gets set once.
+				// $(e).attr('id', 'frame-' + data.frame._id); // e.data('id', data._id);
+				// addTimelineWidget(data);
+				//addSketchWidget();
+
+				fn(data);
+
+				console.log('Saved Story.');
+			},
+			error: function() {
+				console.log('Failed to save Story.');
+			}
+		});
+	}
+
+	//
+	// Get any reflection entries, save them, and prepare for POST request
+	//
+	function savePage(pageTemplate, fn) {
+
+		var pageJSON = JSON.stringify(pageTemplate);
+
+		//alert("SAVING: " + pageJSON);
+
+		// POST the JSON object
+		$.ajax({
+			type: 'POST',
+			beforeSend: function(request) {
+				request.setRequestHeader('Authorization', 'Bearer ' + localStorage['token']);
+			},
+			url: localStorage['host'] + '/api/page',
+			dataType: 'json',
+			contentType: 'application/json; charset=utf-8',
+			data: pageJSON,
+			processData: false,
+			success: function(data) {
+				console.log('Saved Story: ');
+				console.log(data);
+
+				//alert('entry: ' + JSON.stringify(data));
+
+				// Set element container (e.g., Thought). Only gets set once.
+				// $(e).attr('id', 'frame-' + data.frame._id); // e.data('id', data._id);
+				// addTimelineWidget(data);
+				//addSketchWidget();
+
+				fn(data);
+
+				console.log('Saved Story.');
+			},
+			error: function() {
+				console.log('Failed to save Story.');
+			}
+		});
+
+		return;
+
+
+		reflectionCount = 0;
+		for (var i = 0; i < storyStepEntries.length; i++) {
+
+			// Create array to store entries for current entry group
+			storyTemplate['entries'][i] = [];
+
+			for (var j = 0; j < storyStepEntries[i].length; j++) {
+
+				// Add current entry to current entry group
+				if (storyStepEntries[i][j].type === 'Reflection') {
+					reflectionCount++;
+
+					var reflectionText = $(storyStepEntries[i][j].element).find('#reflection-text').val();
+
+					var reflectionJSON = {
+						"type": 'Reflection',
+						"text": reflectionText,
+						group: i,
+						position: j
+					};
+
+					// POST reflection to server
+					saveReflection(reflectionJSON, function(reflection) {
+
+						// var i = ;
+						// var j = reflectionJSON.position;
+
+						// alert(i);
+						// alert(j);
+						// alert('cb: ' + reflection._id);
+
+						//alert(storyStepEntries + ', ' + reflectionJSON.group + ', ' + reflectionJSON.position);
+
+						// alert(storyStepEntries[i][j]);
+						storyEntries[reflectionJSON.group][reflectionJSON.position].type = 'Entry';
+						storyEntries[reflectionJSON.group][reflectionJSON.position].id = reflection._id;
+
+						reflectionCount--;
+						if (reflectionCount <= 0) {
+							alert("DONE");
+							saveStoryCallback(storyStepEntries);
+						}
+					});
+
+					// story['entries'][i].push({
+					// 	type: storyStepEntries[i][j].type,
+					// 	//entry: storyStepEntries[i][j].id, 
+					// 	element: reflectionText,
+					// 	group: i,
+					// 	position: j
+					// });
+				}
+			}
+		}
+	}
+
+	function saveStoryCallback() {
+
+		//
+		// Get entries and prepare for POST request
+		//
+		for (var i = 0; i < storyStepEntries.length; i++) {
+
+			// Create array to store entries for current entry group
+			story['entries'][i] = [];
+
+			for (var j = 0; j < storyStepEntries[i].length; j++) {
+
+				// Add current entry to current entry group
+				if (storyStepEntries[i][j].type === 'Entry') {
+
+					story['entries'][i].push({ 
+						type: storyStepEntries[i][j].type,
+						entry: storyStepEntries[i][j].id, 
+						group: i, 
+						position: j 
+					});
+
+				} 
+				// else if (storyStepEntries[i][j].type === 'Reflection') {
+
+				// 	var reflectionText = $(storyStepEntries[i][j].element).find('#reflection-text').val();
+
+				// 	story['entries'][i].push({
+				// 		type: storyStepEntries[i][j].type,
+				// 		//entry: storyStepEntries[i][j].id, 
+				// 		element: reflectionText,
+				// 		group: i,
+				// 		position: j
+				// 	});
+				// }
+			}
+		}
+
+		var storyJSON = JSON.stringify(story);
+
+		alert(storyJSON);
+
+		return;
+
+		// POST the JSON object
+		$.ajax({
+			type: 'POST',
+			beforeSend: function(request) {
+				request.setRequestHeader('Authorization', 'Bearer ' + localStorage['token']);
+			},
+			url: localStorage['host'] + '/api/story',
+			dataType: 'json',
+			contentType: 'application/json; charset=utf-8',
+			data: storyJSON,
+			processData: false,
+			success: function(data) {
+				console.log('Saved Story: ');
+				console.log(data);
+
+				alert(JSON.stringify(data));
+
+				// Set element container (e.g., Thought). Only gets set once.
+				// $(e).attr('id', 'frame-' + data.frame._id); // e.data('id', data._id);
+				// addTimelineWidget(data);
+				//addSketchWidget();
+
+				console.log('Saved Story.');
+			},
+			error: function() {
+				console.log('Failed to save Story.');
+			}
+		});
+	}
+
+	return;
+
+	// $('.activity-template-left').closest('.activity-template').each(function(i) {
+
+	// 	var entryType = $(this).attr("data-activity-type");
+	// 	var entryId = $(this).attr("data-id");
+	// 	var entryNote = $(this).find(".note").text();
+
+	// 	console.log(entryId + ' ' + entryType);
+
+	// 	story.entries.push({ type: entryType, entry: entryId, note: entryNote });
+	// 	// TODO: Create StoryEntry
+
+	// });
+
+	// var storyJSON = JSON.stringify(story);
+	// console.log(storyJSON);
+
+	// // var uniqueTags = [];
+	// // $.each(tagText, function(i, el) {
+	// // 	if($.inArray(el, uniqueTags) === -1) uniqueTags.push(el);
+	// // });
+
+
+
+	// // POST the JSON object
+
+	// $.ajax({
+	// 	type: 'POST',
+	// 	beforeSend: function(request) {
+	// 		request.setRequestHeader('Authorization', 'Bearer ' + localStorage['token']);
+	// 	},
+	// 	url: localStorage['host'] + '/api/story',
+	// 	dataType: 'json',
+	// 	contentType: 'application/json; charset=utf-8',
+	// 	data: storyJSON,
+	// 	processData: false,
+	// 	success: function(data) {
+	// 		console.log('Saved Story: ');
+	// 		console.log(data);
+
+	// 		// Set element container (e.g., Thought). Only gets set once.
+	// 		// $(e).attr('id', 'frame-' + data.frame._id); // e.data('id', data._id);
+	// 		// addTimelineWidget(data);
+	// 		//addSketchWidget();
+
+	// 		console.log('Saved Story.');
+	// 	},
+	// 	error: function() {
+	// 		console.log('Failed to save Story.');
+	// 	}
+	// });
+}
+
+//function add
+
+function saveReflectionTool() {
+	var element = $('#story-text-tool');
+
+	addEmptyReflectionWidget(null, '#story-entry-queue');
+
+
+	//saveText(element);
 }
 
 function saveConceptTool(jsonData, callback) {
@@ -3818,6 +4367,42 @@ function saveIdentity(jsonData) {
 		},
 		error: function() {
 			console.log('Failed to save Identity.');
+		}
+	});
+}
+
+function saveReflection(jsonData, fn) {
+	console.log('saveReflection');
+
+	console.log("Saving Reflection (JSON): ");
+	console.log(jsonData);
+	// POST the JSON object
+
+	$.ajax({
+		type: 'POST',
+		beforeSend: function(request) {
+			request.setRequestHeader('Authorization', 'Bearer ' + localStorage['token']);
+		},
+		url: localStorage['host'] + '/api/reflection',
+		dataType: 'json',
+		contentType: 'application/json; charset=utf-8',
+		data: JSON.stringify(jsonData),
+		processData: false,
+		success: function(data) {
+			console.log('Saved Reflection: ');
+			console.log(data);
+
+			data.group = jsonData.group;
+			data.position = jsonData.position;
+
+			// Set element container (e.g., Thought). Only gets set once.
+			//updateEntryView(data.entry.parent);
+
+			// Callback
+			fn(data);
+		},
+		error: function() {
+			console.log('Failed to save Reflection.');
 		}
 	});
 }

@@ -14,7 +14,7 @@ block content
 			div(style="display: table-row;")
 				div(style="display: table-cell;")
 					a(class="sequence-tool", href="javascript:void(0);", onclick='openInquiryPerspective();')
-						div(style='background-image: url(./img/earth.png); background-size: 40px 40px; background-repeat:no-repeat; background-position:0px 8px; height: 50px; padding-left: 45px; padding-top: 8px; font-size: 30px; vertical-align: middle;')
+						div(style='background-image: url(./img/notebook.png); background-size: 40px 40px; background-repeat:no-repeat; background-position:0px 8px; height: 50px; padding-left: 45px; padding-top: 8px; font-size: 30px; vertical-align: middle;')
 							| capture
 				div(style="display: table-cell;")
 					a(class="sequence-tool", href="javascript:void(0);", onclick='openStoryPerspective();')
@@ -34,32 +34,6 @@ block content
 			img(src="./img/refresh.png", alt="refresh") 
 		a(href="javscript:void(0);", onclick="scrollToTop();") 
 			img(src="./img/up-arrow.png", alt="top")
-
-	//
-	// Story Interface
-	//
-	//.edge(id="story-interface", style="background-color: #ffffff; overflow-y: scroll; -webkit-overflow-scrolling: touch; width: 450px; height:300px; position: fixed; left: 0px; top: 100px; text-align: left; font-size: 13px; padding-left: 10px; z-index: 999;")
-
-	//	ul(id="narrative-list-overlay")
-
-	//	.demo
-	//		ul(style="list-style-type: none; margin: 0; padding: 0; margin-bottom: 10px;")
-	//			li(id="draggable", class="ui-state-highlight")
-	//			| Drag me down
-
-	//		ul(id="sortable", class="connectedSortable")
-	//			li(class="ui-state-default", style="margin: 5px; padding: 5px; width: 150px; background-color: blue;") Item 1
-	//			li(class="ui-state-default", style="margin: 5px; padding: 5px; width: 150px; background-color: blue;") Item 2
-	//			li(class="ui-state-default", style="margin: 5px; padding: 5px; width: 150px; background-color: blue;") Item 3
-	//			li(class="ui-state-default", style="margin: 5px; padding: 5px; width: 150px; background-color: blue;") Item 4
-	//			li(class="ui-state-default", style="margin: 5px; padding: 5px; width: 150px; background-color: blue;") Item 5
-
-	//		ul(id="sortable2", class="connectedSortable")
-	//			li(class="ui-state-default", style="margin: 5px; padding: 5px; width: 150px; background-color: blue;") Item 1
-	//			li(class="ui-state-default", style="margin: 5px; padding: 5px; width: 150px; background-color: blue;") Item 2
-	//			li(class="ui-state-default", style="margin: 5px; padding: 5px; width: 150px; background-color: blue;") Item 3
-	//			li(class="ui-state-default", style="margin: 5px; padding: 5px; width: 150px; background-color: blue;") Item 4
-	//			li(class="ui-state-default", style="margin: 5px; padding: 5px; width: 150px; background-color: blue;") Item 5
 
 	//
 	// Toolkit Options
@@ -96,20 +70,9 @@ block content
 	//
 	// Toolkit First Step Per-Tool Options
 	//
-	.edge(id="toolkit-tool-first-step-options", style="position: fixed; right: 0px; top: 100px; text-align: right; font-size: 30px; padding-right: 10px; z-index: 1000;")
+	.edge(id="toolkit-tool-first-step-options", class="story-toolkit-tool-options", style="position: fixed; right: 0px; top: 100px; text-align: right; font-size: 30px; padding-right: 10px; z-index: 1000;")
 		a(href="javascript:void(0);", onclick="cancelTool();") 
 			img(src="./img/cross-red.png", width="50px", alt="cancel")
-		br
-
-		a(href="javascript:void(0);", onclick="openEntrySelectionTool();") 
-			img(src="./img/sequence.png", width="50px", alt="story")
-		br
-
-		a(href="javascript:void(0);", onclick="") 
-			img(src="./img/caption.png", width="50px", alt="story")
-		br
- 
-		img(src="./img/blank.png", width="50px", alt="")
 		br
 
 		a(href="javascript:void(0);", onclick="stepForwardStoryTool();") 
@@ -123,17 +86,9 @@ block content
 	//
 	// Toolkit Middle Step Per-Tool Options
 	//
-	.edge(id="toolkit-tool-middle-step-options", style="position: fixed; right: 0px; top: 100px; text-align: right; font-size: 30px; padding-right: 10px; z-index: 1000;")
+	.edge(id="toolkit-tool-middle-step-options", class="story-toolkit-tool-options", style="position: fixed; right: 0px; top: 100px; text-align: right; font-size: 30px; padding-right: 10px; z-index: 1000;")
 		a(href="javascript:void(0);", onclick="cancelTool();") 
 			img(src="./img/cross-red.png", width="50px", alt="cancel")
-		br
-
-		a(href="javascript:void(0);", onclick="") 
-			img(src="./img/caption.png", width="50px", alt="story")
-		br
-
-		a(href="javascript:void(0);", onclick="openEntrySelectionTool();") 
-			img(src="./img/sequence.png", width="50px", alt="story")
 		br
 
 		a(href="javascript:void(0);", onclick="stepBackwardStoryTool();") 
@@ -150,17 +105,9 @@ block content
 	//
 	// Toolkit Last Step Per-Tool Options
 	//
-	.edge(id="toolkit-tool-last-step-options", style="position: fixed; right: 0px; top: 100px; text-align: right; font-size: 30px; padding-right: 10px; z-index: 1000;")
+	.edge(id="toolkit-tool-last-step-options", class="story-toolkit-tool-options", style="position: fixed; right: 0px; top: 100px; text-align: right; font-size: 30px; padding-right: 10px; z-index: 1000;")
 		a(href="javascript:void(0);", onclick="cancelTool();") 
 			img(src="./img/cross-red.png", width="50px", alt="cancel")
-		br
-
-		a(href="javascript:void(0);", onclick="") 
-			img(src="./img/caption.png", width="50px", alt="story")
-		br
-
-		a(href="javascript:void(0);", onclick="openEntrySelectionTool();") 
-			img(src="./img/sequence.png", width="50px", alt="story")
 		br
 
 		a(href="javascript:void(0);", onclick="stepBackwardStoryTool();") 
@@ -331,52 +278,64 @@ block content
 					div(class="account", style="display: table-cell; position: relative; z-index: 0; width: 100%; border-left: 0px solid #f16521; vertical-align: middle; padding-left: 22px; padding-top: 10px; font-size: 20px; color: #666666;")
 						| <strong>Now what do you think? Why?</strong> (Type/Create)
 
+	ul(id="story-toolkit-list")
 
-		li(id="story-structure-options", class="")
+		//
+		// Story Concept Toolkit
+		//
+
+		li(id="story-concept-toolkit", class="story-concept-tool story-toolkit-tool story-concept-toolkit story-tool-template")
 
 			//
-			// Story Structure
+			// Question
 			//
 
-			div(id="story-tool", class="story-tool toolkit-tool", style="display: table; width: 100%;")
+			div(id="story-text-tool", class="text-tool concept-tool", style="display: table; width: 100%;")
 
 				div(style="display: table-row;")
 					div(style="display: table-cell; text-align: center; vertical-align: middle;")
 						img(src="./img/blank.png", width="50", height="0", style="padding: 10px;")
 					div(class="account", style="display: table-cell; position: relative; z-index: 0; width: 100%; border-left: 0px solid #f16521; vertical-align: middle; padding-left: 22px; padding-top: 10px; font-size: 20px; color: #666666;")
-						| <strong>Chapters</strong> (Choose)
+						| <strong>How were you inspired by this?</strong> (Type/Create)
 
 				div(style="display: table-row;")
 					div(style="display: table-cell; text-align: center; vertical-align: middle;")
-						img(src="./img/blank.png", width="50", height="50", style="padding: 10px;")
+						img(src="./img/caption.png", width="50", height="50", style="padding: 10px;")
 
 					div(style="display: table-cell; position: relative; z-index: 0; width: 100%; border-left: 0px solid #f16521;")
 
 						div(class="tool-section")
-							div(class="story-grid-options")
+							div(class="text-input-widget")
+								div(class="element-table", style="display: table; width: 100%;")
 
-								div(id="story-grid-table", class="element-table", style="display: table; width: 100%;")
-									div(id="story-grid-template-row", style="display: table-row;")
-										div(style="display: table-cell; width: 33%; vertical-align: middle;")
-											div(class="story-section-left")
-												| Part 1<br />
-												| <strong>The Beginning</strong>
-										div(style="display: table-cell; width: 33%; vertical-align: middle;")
-											div(class="story-section-middle")
-												| Part 2<br />
-												| <strong>Exploration</strong>
-										div(style="display: table-cell; width: 33%; vertical-align: middle;")
-											div(class="story-section-right")
-												| Part 3<br />
-												| <strong>Reflection</strong>
+									div(class="element", style="display: table-row;")
+										div(class="text", style="display: table-cell; min-width: 100%; vertical-align: middle;")
+											input(type='text', id='story-text-tool-text')
+
+	// TODO: Add a div here to contain the queue? (Like the narrative-list)
+	ul(id="story-entry-queue", style="z-index: 990;")
+
+
+	ul(id="story-entry-options")
+		li(id="story-entry-toolkit", class="story-concept-tool story-toolkit-tool story-concept-toolkit story-tool-template")
+
+			//
+			// Question
+			//
+
+			div(id="story-text-tool", class="text-tool concept-tool", style="display: table; width: 100%;")
 
 				div(style="display: table-row;")
 					div(style="display: table-cell; text-align: center; vertical-align: middle;")
 						img(src="./img/blank.png", width="50", height="0", style="padding: 10px;")
 					div(class="account", style="display: table-cell; position: relative; z-index: 0; width: 100%; border-left: 0px solid #f16521; vertical-align: middle; padding-left: 22px; padding-top: 10px; font-size: 20px; color: #666666;")
-						| How did you get started?
+						a(href="javascript:void(0);", onclick="openEntrySelectionTool();") 
+							img(src="./img/notebook.png", width="50px", alt="story")
+						br
 
-	ul(id="story-entry-queue")
+						a(href="javascript:void(0);", onclick="openReflectionTool();") 
+							img(src="./img/caption.png", width="50px", alt="story")
+						br
 
 
 	//.edge(id="story-interface", style="background-color: #ffffff; overflow-y: scroll; -webkit-overflow-scrolling: touch; width: 100%; height:100%; position: fixed; left: 0px; top: 0px; text-align: left; font-size: 13px; padding-left: 10px; z-index: 990;")
@@ -742,8 +701,10 @@ block content
 	// Timeline interface
 	//
 
-	.edge(id="capture-interface", style="border-right: 5px solid #333333; border-image: url(./img/left.png) 0 100% repeat; border-width: 0px 150px 0px 0px; overflow-y: scroll; -webkit-overflow-scrolling: touch; width: 100%; height:100%; position: fixed; left: 0px; top: 0px; text-align: left; font-size: 13px; padding-top: 60px; padding-left: 10px; z-index: 999;")
-		ul(id="narrative-list", style="background-color: #ffffff;")
+	.dim(id="capture-overlay", style="height:100%; width:100%; position:fixed; left:0; top:0; z-index:995 !important; background-color:black; opacity: 0.2;")
+
+	.edge(id="capture-interface", style="border-right: 5px solid #333333; border-image: url(./img/left.png) 0 100% repeat; border-width: 0px 150px 0px 0px; overflow-y: scroll; overflow-x: hidden; -webkit-overflow-scrolling: touch; width: 100%; height:100%; position: fixed; left: 0px; top: 0px; text-align: left; font-size: 13px; padding-top: 0px; padding-left: 0px; z-index: 999;")
+		ul(id="narrative-list", style="background-color: #ffffff; padding-top: 60px;")
 
 	.edge(id="bottom", style="text-align: right; font-size: 30px; padding-right: 10px;")
 		a(href="javscript:void(0);", onclick="scrollToBottom();") 
@@ -836,14 +797,19 @@ block content
 			$('#motion-tool').hide();
 			$('#sketch-tool').hide();
 
+			$('#capture-overlay').hide();
+
 			$('#story-perspective-list').hide();
+			$('#story-text-tool').hide();
+			$('#story-toolkit-list').hide();
+
 			$('#toolkit-list').hide();
 			$('#toolkit-tool-options').hide();
 			$('#toolkit-tool-first-step-options').hide();
 			$('#toolkit-tool-middle-step-options').hide();
 			$('#toolkit-tool-last-step-options').hide();
 
-			$('#previous-timeline-widget').hide();
+			//$('#previous-timeline-widget').hide();
 
 			// Populate timeline
 			//getTimeline();

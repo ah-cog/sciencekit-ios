@@ -237,9 +237,8 @@ ul(id="narrative-list-template")
 								//video(class="video", width="570", height="427", controls)
 								video(class="video", width="570", height="427", controls)
 
-								div(class="thumbnailContainer", style="width: 570; height: 427; position: relative; display: block;")
-									img(class="videoThumbnail", src="./img/camera.png", width="570", height="427")
-									img(src="./img/play-button.png", style="position: absolute; top: 130px; left: 165px;")
+								div(class="thumbnailContainer", style="background: center center 570px 427px no-repeat no-repeat url(./img/camera.png);")
+									img(class="thumbnailOverlay", src="./img/play-button.png", style="vertical-align: middle; padding: 0px; margin: 0px;")
 
 							// Divider
 							div(class="question-section observation-section sequence-section", style="display: table-row;")
@@ -404,3 +403,29 @@ ul(id="narrative-list-template")
 								div(class="note", contenteditable="true", style="display: table-cell; min-width: 100%; vertical-align: middle; font-size: 20px; color: #666666; padding-left: 40px; background-image: url(./img/text.png); background-size: 30px 30px; background-repeat: no-repeat; height: 30px;")
 									//img(src="./img/topic.png", width="30", height="30", style="padding: 0px 8px 0px 0px; margin: 0px; vertical-align: middle;")
 									| &nbsp;
+
+	li(id="reflection-template", class="activity-template", data-activity-type="photo", data-id="", data-timeline="")
+
+		//
+		// Text
+		//
+
+		div(id="story-reflection-tool", class="story-reflection-tool toolkit-tool", style="display: table; width: 100%;")
+
+			div(style="display: table-row;")
+				div(style="display: table-cell; text-align: center; vertical-align: middle;")
+					img(src="./img/caption.png", width="50", height="50", style="padding: 10px;")
+
+				div(style="display: table-cell; position: relative; z-index: 0; width: 100%; border-left: 0px solid #f16521;")
+
+					div(class="tool-section")
+						div(class="text-input-widget")
+							div(class="element-table", style="display: table; width: 100%;")
+
+								div(class="element", style="display: table-row;")
+									div(class="text", style="display: table-cell; min-width: 100%; vertical-align: middle;")
+										input(type='text', id='reflection-text')
+
+									div(class="options", style="width: 75px; display: table-cell; text-align: right; vertical-align: middle;")
+										img(id="hostAddressSave", src="./img/check.png", style="display: none;")
+										img(id="hostAddressInvalid", src="./img/cross-red.png", style="display: none;")

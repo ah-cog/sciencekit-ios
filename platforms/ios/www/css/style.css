@@ -66,6 +66,22 @@ narrative-templates {
   padding: 0px;
 }
 
+#story-entry-queue {
+  list-style-type: none;
+  margin-left: 0px;
+  padding-left: 0px;
+
+  margin-right: 0px;
+  padding-right: 0px;
+
+  margin-top: 0px;
+  padding-top: 0px;
+}
+#story-entry-queue > li {
+  margin: 0px;
+  padding: 0px;
+}
+
 .activity-widget {
   padding: 10px 8px 10px 8px;
   margin: 13px 90px 13px 13px;
