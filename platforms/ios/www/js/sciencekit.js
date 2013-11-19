@@ -865,6 +865,19 @@ function openStoryPerspective() {
 	getStories();
 }
 
+function createStory(options) {
+
+	// Clear title
+	$('#story-tool-title').val(''); // Reset story entry form
+
+	// Empty each of the story step arrays
+	for (var i = 0; i < storyStepEntries.length; i++) {
+		storyStepEntries[i].length = 0;
+	}
+
+	openStoryTool(options);
+}
+
 function openStoryTool(options) {
 
 	if (typeof options !== "undefined") {
@@ -890,7 +903,18 @@ function openStoryTool(options) {
 	$('#story-grid-template-row').hide();
 
 	$('#story-grid').fadeOut(function() {
-		$('#story-tool-title').val(''); // Reset story entry form
+		
+		// Clear title
+		// $('#story-tool-title').val(''); // Reset story entry form
+
+		// Empty each of the story step arrays
+		// for (var i = 0; i < storyStepEntries.length; i++) {
+		// 	storyStepEntries[i].length = 0;
+		// }
+
+		// Clear current entries from story queue
+		$('#story-entry-queue').empty();
+
 		$('#story-title').fadeIn(function() {
 			$('#story-step-one-prompt').fadeIn();
 			//$('#narrative-list').show();
@@ -1535,6 +1559,9 @@ function getStory(options) {
 			// Show all Entries in the current Story
 
 			var story = currentStory;
+
+			console.log("HERE");
+			console.log(story);
 
 			// Set title of story
 			$('#story-tool-title').val(story.title);
@@ -3896,7 +3923,7 @@ function saveStoryTool(fn) {
 
 					var pageTemplate = {
 						"story": storyObject._id,
-						"entry": storyStepEntries[group][position].entry,
+						"entry": storyStepEntries[group][position].id,
 						"group": group,
 						"position": position
 					};
@@ -3986,192 +4013,10 @@ function saveStoryTool(fn) {
 				console.log('Failed to save Story.');
 			}
 		});
-
-		return;
-
-
-		reflectionCount = 0;
-		for (var i = 0; i < storyStepEntries.length; i++) {
-
-			// Create array to store entries for current entry group
-			storyTemplate['entries'][i] = [];
-
-			for (var j = 0; j < storyStepEntries[i].length; j++) {
-
-				// Add current entry to current entry group
-				if (storyStepEntries[i][j].type === 'Reflection') {
-					reflectionCount++;
-
-					var reflectionText = $(storyStepEntries[i][j].element).find('#reflection-text').val();
-
-					var reflectionJSON = {
-						"type": 'Reflection',
-						"text": reflectionText,
-						group: i,
-						position: j
-					};
-
-					// POST reflection to server
-					saveReflection(reflectionJSON, function(reflection) {
-
-						// var i = ;
-						// var j = reflectionJSON.position;
-
-						// alert(i);
-						// alert(j);
-						// alert('cb: ' + reflection._id);
-
-						//alert(storyStepEntries + ', ' + reflectionJSON.group + ', ' + reflectionJSON.position);
-
-						// alert(storyStepEntries[i][j]);
-						storyEntries[reflectionJSON.group][reflectionJSON.position].type = 'Entry';
-						storyEntries[reflectionJSON.group][reflectionJSON.position].id = reflection._id;
-
-						reflectionCount--;
-						if (reflectionCount <= 0) {
-							alert("DONE");
-							saveStoryCallback(storyStepEntries);
-						}
-					});
-
-					// story['entries'][i].push({
-					// 	type: storyStepEntries[i][j].type,
-					// 	//entry: storyStepEntries[i][j].id, 
-					// 	element: reflectionText,
-					// 	group: i,
-					// 	position: j
-					// });
-				}
-			}
-		}
 	}
 
-	function saveStoryCallback() {
-
-		//
-		// Get entries and prepare for POST request
-		//
-		for (var i = 0; i < storyStepEntries.length; i++) {
-
-			// Create array to store entries for current entry group
-			story['entries'][i] = [];
-
-			for (var j = 0; j < storyStepEntries[i].length; j++) {
-
-				// Add current entry to current entry group
-				if (storyStepEntries[i][j].type === 'Entry') {
-
-					story['entries'][i].push({ 
-						type: storyStepEntries[i][j].type,
-						entry: storyStepEntries[i][j].id, 
-						group: i, 
-						position: j 
-					});
-
-				} 
-				// else if (storyStepEntries[i][j].type === 'Reflection') {
-
-				// 	var reflectionText = $(storyStepEntries[i][j].element).find('#reflection-text').val();
-
-				// 	story['entries'][i].push({
-				// 		type: storyStepEntries[i][j].type,
-				// 		//entry: storyStepEntries[i][j].id, 
-				// 		element: reflectionText,
-				// 		group: i,
-				// 		position: j
-				// 	});
-				// }
-			}
-		}
-
-		var storyJSON = JSON.stringify(story);
-
-		alert(storyJSON);
-
-		return;
-
-		// POST the JSON object
-		$.ajax({
-			type: 'POST',
-			beforeSend: function(request) {
-				request.setRequestHeader('Authorization', 'Bearer ' + localStorage['token']);
-			},
-			url: localStorage['host'] + '/api/story',
-			dataType: 'json',
-			contentType: 'application/json; charset=utf-8',
-			data: storyJSON,
-			processData: false,
-			success: function(data) {
-				console.log('Saved Story: ');
-				console.log(data);
-
-				alert(JSON.stringify(data));
-
-				// Set element container (e.g., Thought). Only gets set once.
-				// $(e).attr('id', 'frame-' + data.frame._id); // e.data('id', data._id);
-				// addTimelineWidget(data);
-				//addSketchWidget();
-
-				console.log('Saved Story.');
-			},
-			error: function() {
-				console.log('Failed to save Story.');
-			}
-		});
-	}
-
-	return;
-
-	// $('.activity-template-left').closest('.activity-template').each(function(i) {
-
-	// 	var entryType = $(this).attr("data-activity-type");
-	// 	var entryId = $(this).attr("data-id");
-	// 	var entryNote = $(this).find(".note").text();
-
-	// 	console.log(entryId + ' ' + entryType);
-
-	// 	story.entries.push({ type: entryType, entry: entryId, note: entryNote });
-	// 	// TODO: Create StoryEntry
-
-	// });
-
-	// var storyJSON = JSON.stringify(story);
-	// console.log(storyJSON);
-
-	// // var uniqueTags = [];
-	// // $.each(tagText, function(i, el) {
-	// // 	if($.inArray(el, uniqueTags) === -1) uniqueTags.push(el);
-	// // });
-
-
-
-	// // POST the JSON object
-
-	// $.ajax({
-	// 	type: 'POST',
-	// 	beforeSend: function(request) {
-	// 		request.setRequestHeader('Authorization', 'Bearer ' + localStorage['token']);
-	// 	},
-	// 	url: localStorage['host'] + '/api/story',
-	// 	dataType: 'json',
-	// 	contentType: 'application/json; charset=utf-8',
-	// 	data: storyJSON,
-	// 	processData: false,
-	// 	success: function(data) {
-	// 		console.log('Saved Story: ');
-	// 		console.log(data);
-
-	// 		// Set element container (e.g., Thought). Only gets set once.
-	// 		// $(e).attr('id', 'frame-' + data.frame._id); // e.data('id', data._id);
-	// 		// addTimelineWidget(data);
-	// 		//addSketchWidget();
-
-	// 		console.log('Saved Story.');
-	// 	},
-	// 	error: function() {
-	// 		console.log('Failed to save Story.');
-	// 	}
-	// });
+	// TODO: Change this so it only goes back to the story perspective when things are successfully saved
+	openStoryPerspective();
 }
 
 //function add
