@@ -751,11 +751,17 @@ function openInquiryPerspective() {
 	// Hide story mode elements
 	$('#story-perspective-list').fadeOut();
 	$('#story-entry-queue').fadeOut();
-	$('#toolkit-tool-first-step-options').fadeOut();
-	$('#toolkit-tool-middle-step-options').fadeOut();
-	$('#toolkit-tool-last-step-options').fadeOut();
+	$('#storykit-options').fadeOut();
+
+	$('#story-mode-previous-button').fadeOut();
+	$('#story-mode-next-button').fadeOut();
+
+	$('#bottom-mode-options').fadeOut();
+	$('#confirm-cancel-tool').fadeIn();
+	$('#confirm-save-tool').fadeIn();
 
 	$('#toolkit-tool-options').fadeOut(function() {
+		$('#storykit-options').fadeOut(); // hide story kit
 		$('#toolkit-options').fadeIn(function() {
 			$('#top').fadeIn();
 			$('#bottom').fadeIn();
@@ -846,9 +852,12 @@ function openStoryPerspective() {
 
 	$('#toolkit-list').fadeOut();
 
-	//$('#narrative-list').fadeOut(function() {
-	$('#story-interface').hide();
 	$('#capture-interface').fadeOut(function() {
+		$('#story-interface').hide();
+
+		// Scroll to top
+		$('#story-interface').animate({ scrollTop: 0 }, 1000);
+
 		// $('#toolkit-tool-options').fadeIn();
 		$('#story-grid-template-row').hide();
 		$('#story-grid').fadeIn();
@@ -866,6 +875,9 @@ function openStoryPerspective() {
 }
 
 function createStory(options) {
+
+	// Hide perspective options
+	$('#mode-options').fadeOut();
 
 	// Clear title
 	$('#story-tool-title').val(''); // Reset story entry form
@@ -894,6 +906,10 @@ function openStoryTool(options) {
 
 	currentTool = 'Story';
 	currentToolStep = 0;
+
+	// Show story kit
+	$('#storykit-options').fadeIn();
+
 	updateStoryTool();
 
 	$('#logo').fadeOut();
@@ -915,6 +931,8 @@ function openStoryTool(options) {
 		// Clear current entries from story queue
 		$('#story-entry-queue').empty();
 
+		$('#story-interface').show();
+
 		$('#story-title').fadeIn(function() {
 			$('#story-step-one-prompt').fadeIn();
 			//$('#narrative-list').show();
@@ -933,9 +951,7 @@ function openStoryTool(options) {
 	$('#toolkit-options').fadeOut(function() {
 		if (options['readOnly'] !== true) {
 			//$('#toolkit-tool-options').fadeIn();
-			$('#toolkit-tool-first-step-options').fadeIn();
-			$('#toolkit-tool-middle-step-options').fadeOut();
-			$('#toolkit-tool-last-step-options').fadeOut();
+			$('#storykit-options').fadeIn();
 		}
 	});
 
@@ -987,69 +1003,44 @@ function openStoryTool(options) {
 			storyStepEntries[currentToolStep].push({ id: entryId, type: 'Entry' }); // Add entry to story for current step
 			//$(this).remove(); // Remove entry from capture queue
 			$(this).slideUp(); // Remove entry from capture queue
-
-			return;
-
-
-
-
-			// // Move right
-			// if ($(this).hasClass('activity-template-left') && !($(this).hasClass('activity-template-right'))) {
-			// 	$(this).removeClass('activity-template-left');
-			// 	$(this).addClass('activity-template-right');
-
-			// 	// $(this).find('.note-section').css('display', 'none');
-			// 	$(this).find('.note-section').hide();
-
-			// // Move left
-			// } else if (!($(this).hasClass('activity-template-left')) && $(this).hasClass('activity-template-right')) {
-			// 	$(this).removeClass('activity-template-right');
-			// 	$(this).addClass('activity-template-left');
-
-			// 	// $(this).find('.note-section').css('display', 'table-row');
-			// 	$(this).find('.note-section').show();
-
-			// // Set default
-			// } else {
-			// 	$(this).removeClass('activity-template-left');
-			// 	$(this).removeClass('activity-template-right');
-			// 	$(this).addClass('activity-template-left');
-
-			// 	// $(this).find('.note-section').css('display', 'none');
-			// }
-
-			// $('.activity-widget').removeClass('activity-widget-right');
-			// $('.activity-widget').addClass('activity-widget-left');
 		});
 	}
-
-	// if (options['readOnly'] === true) {
-	// 	$('.activity-template-right').hide();
-	// }
 }
 
 function stepForwardStoryTool() {
 
-	// Update step
-	if (currentToolStep == 0) {
-		currentToolStep = 1;
-	} else if (currentToolStep == 1) {
-		currentToolStep = 2;
-	}
+	$('#story-mode-previous-button').fadeOut();
+	$('#story-mode-next-button').fadeOut();
 
-	updateStoryTool();
+	$('#story-entry-queue').fadeOut(function () {
+
+		// Update step
+		if (currentToolStep == 0) {
+			currentToolStep = 1;
+		} else if (currentToolStep == 1) {
+			currentToolStep = 2;
+		}
+
+		updateStoryTool();
+	});
 }
 
 function stepBackwardStoryTool() {
 
-	// Update step
-	if (currentToolStep == 1) {
-		currentToolStep = 0;
-	} else if (currentToolStep == 2) {
-		currentToolStep = 1;
-	}
+	$('#story-mode-previous-button').fadeOut();
+	$('#story-mode-next-button').fadeOut();
 
-	updateStoryTool();
+	$('#story-entry-queue').fadeOut(function () {
+
+		// Update step
+		if (currentToolStep == 1) {
+			currentToolStep = 0;
+		} else if (currentToolStep == 2) {
+			currentToolStep = 1;
+		}
+
+		updateStoryTool();
+	});
 }
 
 function updateStoryTool() {
@@ -1058,9 +1049,7 @@ function updateStoryTool() {
 	if (currentToolStep == 0) {
 
 		// Remove "back arrow", show "next arrow"
-		$('#toolkit-tool-middle-step-options').fadeOut();
-		$('#toolkit-tool-last-step-options').fadeOut();
-		$('#toolkit-tool-first-step-options').fadeIn(function() {
+		$('#storykit-options').fadeIn(function() {
 
 			// Show step scaffolding
 			$('#story-step-two-prompt').fadeOut(function() {
@@ -1072,12 +1061,18 @@ function updateStoryTool() {
 			});
 		});
 
+		// new...
+		// $('#story-mode-previous-button').fadeOut();
+		// $('#story-mode-next-button').fadeIn();
+
+		// $('#confirm-cancel-tool').fadeIn();
+		// $('#confirm-save-tool').fadeOut();
+		// $('#bottom-mode-options').fadeIn();
+
 	} else if (currentToolStep == 1) {
 
 		// Show "back arrow" and "next arrow"
-		$('#toolkit-tool-first-step-options').fadeOut();
-		$('#toolkit-tool-last-step-options').fadeOut();
-		$('#toolkit-tool-middle-step-options').fadeIn(function() {
+		$('#storykit-options').fadeIn(function() {
 
 			// Show step scaffolding
 			$('#story-step-one-prompt').fadeOut(function() {
@@ -1089,11 +1084,17 @@ function updateStoryTool() {
 			});
 		});
 
+		// new...
+		// $('#story-mode-previous-button').fadeIn();
+		// $('#story-mode-next-button').fadeIn();
+
+		// $('#confirm-cancel-tool').fadeIn();
+		// $('#confirm-save-tool').fadeOut();
+		// $('#bottom-mode-options').fadeIn();
+
 	} else if (currentToolStep == 2) {
 
-		$('#toolkit-tool-first-step-options').fadeOut();
-		$('#toolkit-tool-middle-step-options').fadeOut();
-		$('#toolkit-tool-last-step-options').fadeIn(function() {
+		$('#storykit-options').fadeIn(function() {
 
 			// Show step scaffolding
 			$('#story-step-one-prompt').fadeOut(function() {
@@ -1104,6 +1105,14 @@ function updateStoryTool() {
 				});
 			});
 		});
+
+		// new...
+		// $('#story-mode-previous-button').fadeIn();
+		// $('#story-mode-next-button').fadeOut();
+
+		// $('#confirm-cancel-tool').fadeIn();
+		// $('#confirm-save-tool').fadeIn();
+		// $('#bottom-mode-options').fadeIn();
 	}
 
 	function populateStep () {
@@ -1116,6 +1125,7 @@ function updateStoryTool() {
 
 		// Clear current entries from story queue
 		$('#story-entry-queue').empty();
+		$('#story-entry-queue').fadeIn();
 
 		// Populate story queue with step's entries
 		// TODO: Make sure that entires are added to the queue in the correct order. That is, make sure the entires are added based on the array order, not the order in which the HTTP requests are completed (the current case). One way to do this is to pre-populate the list with "empty" entries for the given entry IDs then populate those entries when the request completes.
@@ -1129,8 +1139,11 @@ function updateStoryTool() {
 
 			//if (entry.type === 'Entry') {
 			if (entry.hasOwnProperty('id')) {
+
 				addEntryToStory(entry['id']);
+
 			} else if (entry.type === 'Reflection') {
+
 				// storyStepEntries[currentToolStep].push({ type: 'Reflection', element: e });
 				var reflectionText = $(entry.element).find('#reflection-text').val();
 				//alert(reflectionText);
@@ -1140,6 +1153,36 @@ function updateStoryTool() {
 
 			// Remove the entries that are in the story queue from the data queue
 			$('#narrative-list').find('#frame-' + entry['id']).hide();
+		}
+
+		// new...
+		if (currentToolStep == 0) {
+
+			$('#story-mode-previous-button').fadeOut();
+			$('#story-mode-next-button').fadeIn();
+
+			$('#confirm-cancel-tool').fadeIn();
+			$('#confirm-save-tool').fadeOut();
+			$('#bottom-mode-options').fadeIn();
+
+		} else if (currentToolStep == 1) {
+
+			$('#story-mode-previous-button').fadeIn();
+			$('#story-mode-next-button').fadeIn();
+
+			$('#confirm-cancel-tool').fadeIn();
+			$('#confirm-save-tool').fadeOut();
+			$('#bottom-mode-options').fadeIn();
+
+		} else if (currentToolStep == 2) {
+
+			$('#story-mode-previous-button').fadeIn();
+			$('#story-mode-next-button').fadeOut();
+
+			$('#confirm-cancel-tool').fadeIn();
+			$('#confirm-save-tool').fadeIn();
+			$('#bottom-mode-options').fadeIn();
+
 		}
 	}
 }
@@ -1267,32 +1310,32 @@ function openReflectionTool() {
 
 	return;
 
-	// currentConceptTool = 'Reflection';
-	currentTool = 'Reflection';
+	// // currentConceptTool = 'Reflection';
+	// currentTool = 'Reflection';
 
-	$('#logo').fadeOut();
-	$('#top').fadeOut();
-	$('#bottom').fadeOut();
+	// $('#logo').fadeOut();
+	// $('#top').fadeOut();
+	// $('#bottom').fadeOut();
 	
-	$('#toolkit-options').fadeOut(function() {
-		$('.story-toolkit-tool-options').fadeOut();
-		$('#toolkit-tool-options').fadeIn();
-	});
+	// $('#toolkit-options').fadeOut(function() {
+	// 	$('.story-toolkit-tool-options').fadeOut();
+	// 	$('#toolkit-tool-options').fadeIn();
+	// });
 
-	// Reset form
-	$('#story-text-tool-text').val('');
+	// // Reset form
+	// $('#story-text-tool-text').val('');
 
-	//$('#story-entry-queue').fadeOut(function() {
-	$('#story-perspective-list').fadeOut(function() {
-		$('.story-concept-tool').hide();
-		$('#story-concept-toolkit').show();
-		$('#story-toolkit-list').fadeIn();
+	// //$('#story-entry-queue').fadeOut(function() {
+	// $('#story-perspective-list').fadeOut(function() {
+	// 	$('.story-concept-tool').hide();
+	// 	$('#story-concept-toolkit').show();
+	// 	$('#story-toolkit-list').fadeIn();
 
-		// $('#media-type-options .media-type-options').fadeOut(function () {
-			//$('.story-text-tool').fadeIn();
-			$('#story-text-tool').fadeIn();
-		// });
-	});
+	// 	// $('#media-type-options .media-type-options').fadeOut(function () {
+	// 		//$('.story-text-tool').fadeIn();
+	// 		$('#story-text-tool').fadeIn();
+	// 	// });
+	// });
 }
 
 function openQuestionTool() {
@@ -1419,6 +1462,8 @@ function getStories(options) {
 	options['timeline'] = $("#narrative-list").attr("data-timeline");
 	console.log(options['timeline']);
 
+	// Remove existing story covers from table to prepare to populate with updated set of story covers
+	$('#story-grid-table').find('.story-cover').remove();
 
 	// var entryId = $(e).find('.activity-widget .element').attr('data-entry');
 
@@ -1454,6 +1499,7 @@ function getStories(options) {
 					// sequenceStep.addClass('activity-frame');
 					$(storyGridRow).removeAttr('id'); // Remove 'id' attribute
 					$(storyGridRow).css('display', 'table-row');
+					$(storyGridRow).addClass('story-cover');
 
 					var leftStory = storyGridRow.find('.story-cover-left');
 					$(leftStory).attr('id', 'story-' + currentRow + '-0');
@@ -1640,6 +1686,10 @@ function setStoryChapter(options) {
 
 }
 
+function confirmSaveTool() {
+	$('#confirm-save-overlay').show();
+}
+
 function saveTool() {
 	// TODO: Check which tool is currently open, save work, reset form.
 
@@ -1677,6 +1727,85 @@ function saveTool() {
 	}
 
 	//closeTool();
+
+	// Hide save confirmation dialog if shown
+	hideConfirm();
+}
+
+var showingToolkitLabels = true;
+var showingStoryKitLabels = true;
+
+function showToolkitLabels() {
+
+	if (!showingToolkitLabels) {
+		//var width = $('.toolkit-option-text').data('width');
+		var width = 86;
+		var backgroundColor = $('.toolkit-option-container').data('background-color');
+		$('.toolkit-option-text').animate({ width: width, opacity: 1.0 }, function () {
+		 	$('.toolkit-option').removeClass('hide-option-hint');
+		});
+		$('.toolkit-option-container').animate({ "backgroundColor" : backgroundColor });
+		showingToolkitLabels = true;
+	}
+}
+
+function hideToolkitLabels() {
+
+	if (showingToolkitLabels) {
+		showingToolkitLabels = false;
+		// Save width
+		$('.toolkit-option-text').data('width', $('.toolkit-option-text').width());
+		$('.toolkit-option-container').data('background-color', $('.toolkit-option-container').css('background-color'));
+
+		$('.toolkit-option-container').animate({ "backgroundColor" : "rgba(255, 255, 255, 0.0)" });
+		// Hide
+		$('.toolkit-option-text').animate({ width: "0", opacity: 0.0 }, function () {
+//			// $('.toolkit-option').addClass('hide-option-hint');
+//			$('.toolkit-option-text').fadeOut();
+
+		});
+	}
+}
+
+function showStoryKitLabels() {
+
+	if (!showingStoryKitLabels) {
+		//var width = $('.storykit-option-text').data('width');
+		var width = 86;
+		var backgroundColor = $('.storykit-option-container').data('background-color');
+		$('.storykit-option-text').animate({ width: width, opacity: 1.0 }, function () {
+		 	$('.storykit-option').removeClass('hide-option-hint');
+		});
+		$('.storykit-option-container').animate({ "backgroundColor" : backgroundColor });
+		showingStoryKitLabels = true;
+	}
+}
+
+function hideStoryKitLabels() {
+
+	if (showingStoryKitLabels) {
+		showingStoryKitLabels = false;
+		// Save width
+		$('.storykit-option-text').data('width', $('.storykit-option-text').width());
+		$('.storykit-option-container').data('background-color', $('.storykit-option-container').css('background-color'));
+
+		$('.storykit-option-container').animate({ "backgroundColor" : "rgba(255, 255, 255, 0.0)" });
+		// Hide
+		$('.storykit-option-text').animate({ width: "0", opacity: 0.0 }, function () {
+//			// $('.toolkit-option').addClass('hide-option-hint');
+//			$('.toolkit-option-text').fadeOut();
+
+		});
+	}
+}
+
+function confirmCancelTool() {
+	$('#confirm-cancel-overlay').show();
+}
+
+function hideConfirm() {
+	$('#confirm-save-overlay').fadeOut();
+	$('#confirm-cancel-overlay').fadeOut();
 }
 
 function cancelTool() {
@@ -1687,28 +1816,33 @@ function cancelTool() {
 
 function closeTool() {
 
-	openInquiryPerspective();
+	if (currentPerspective === 'Story') {
+		openStoryPerspective();
+	} else {
+		openInquiryPerspective();
 
-	$('#toolkit-list').fadeOut(function() {
-		$('#mode-options').fadeIn();
-		$('#capture-interface').fadeIn();
-	});
-
-	$('#toolkit-tool-options').fadeOut(function() {
-		$('#toolkit-tool-first-step-options').fadeOut();
-		$('#toolkit-tool-middle-step-options').fadeOut();
-		$('#toolkit-tool-last-step-options').fadeOut();
-		$('#toolkit-options').fadeIn(function() {
-			$('#top').fadeIn();
-			$('#bottom').fadeIn();
-			$('#logo').fadeIn();
+		$('#toolkit-list').fadeOut(function() {
+			$('#mode-options').fadeIn();
+			$('#capture-interface').fadeIn();
 		});
-	});
 
-	// Empty each of the story step arrays
-	for (var i = 0; i < storyStepEntries.length; i++) {
-		storyStepEntries[i].length = 0;
+		$('#toolkit-tool-options').fadeOut(function() {
+			$('#storykit-options').fadeOut();
+			$('#toolkit-options').fadeIn(function() {
+				$('#top').fadeIn();
+				$('#bottom').fadeIn();
+				$('#logo').fadeIn();
+			});
+		});
+
+		// Empty each of the story step arrays
+		for (var i = 0; i < storyStepEntries.length; i++) {
+			storyStepEntries[i].length = 0;
+		}
 	}
+
+	// Hide save confirmation dialog if shown
+	hideConfirm();
 }
 
 

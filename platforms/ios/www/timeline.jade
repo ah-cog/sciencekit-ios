@@ -21,8 +21,18 @@ block content
 						div(style='background-image: url(./img/story.png); background-size: 40px 40px; background-repeat:no-repeat; background-position:10px 8px; height: 50px; padding-left: 55px; padding-top: 8px; font-size: 30px; vertical-align: middle;')
 							| story
 
-	//.edge(id="logo", style="position: fixed; left: 80px; top: 0px; text-align: right; font-size: 30px; padding-right: 10px; z-index: 1001;")
-	//	img(id="logo", src="./img/sciencekit-logo.png", alt="sciencekit logo", style="margin-top: 0px; width: 230px;")
+	//
+	// Bottom of interface
+	//
+	.edge(id="story-mode-previous-button", style="position: fixed; vertical-align: middle; left: 0px; bottom: 45%; text-align: right; font-size: 30px; padding-right: 10px; text-align: center; z-index: 1001;")
+		a(href="javascript:void(0);", onclick="stepBackwardStoryTool();") 
+			div(style='background-image: url(./img/green-arrow-left.png); background-size: 70px 70px; background-repeat:no-repeat; background-position:10px 8px; height: 80px; padding-left: 80px; padding-top: 24px; font-size: 30px; vertical-align: middle;')
+				| previous
+
+	.edge(id="story-mode-next-button", style="position: fixed; vertical-align: middle; right: 0px; bottom: 45%; text-align: right; font-size: 30px; padding-right: 10px; text-align: center; z-index: 1001;")
+		a(href="javascript:void(0);", onclick="stepForwardStoryTool();") 
+			div(style='background-image: url(./img/green-arrow-right.png); background-size: 70px 70px; background-repeat:no-repeat; background-position: -10px 8px; height: 80px; padding-left: 80px; padding-top: 24px; font-size: 30px; vertical-align: middle;')
+				| next
 
 	//
 	// Top-right floating options
@@ -38,22 +48,30 @@ block content
 	//
 	// Toolkit Options
 	//
-	.edge(id="toolkit-options", style="position: fixed; right: 0px; top: 100px; text-align: right; font-size: 30px; padding-right: 10px; z-index: 1000;")
-		a(href="javascript:void(0);", onclick="openTextTool();") 
-			img(src="./img/text.png", width="50px", alt="text")
-		br
+	.edge(id="toolkit-options", style="position: fixed; right: 0px; top: 100px; text-align: right; font-size: 30px; z-index: 2000;")
+		//.tool-background(style="")
+		//	a(href="javascript:void(0);", onclick="openTextTool();") 
+		//		img(src="./img/text.png", width="50px", alt="text")
 
-		a(href="javascript:void(0);", onclick="capturePhotoToURI();") 
-			img(src="./img/camera.png", width="50px", alt="image")
-		br
+		a(class="toolkit-option", href="javascript:void(0);", onclick="openTextTool();") 
+			.toolkit-option-container(style="background-image: url(./img/text.png);")
+				p.toolkit-option-text
+					| text
 
-		a(href="javascript:void(0);", onclick="captureVideo2();") 
-			img(src="./img/video.png", width="50px", alt="video")
-		br
+		a(class="toolkit-option", href="javascript:void(0);", onclick="capturePhotoToURI();") 
+			.toolkit-option-container(style="background-image: url(./img/camera.png);")
+				p.toolkit-option-text
+					| photo
 
-		a(href="javascript:void(0);", onclick="openSketchTool();") 
-			img(src="./img/palette.png", width="50px", alt="sketch")
-		br
+		a(class="toolkit-option", href="javascript:void(0);", onclick="captureVideo2();") 
+			.toolkit-option-container(style="background-image: url(./img/video.png);")
+				p.toolkit-option-text
+					| video
+
+		a(class="toolkit-option", href="javascript:void(0);", onclick="openSketchTool();") 
+			.toolkit-option-container(style="background-image: url(./img/palette.png);")
+				p.toolkit-option-text
+					| sketch
 
 	//
 	// Toolkit Per-Tool Options
@@ -70,56 +88,18 @@ block content
 	//
 	// Toolkit First Step Per-Tool Options
 	//
-	.edge(id="toolkit-tool-first-step-options", class="story-toolkit-tool-options", style="position: fixed; right: 0px; top: 100px; text-align: right; font-size: 30px; padding-right: 10px; z-index: 1000;")
-		a(href="javascript:void(0);", onclick="cancelTool();") 
-			img(src="./img/cross-red.png", width="50px", alt="cancel")
-		br
+	//.edge(id="storykit-options", class="storykit-options", style="position: fixed; right: 0px; top: 100px; text-align: right; font-size: 30px; padding-right: 10px; z-index: 1000;")
+	.edge(id="storykit-options", style="position: fixed; right: 0px; top: 100px; text-align: right; font-size: 30px; z-index: 2000;")
+		
+		a(class="storykit-option", href="javascript:void(0);", onclick="openEntrySelectionTool();") 
+			.storykit-option-container(style="background-image: url(./img/notebook.png);")
+				p.storykit-option-text
+					| data
 
-		a(href="javascript:void(0);", onclick="stepForwardStoryTool();") 
-			img(src="./img/green-arrow-right.png", width="50px", alt="forward")
-		br
-
-
-		img(src="./img/blank.png", width="50px", alt="")
-		br
-
-	//
-	// Toolkit Middle Step Per-Tool Options
-	//
-	.edge(id="toolkit-tool-middle-step-options", class="story-toolkit-tool-options", style="position: fixed; right: 0px; top: 100px; text-align: right; font-size: 30px; padding-right: 10px; z-index: 1000;")
-		a(href="javascript:void(0);", onclick="cancelTool();") 
-			img(src="./img/cross-red.png", width="50px", alt="cancel")
-		br
-
-		a(href="javascript:void(0);", onclick="stepBackwardStoryTool();") 
-			img(src="./img/green-arrow-left.png", width="50px", alt="backward")
-		br
-
-		a(href="javascript:void(0);", onclick="stepForwardStoryTool();") 
-			img(src="./img/green-arrow-right.png", width="50px", alt="forward")
-		br
-
-		img(src="./img/blank.png", width="50px", alt="")
-		br
-
-	//
-	// Toolkit Last Step Per-Tool Options
-	//
-	.edge(id="toolkit-tool-last-step-options", class="story-toolkit-tool-options", style="position: fixed; right: 0px; top: 100px; text-align: right; font-size: 30px; padding-right: 10px; z-index: 1000;")
-		a(href="javascript:void(0);", onclick="cancelTool();") 
-			img(src="./img/cross-red.png", width="50px", alt="cancel")
-		br
-
-		a(href="javascript:void(0);", onclick="stepBackwardStoryTool();") 
-			img(src="./img/green-arrow-left.png", width="50px", alt="backward")
-		br
-
-		img(src="./img/blank.png", width="50px", alt="")
-		br
-
-		a(href="javascript:void(0);", onclick="saveTool();") 
-			img(src="./img/check.png", width="50px", alt="done")
-		br
+		a(class="storykit-option", href="javascript:void(0);", onclick="openReflectionTool();") 
+			.storykit-option-container(style="background-image: url(./img/caption.png);")
+				p.storykit-option-text
+					| note
 
 	//
 	// Templates for Timeline Widgets (this is not visible)
@@ -314,28 +294,6 @@ block content
 
 	// TODO: Add a div here to contain the queue? (Like the narrative-list)
 	ul(id="story-entry-queue", style="z-index: 990;")
-
-
-	ul(id="story-entry-options")
-		li(id="story-entry-toolkit", class="story-concept-tool story-toolkit-tool story-concept-toolkit story-tool-template")
-
-			//
-			// Question
-			//
-
-			div(id="story-text-tool", class="text-tool concept-tool", style="display: table; width: 100%;")
-
-				div(style="display: table-row;")
-					div(style="display: table-cell; text-align: center; vertical-align: middle;")
-						img(src="./img/blank.png", width="50", height="0", style="padding: 10px;")
-					div(class="account", style="display: table-cell; position: relative; z-index: 0; width: 100%; border-left: 0px solid #f16521; vertical-align: middle; padding-left: 22px; padding-top: 10px; font-size: 20px; color: #666666;")
-						a(href="javascript:void(0);", onclick="openEntrySelectionTool();") 
-							img(src="./img/notebook.png", width="50px", alt="story")
-						br
-
-						a(href="javascript:void(0);", onclick="openReflectionTool();") 
-							img(src="./img/caption.png", width="50px", alt="story")
-						br
 
 
 	//.edge(id="story-interface", style="background-color: #ffffff; overflow-y: scroll; -webkit-overflow-scrolling: touch; width: 100%; height:100%; position: fixed; left: 0px; top: 0px; text-align: left; font-size: 13px; padding-left: 10px; z-index: 990;")
@@ -703,12 +661,48 @@ block content
 
 	.dim(id="capture-overlay", style="height:100%; width:100%; position:fixed; left:0; top:0; z-index:995 !important; background-color:black; opacity: 0.2;")
 
+	.confirm-save-overlay(id="confirm-save-overlay", style="height:100%; width:100%; position:fixed; left:0; top:0; z-index:2000; !important; background-color:none;")
+		.message(style="width:300px; height:300px; background:#333333; position:fixed; top:50%; left:50%; margin-top:-150px; margin-left:-150px; border-radius: 15px; padding: 20px;")
+			| Do you want to save?
+			a(href="javascript:void(0);", onclick="saveTool();") 
+				div(style='background-image: url(./img/check.png); background-size: 40px 40px; background-repeat:no-repeat; background-position:0px 8px; height: 50px; padding-left: 45px; padding-top: 8px; font-size: 30px; vertical-align: middle;')
+					| yes
+			a(href="javascript:void(0);", onclick="hideConfirm();") 
+				div(style='background-image: url(./img/cross-red.png); background-size: 40px 40px; background-repeat:no-repeat; background-position:0px 8px; height: 50px; padding-left: 45px; padding-top: 8px; font-size: 30px; vertical-align: middle;')
+					| no
+
+	.confirm-cancel-overlay(id="confirm-cancel-overlay", style="height:100%; width:100%; position:fixed; left:0; top:0; z-index:2000; !important; background-color:none;")
+		.message(style="width:300px; height:300px; background:#333333; position:fixed; top:50%; left:50%; margin-top:-150px; margin-left:-150px; border-radius: 15px; padding: 20px;")
+			| Do you want to cancel?
+			a(href="javascript:void(0);", onclick="cancelTool();") 
+				div(style='background-image: url(./img/check.png); background-size: 40px 40px; background-repeat:no-repeat; background-position:0px 8px; height: 50px; padding-left: 45px; padding-top: 8px; font-size: 30px; vertical-align: middle;')
+					| yes
+			a(href="javascript:void(0);", onclick="hideConfirm();") 
+				div(style='background-image: url(./img/cross-red.png); background-size: 40px 40px; background-repeat:no-repeat; background-position:0px 8px; height: 50px; padding-left: 45px; padding-top: 8px; font-size: 30px; vertical-align: middle;')
+					| no
+
 	.edge(id="capture-interface", style="border-right: 5px solid #333333; border-image: url(./img/left.png) 0 100% repeat; border-width: 0px 150px 0px 0px; overflow-y: scroll; overflow-x: hidden; -webkit-overflow-scrolling: touch; width: 100%; height:100%; position: fixed; left: 0px; top: 0px; text-align: left; font-size: 13px; padding-top: 0px; padding-left: 0px; z-index: 999;")
 		ul(id="narrative-list", style="background-color: #ffffff; padding-top: 60px;")
 
-	.edge(id="bottom", style="text-align: right; font-size: 30px; padding-right: 10px;")
+	.edge(id="bottom", style="text-align: right; font-size: 30px; padding-right: 10px; z-index: 1000;")
 		a(href="javscript:void(0);", onclick="scrollToBottom();") 
 			img(src="./img/down-arrow.png", alt="bottom", style="position: absolute; bottom: 0px; right: 0px;")
+
+	//
+	// Bottom of interface
+	//
+	.edge(id="bottom-mode-options", style="position: fixed; left: 10px; bottom: 0px; text-align: right; font-size: 30px; padding-right: 10px; width:100%; text-align: center; z-index: 1001; background-color: #ffffff;")
+		div(style="display: inline-block;")
+			div(style="display: table;")
+				div(style="display: table-row;")
+					div(style="display: table-cell;")
+						a(id="confirm-cancel-tool", href="javascript:void(0);", onclick='confirmCancelTool();')
+							div(style='background-image: url(./img/cross-red.png); background-size: 70px 70px; background-repeat:no-repeat; background-position:10px 8px; height: 80px; padding-left: 80px; padding-top: 24px; font-size: 30px; vertical-align: middle;')
+								| cancel
+					div(style="display: table-cell;")
+						a(id="confirm-save-tool", href="javascript:void(0);", onclick='confirmSaveTool();')
+							div(style='background-image: url(./img/check.png); background-size: 70px 70px; background-repeat:no-repeat; background-position:10px 8px; height: 80px; padding-left: 80px; padding-top: 24px; font-size: 30px; vertical-align: middle;')
+								| save
 
 	//
 	// Bottom of interface
@@ -797,17 +791,28 @@ block content
 			$('#motion-tool').hide();
 			$('#sketch-tool').hide();
 
+			// Overlays
 			$('#capture-overlay').hide();
 
+			// Story mode
 			$('#story-perspective-list').hide();
 			$('#story-text-tool').hide();
 			$('#story-toolkit-list').hide();
+			$('#story-mode-next-button').hide();
+			$('#story-mode-previous-button').hide();
+			$('#storykit-options').hide();
 
+			// Toolkit
 			$('#toolkit-list').hide();
 			$('#toolkit-tool-options').hide();
 			$('#toolkit-tool-first-step-options').hide();
 			$('#toolkit-tool-middle-step-options').hide();
 			$('#toolkit-tool-last-step-options').hide();
+			$('#bottom-mode-options').hide();
+
+			// Hide confirmation overlays
+			$('#confirm-save-overlay').hide();
+			$('#confirm-cancel-overlay').hide();
 
 			//$('#previous-timeline-widget').hide();
 
@@ -842,14 +847,64 @@ block content
 			$( "ul, li" ).disableSelection();
 		}
 
+		//$(window).on('scroll', function() {
+		//$('#capture-interface').on('touchmove', function() {
+		$(window).on('touchend', function() {
+		//$('#capture-interface').on('scrollstart', function() {
+
+			if ($(self).data('scrollTimeout')) {
+				clearTimeout($(self).data('scrollTimeout'));
+			}
+			$(self).data('scrollTimeout', setTimeout(function() {
+				showStoryKitLabels();
+			}, 2500, $(self)));
+
+			hideStoryKitLabels();
+		});
+
+		$(window).on('scroll', function() {
+			if ($(self).data('scrollTimeout')) {
+				clearTimeout($(self).data('scrollTimeout'));
+			}
+			$(self).data('scrollTimeout', setTimeout(function() {
+				showStoryKitLabels();
+			}, 2500, $(self)));
+		});
+
+		//$('#capture-interface').on('scroll', function() {
+		//$('#capture-interface').on('touchmove', function() {
+		$('#capture-interface').on('touchend', function() {
+		//$('#capture-interface').on('scrollstart', function() {
+
+			if ($(self).data('scrollTimeout')) {
+				clearTimeout($(self).data('scrollTimeout'));
+			}
+			$(self).data('scrollTimeout', setTimeout(function() {
+				showToolkitLabels();
+			}, 2500, $(self)));
+
+			hideToolkitLabels();
+		});
+
+		$('#capture-interface').on('scroll', function() {
+			if ($(self).data('scrollTimeout')) {
+				clearTimeout($(self).data('scrollTimeout'));
+			}
+			$(self).data('scrollTimeout', setTimeout(function() {
+				showToolkitLabels();
+			}, 2500, $(self)));
+		});
+
 		function scrollToTop() {
-			$('html,body').animate({ scrollTop: 0 }, 1000);
+			//$('html,body').animate({ scrollTop: 0 }, 1000);
+			$('#capture-interface').animate({ scrollTop: 0 }, 1000);
 		}
 
 		function scrollToBottom() {
 			//$('html,body').animate({ scrollTop: $('#sciencekit-small-logo').offset().top }, 1000);
 			//$('html,body').animate({ scrollTop: document.body.scrollHeight }, 1000);
-			$('html,body').animate({ scrollTop: document.body.clientHeight }, 1000);
+			//$('html,body').animate({ scrollTop: document.body.clientHeight }, 1000);
+			$('#capture-interface').animate({ scrollTop: $('#capture-interface')[0].scrollHeight }, 1000);
 		}
 
 		function scrollTickle() {
