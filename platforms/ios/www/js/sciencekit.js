@@ -876,6 +876,8 @@ function openStoryPerspective() {
 
 function createStory(options) {
 
+	currentStoryMode = 'Writeable';
+
 	// Hide perspective options
 	$('#mode-options').fadeOut();
 
@@ -908,9 +910,13 @@ function openStoryTool(options) {
 	currentToolStep = 0;
 
 	// Show story kit
-	$('#storykit-options').fadeIn();
+	if (currentStoryMode == 'Writeable') {
+		$('#storykit-options').fadeIn();
+	} else {
+		$('#storykit-options').hide();
+	}
 
-	updateStoryTool();
+	showChapter();
 
 	$('#logo').fadeOut();
 	$('#top').fadeOut();
@@ -949,9 +955,12 @@ function openStoryTool(options) {
 
 	
 	$('#toolkit-options').fadeOut(function() {
-		if (options['readOnly'] !== true) {
+		//if (options['readOnly'] !== true) {
+		if (currentStoryMode == 'Writeable') {
 			//$('#toolkit-tool-options').fadeIn();
 			$('#storykit-options').fadeIn();
+		} else {
+			$('#storykit-options').hide();
 		}
 	});
 
@@ -1007,7 +1016,7 @@ function openStoryTool(options) {
 	}
 }
 
-function stepForwardStoryTool() {
+function getNextChapter() {
 
 	$('#story-mode-previous-button').fadeOut();
 	$('#story-mode-next-button').fadeOut();
@@ -1021,11 +1030,11 @@ function stepForwardStoryTool() {
 			currentToolStep = 2;
 		}
 
-		updateStoryTool();
+		showChapter();
 	});
 }
 
-function stepBackwardStoryTool() {
+function getPreviousChapter() {
 
 	$('#story-mode-previous-button').fadeOut();
 	$('#story-mode-next-button').fadeOut();
@@ -1039,80 +1048,66 @@ function stepBackwardStoryTool() {
 			currentToolStep = 1;
 		}
 
-		updateStoryTool();
+		showChapter();
 	});
 }
 
-function updateStoryTool() {
+function showChapter() {
 
 	// Update for step
 	if (currentToolStep == 0) {
 
 		// Remove "back arrow", show "next arrow"
-		$('#storykit-options').fadeIn(function() {
+		if (currentStoryMode == 'Writeable') {
+			$('#storykit-options').fadeIn();
+		} else {
+			$('#storykit-options').hide();
+		}
 
-			// Show step scaffolding
-			$('#story-step-two-prompt').fadeOut(function() {
-				$('#story-step-three-prompt').fadeOut(function() {
-					$('#story-step-one-prompt').fadeIn(function() {
-						populateStep();
-					});
+		// Show step scaffolding
+		$('#story-step-two-prompt').fadeOut(function() {
+			$('#story-step-three-prompt').fadeOut(function() {
+				$('#story-step-one-prompt').fadeIn(function() {
+					populateStep();
 				});
 			});
 		});
-
-		// new...
-		// $('#story-mode-previous-button').fadeOut();
-		// $('#story-mode-next-button').fadeIn();
-
-		// $('#confirm-cancel-tool').fadeIn();
-		// $('#confirm-save-tool').fadeOut();
-		// $('#bottom-mode-options').fadeIn();
 
 	} else if (currentToolStep == 1) {
 
 		// Show "back arrow" and "next arrow"
-		$('#storykit-options').fadeIn(function() {
+		if (currentStoryMode == 'Writeable') {
+			$('#storykit-options').fadeIn();
+		} else {
+			$('#storykit-options').hide();
+		}
 
-			// Show step scaffolding
-			$('#story-step-one-prompt').fadeOut(function() {
-				$('#story-step-three-prompt').fadeOut(function() {
-					$('#story-step-two-prompt').fadeIn(function() {
-						populateStep();
-					});
+		// Show step scaffolding
+		$('#story-step-one-prompt').fadeOut(function() {
+			$('#story-step-three-prompt').fadeOut(function() {
+				$('#story-step-two-prompt').fadeIn(function() {
+					populateStep();
 				});
 			});
 		});
-
-		// new...
-		// $('#story-mode-previous-button').fadeIn();
-		// $('#story-mode-next-button').fadeIn();
-
-		// $('#confirm-cancel-tool').fadeIn();
-		// $('#confirm-save-tool').fadeOut();
-		// $('#bottom-mode-options').fadeIn();
 
 	} else if (currentToolStep == 2) {
 
-		$('#storykit-options').fadeIn(function() {
+		if (currentStoryMode == 'Writeable') {
+			$('#storykit-options').fadeIn();
+		} else {
+			$('#storykit-options').hide();
+		}
 
-			// Show step scaffolding
-			$('#story-step-one-prompt').fadeOut(function() {
-				$('#story-step-two-prompt').fadeOut(function() {
-					$('#story-step-three-prompt').fadeIn(function() {
-						populateStep();
-					});
+		// Show step scaffolding
+		$('#story-step-one-prompt').fadeOut(function() {
+			$('#story-step-two-prompt').fadeOut(function() {
+				$('#story-step-three-prompt').fadeIn(function() {
+					populateStep();
 				});
 			});
 		});
 
-		// new...
-		// $('#story-mode-previous-button').fadeIn();
-		// $('#story-mode-next-button').fadeOut();
-
-		// $('#confirm-cancel-tool').fadeIn();
-		// $('#confirm-save-tool').fadeIn();
-		// $('#bottom-mode-options').fadeIn();
 	}
 
 	function populateStep () {
@@ -1155,33 +1150,39 @@ function updateStoryTool() {
 			$('#narrative-list').find('#frame-' + entry['id']).hide();
 		}
 
-		// new...
+		// Show and hide "next" and "previous" step (of the story creation process), "cancel" and "save" buttons, depending on the current step
 		if (currentToolStep == 0) {
 
 			$('#story-mode-previous-button').fadeOut();
 			$('#story-mode-next-button').fadeIn();
 
-			$('#confirm-cancel-tool').fadeIn();
-			$('#confirm-save-tool').fadeOut();
-			$('#bottom-mode-options').fadeIn();
+			if (currentStoryMode == 'Writeable') {
+				$('#confirm-cancel-tool').fadeIn();
+				$('#confirm-save-tool').fadeOut();
+				$('#bottom-mode-options').fadeIn();
+			}
 
 		} else if (currentToolStep == 1) {
 
 			$('#story-mode-previous-button').fadeIn();
 			$('#story-mode-next-button').fadeIn();
 
-			$('#confirm-cancel-tool').fadeIn();
-			$('#confirm-save-tool').fadeOut();
-			$('#bottom-mode-options').fadeIn();
+			if (currentStoryMode == 'Writeable') {
+				$('#confirm-cancel-tool').fadeIn();
+				$('#confirm-save-tool').fadeOut();
+				$('#bottom-mode-options').fadeIn();
+			}
 
 		} else if (currentToolStep == 2) {
 
 			$('#story-mode-previous-button').fadeIn();
 			$('#story-mode-next-button').fadeOut();
 
-			$('#confirm-cancel-tool').fadeIn();
-			$('#confirm-save-tool').fadeIn();
-			$('#bottom-mode-options').fadeIn();
+			if (currentStoryMode == 'Writeable') {
+				$('#confirm-cancel-tool').fadeIn();
+				$('#confirm-save-tool').fadeIn();
+				$('#bottom-mode-options').fadeIn();
+			}
 
 		}
 	}
@@ -1529,7 +1530,7 @@ function getStories(options) {
 				$(storyCell).click(function() {
 					console.log('openStory ' + $(this).attr('data-id'));
 					getStory({ id: $(this).attr('data-id'), readOnly: true });
-					openStoryTool({ readOnly: true });
+					openStoryTool({ readOnly: true }); // TODO: Put this in callback of getStory to make sure the story is populated
 				});
 
 				// TODO: Populate the covers and show them once they're ready
@@ -1540,7 +1541,11 @@ function getStories(options) {
 	});
 }
 
+currentStoryState = null;
+
 function getStory(options) {
+
+	currentStoryMode = 'Readable';
 
 	console.log('getStory');
 
@@ -1595,10 +1600,8 @@ function getStory(options) {
 
 			// Hide all Entries
 			if (options['readOnly'] === true) {
-				// $('.activity-template').hide();
 				$('.activity-frame').hide();
 			} else {
-				// $('.activity-template').show();
 				$('.activity-frame').show();
 			}
 
@@ -1620,50 +1623,8 @@ function getStory(options) {
 					id: story.pages[pageIndex].entry._id
 				};
 			}
-			updateStoryTool();
 
-			return;
-
-
-
-
-
-			for (pageIndex in story.pages) {
-				var page = story.pages[pageIndex];
-				var entry = page.entry;
-
-				//$('#story-tool-title').val(story.title);
-
-				// Check if Entry exists in Inquiry, and if so, denote it as part of the Story.
-				var entryWidget = $('#frame-' + entry._id);
-
-				// Set entry text
-				$('.note').text('');
-				// getNote(entryWidget);
-				// getNote({ pageId: page._id });
-				$(entryWidget).find('.note-section').show();
-
-				$(entryWidget).show();
-
-				// Reset widget
-				// if ($(entryWidget).hasClass('activity-template-right'))
-				// 	$(entryWidget).removeClass('activity-template-right');
-				// if ($(entryWidget).hasClass('activity-template-left'))
-				// 	$(entryWidget).removeClass('activity-template-left');
-				$(entryWidget).off('click');
-
-				if (options['readOnly'] !== true) {
-					// $(entryWidget).addClass('activity-template-left');
-				}
-				// console.log(entryWidget);
-			}
-
-			$('#story-tool-title').val(story.title);
-
-			// $(e).find('.tags').html('');
-			// for (tag in data) {
-			// 	$(e).find('.tags').append('<span id="tag-' + data[tag]._id + '" style="display:inline-block;" contenteditable="false"><a href="javascript:getTimeline({});">' + data[tag].text + '</a></span> ');
-			// }
+			showChapter();
 		}
 	});
 }
@@ -1817,8 +1778,28 @@ function cancelTool() {
 function closeTool() {
 
 	if (currentPerspective === 'Story') {
+
+		$('#story-mode-previous-button').fadeOut();
+		$('#story-mode-next-button').fadeOut();
+
+		$('#toolkit-list').fadeOut();
+		$('#bottom-mode-options').fadeOut();
+
+		$('#mode-options').fadeIn();
+
+		$('#toolkit-tool-options').fadeOut(function() {
+			$('#storykit-options').fadeOut();
+			$('#toolkit-options').fadeIn(function() {
+				$('#top').fadeIn();
+				$('#bottom').fadeIn();
+				$('#logo').fadeIn();
+			});
+		});
+
 		openStoryPerspective();
+
 	} else {
+
 		openInquiryPerspective();
 
 		$('#toolkit-list').fadeOut(function() {
@@ -1866,7 +1847,7 @@ function openSketchTool() {
 
 	// Set up event handlers
 
-	$('#sketch-tool').find('.close').click(function() {
+	$('#sketch-tool').find('.save').click(function() {
 
 		// Disable sketching I/O
 
@@ -1876,6 +1857,24 @@ function openSketchTool() {
 
 		// Send data to server
 		saveSketch();
+
+		// Receive response
+
+		// Add widget to story
+
+		// Close widget
+		$('#sketch-tool').fadeOut();
+	});
+
+	$('#sketch-tool').find('.close').click(function() {
+
+		// Disable sketching I/O
+
+		// Get buffered data
+
+		// Format data
+
+		// Send data to server
 
 		// Receive response
 
@@ -2087,7 +2086,7 @@ function initializeSketchTool() {
 	}
 	sketchCanvas = $('#sketch-tool').find('canvas').get(0); // Get "raw" DOM element wrapped by jQuery selector
 	index = 0;
-	paletteColors = ["#828b20", "#b0ac31", "#cbc53d", "#fad779", "#f9e4ad", "#faf2db", "#563512", "#9b4a0b", "#d36600", "#fe8a00", "#f9a71f"];
+	paletteColors = ["#f04950", "#f58d4e", "#fece3e", "#fff533", "#a3fd39", "#33b8a5", "#33a7d7", "#3276b5", "#8869ad", "#e966ac", "#fe8a00"];
 
 	// Update canvas geometry
 	$(sketchCanvas).attr('width', $(sketchCanvas).parent().width()); // Update size
@@ -2118,8 +2117,6 @@ function initializeSketchTool() {
 
 	stage.addChild(sketchCanvasShape);
 
-
-
 	//
 	// Render brush color palette options
 	//
@@ -2127,9 +2124,11 @@ function initializeSketchTool() {
 		var s = new createjs.Shape(); // Create color swatch (i.e., a "button" for the color)
 		s.overColor = "#3281FF";
 		s.outColor = paletteColors[i];
-		//s.graphics.beginFill(s.outColor).drawRect(0, 0, width, height).endFill();
-		s.graphics.beginFill(s.outColor).drawRoundRect(0, 0, width, height, colorPaletteRectangleRadius).endFill();
-		s.x = paletteX + (width + padding) * (i % cols);
+		// s.graphics.beginFill(s.outColor).drawRoundRect(0, 0, width, height, colorPaletteRectangleRadius).endFill();
+		s.radius = 50;
+		s.graphics.beginFill(s.outColor).drawCircle(30, 30, 30).endFill();
+		//s.x = paletteX + (width + padding) * (i % cols);
+		s.x = ($(sketchCanvas).width() / 2) - (((width + padding) * 10) / 2) + ((width + padding) * (i % cols));
 		s.y = paletteY + (height + padding) * (i / cols | 0);
 
 		// Set up events to make the shape interactive
@@ -2142,8 +2141,32 @@ function initializeSketchTool() {
 	}
 
 	//
+	// Create eraser
+	//
+
+	/*
+	var s = new createjs.Shape(); // Create color swatch (i.e., a "button" for the color)
+	s.overColor = "#000000";
+	s.outColor = "#000000";
+	//s.graphics.beginFill(s.outColor).drawRect(0, 0, width, height).endFill();
+	s.graphics.beginFill(s.outColor).drawRoundRect(0, 0, width, height, colorPaletteRectangleRadius).endFill();
+	// s.x = paletteX + (width + padding) * (i % cols);
+	s.x = $(sketchCanvas).width() - 100;
+	s.y = $(sketchCanvas).height() - (height + padding) - 50;
+
+	// Set up events to make the shape interactive
+	s.addEventListener("mouseover", handleMouseOver);
+	s.addEventListener("click", handleMouseClick);
+	s.addEventListener("mouseout", handleMouseOut);
+	stage.addChild(s);
+
+	paletteTools.push(s);
+	*/
+
+	//
 	// Render brush size options
 	//
+	/*
 	for (var i = 0; i < 5; i++) {
 		var s = new createjs.Shape(); // Create "button"
 		s.overColor = "#3281FF";
@@ -2165,6 +2188,7 @@ function initializeSketchTool() {
 
 		paletteTools.push(s);
 	}
+	*/
 
 	// Initialize color palette state
 	currentPaletteColor = paletteColors[0];
@@ -2185,7 +2209,9 @@ function initializeSketchTool() {
 // Handler for mouseover event for color option in the palette
 function handleMouseOver(event) {
 	var target = event.target;
-	target.graphics.clear().beginFill(target.outColor).drawRoundRect(-10, -10, width + 20, height + 20, colorPaletteRectangleRadius).endFill();
+	// target.graphics.clear().beginFill(target.outColor).drawRoundRect(-10, -10, width + 20, height + 20, colorPaletteRectangleRadius).endFill();
+	target.radius = 80;
+	target.graphics.clear().beginFill(target.outColor).drawCircle(30, 30, 35).endFill();
 
 	// Update color of brush options
 	for(i in brushSizeOptions) {
@@ -2209,7 +2235,9 @@ function handleMouseClick(event) {
 // Handler for mouseout event for color option in the palette
 function handleMouseOut(event) {
 	var target = event.target;
-	target.graphics.clear().beginFill(target.outColor).drawRoundRect(0, 0, width, height, colorPaletteRectangleRadius).endFill();
+	//target.graphics.clear().beginFill(target.outColor).drawRoundRect(0, 0, width, height, colorPaletteRectangleRadius).endFill();
+	target.radius = 80;
+	target.graphics.clear().beginFill(target.outColor).drawCircle(30, 30, 30).endFill();
 
 	// Update color of brush options
 	for(i in brushSizeOptions) {
@@ -2530,7 +2558,9 @@ function addTextWidget(entry) {
 				// var scrollableDivElement = $('#story-interface');
 				// var height = scrollableDivElement[0].scrollHeight;
 				// scrollableDivElement.scrollTop (height);
-				$('html,body').animate({ scrollTop: document.body.clientHeight }, 1000);
+				if (options['autoScroll'] === true) {
+					$('html,body').animate({ scrollTop: document.body.clientHeight }, 1000);
+				}
 			}
 
 			// Set up tags section event handlers
@@ -2715,6 +2745,11 @@ function addEntryToStory (id) {
 			//addTimelineWidget(data);
 			//var options = { destination: '#story-list' };
 			var options = { destination: '#story-entry-queue' };
+			if (currentStoryMode == 'Writeable') {
+				options['autoScroll'] = true;
+			} else {
+				options['autoScroll'] = false;
+			}
 			//addTimelineWidget(data, options);
 			addStoryWidget(data, options);
 			closeEntrySelectionTool(); // TODO: Move this into a callback
@@ -2969,7 +3004,9 @@ function addPhotoWidget(entry, options) {
 				// var scrollableDivElement = $('#story-interface');
 				// var height = scrollableDivElement[0].scrollHeight;
 				// scrollableDivElement.scrollTop (height);
-				$('html,body').animate({ scrollTop: document.body.clientHeight }, 1000);
+				if (options['autoScroll'] === true) {
+					$('html,body').animate({ scrollTop: document.body.clientHeight }, 1000);
+				}
 			}
 
 			// Set up tags section event handlers
@@ -3214,7 +3251,9 @@ function addVideoWidget(entry, options) {
 				// var scrollableDivElement = $('#story-interface');
 				// var height = scrollableDivElement[0].scrollHeight;
 				// scrollableDivElement.scrollTop (height);
-				$('html,body').animate({ scrollTop: document.body.clientHeight }, 1000);
+				if (options['autoScroll'] === true) {
+					$('html,body').animate({ scrollTop: document.body.clientHeight }, 1000);
+				}
 			}
 
 			// Set up tags section event handlers
@@ -3436,7 +3475,9 @@ function addSketchWidget(entry, options) {
 				// var scrollableDivElement = $('#story-interface');
 				// var height = scrollableDivElement[0].scrollHeight;
 				// scrollableDivElement.scrollTop (height);
-				$('html,body').animate({ scrollTop: document.body.clientHeight }, 1000);
+				if (options['autoScroll'] === true) {
+					$('html,body').animate({ scrollTop: document.body.clientHeight }, 1000);
+				}
 			}
 
 			// Set up tags section event handlers
@@ -3498,7 +3539,8 @@ function addEmptyReflectionWidget(entry, options) {
 
 	// Set up default options
 	var defaults = {
-		'destination': '#story-entry-queue'
+		'destination': '#story-entry-queue',
+		'autoScroll': true
 	};
 
 	// Combine options with default values
@@ -3631,7 +3673,9 @@ function addEmptyReflectionWidget(entry, options) {
 				// var scrollableDivElement = $('#story-interface');
 				// var height = scrollableDivElement[0].scrollHeight;
 				// scrollableDivElement.scrollTop (height);
-				$('html,body').animate({ scrollTop: document.body.clientHeight }, 1000);
+				if (options['autoScroll'] === true) {
+					$('html,body').animate({ scrollTop: document.body.clientHeight }, 1000);
+				}
 			}
 
 			// Set up tags section event handlers
@@ -3821,7 +3865,9 @@ function addReflectionWidget(entry, options) {
 				// var scrollableDivElement = $('#story-interface');
 				// var height = scrollableDivElement[0].scrollHeight;
 				// scrollableDivElement.scrollTop (height);
-				$('html,body').animate({ scrollTop: document.body.clientHeight }, 1000);
+				if (options['autoScroll'] === true) {
+					$('html,body').animate({ scrollTop: document.body.clientHeight }, 1000);
+				}
 			}
 
 			// Set up tags section event handlers

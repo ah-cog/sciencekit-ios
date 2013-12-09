@@ -14,23 +14,23 @@ block content
 			div(style="display: table-row;")
 				div(style="display: table-cell;")
 					a(class="sequence-tool", href="javascript:void(0);", onclick='openInquiryPerspective();')
-						div(style='background-image: url(./img/notebook.png); background-size: 40px 40px; background-repeat:no-repeat; background-position:0px 8px; height: 50px; padding-left: 45px; padding-top: 8px; font-size: 30px; vertical-align: middle;')
-							| capture
+						div(style='background-image: url(./img/compass.png); background-size: 60px 60px; background-repeat:no-repeat; background-position:0px 8px; height: 65px; padding-left: 63px; padding-top: 19px; font-size: 30px; vertical-align: middle;')
+							| explore
 				div(style="display: table-cell;")
 					a(class="sequence-tool", href="javascript:void(0);", onclick='openStoryPerspective();')
-						div(style='background-image: url(./img/story.png); background-size: 40px 40px; background-repeat:no-repeat; background-position:10px 8px; height: 50px; padding-left: 55px; padding-top: 8px; font-size: 30px; vertical-align: middle;')
-							| story
+						div(style='background-image: url(./img/caption.png); background-size: 60px 60px; background-repeat:no-repeat; background-position:10px 8px; height: 65px; padding-left: 75px; padding-top: 19px; font-size: 30px; vertical-align: middle;')
+							| share
 
 	//
 	// Bottom of interface
 	//
 	.edge(id="story-mode-previous-button", style="position: fixed; vertical-align: middle; left: 0px; bottom: 45%; text-align: right; font-size: 30px; padding-right: 10px; text-align: center; z-index: 1001;")
-		a(href="javascript:void(0);", onclick="stepBackwardStoryTool();") 
+		a(href="javascript:void(0);", onclick="getPreviousChapter();") 
 			div(style='background-image: url(./img/green-arrow-left.png); background-size: 70px 70px; background-repeat:no-repeat; background-position:10px 8px; height: 80px; padding-left: 80px; padding-top: 24px; font-size: 30px; vertical-align: middle;')
 				| previous
 
 	.edge(id="story-mode-next-button", style="position: fixed; vertical-align: middle; right: 0px; bottom: 45%; text-align: right; font-size: 30px; padding-right: 10px; text-align: center; z-index: 1001;")
-		a(href="javascript:void(0);", onclick="stepForwardStoryTool();") 
+		a(href="javascript:void(0);", onclick="getNextChapter();") 
 			div(style='background-image: url(./img/green-arrow-right.png); background-size: 70px 70px; background-repeat:no-repeat; background-position: -10px 8px; height: 80px; padding-left: 80px; padding-top: 24px; font-size: 30px; vertical-align: middle;')
 				| next
 
@@ -39,9 +39,9 @@ block content
 	//
 	.edge(id="top", style="text-align: right; font-size: 30px; padding-right: 10px; z-index: 1000;")
 		a(href="javascript:void(0);", onclick="scrollTickle();") 
-			img(src="./img/search.png", alt="search") 
+			img(src="./img/search.png", alt="search", height="60")
 		a(href="./timeline.html") 
-			img(src="./img/refresh.png", alt="refresh") 
+			img(src="./img/refresh.png", alt="refresh", height="60") 
 		a(href="javscript:void(0);", onclick="scrollToTop();") 
 			img(src="./img/up-arrow.png", alt="top")
 
@@ -49,12 +49,9 @@ block content
 	// Toolkit Options
 	//
 	.edge(id="toolkit-options", style="position: fixed; right: 0px; top: 100px; text-align: right; font-size: 30px; z-index: 2000;")
-		//.tool-background(style="")
-		//	a(href="javascript:void(0);", onclick="openTextTool();") 
-		//		img(src="./img/text.png", width="50px", alt="text")
 
 		a(class="toolkit-option", href="javascript:void(0);", onclick="openTextTool();") 
-			.toolkit-option-container(style="background-image: url(./img/text.png);")
+			.toolkit-option-container(style="background-image: url(./img/thought.png);")
 				p.toolkit-option-text
 					| text
 
@@ -64,21 +61,21 @@ block content
 					| photo
 
 		a(class="toolkit-option", href="javascript:void(0);", onclick="captureVideo2();") 
-			.toolkit-option-container(style="background-image: url(./img/video.png);")
+			.toolkit-option-container(style="background-image: url(./img/film.png);")
 				p.toolkit-option-text
 					| video
 
 		a(class="toolkit-option", href="javascript:void(0);", onclick="openSketchTool();") 
-			.toolkit-option-container(style="background-image: url(./img/palette.png);")
+			.toolkit-option-container(style="background-image: url(./img/crayons.png);")
 				p.toolkit-option-text
-					| sketch
+					| draw
 
 	//
 	// Toolkit Per-Tool Options
 	//
 	.edge(id="toolkit-tool-options", style="position: fixed; right: 0px; top: 100px; text-align: right; font-size: 30px; padding-right: 10px; z-index: 1000;")
 		a(href="javascript:void(0);", onclick="cancelTool();") 
-			img(src="./img/cross-red.png", width="50px", alt="cancel")
+			img(src="./img/cross.png", width="50px", alt="cancel")
 		br
 
 		a(href="javascript:void(0);", onclick="saveTool();") 
@@ -92,12 +89,12 @@ block content
 	.edge(id="storykit-options", style="position: fixed; right: 0px; top: 100px; text-align: right; font-size: 30px; z-index: 2000;")
 		
 		a(class="storykit-option", href="javascript:void(0);", onclick="openEntrySelectionTool();") 
-			.storykit-option-container(style="background-image: url(./img/notebook.png);")
+			.storykit-option-container(style="background-image: url(./img/compass.png);")
 				p.storykit-option-text
 					| data
 
 		a(class="storykit-option", href="javascript:void(0);", onclick="openReflectionTool();") 
-			.storykit-option-container(style="background-image: url(./img/caption.png);")
+			.storykit-option-container(style="background-image: url(./img/single-caption.png);")
 				p.storykit-option-text
 					| note
 
@@ -157,9 +154,10 @@ block content
 						//
 						// Create new story
 						//
-						a(href="javascript:void(0);", onclick='createStory();')
-							div(style='background-image: url(./img/plus-red.png); background-repeat:no-repeat; background-position:0px 0px; height: 50px; padding-left: 50px; padding-top: 2px; font-size: 30px; vertical-align: middle;')
-								| Create new story
+						div(style="display: table-cell;")
+							a(class="sequence-tool", href="javascript:void(0);", onclick='createStory();')
+								div(style='background-image: url(./img/letter.png); background-size: 60px 60px; background-repeat:no-repeat; background-position:10px 8px; height: 65px; padding-left: 75px; padding-top: 19px; font-size: 30px; vertical-align: middle;')
+									| new story
 
 				div(style="display: table-row;")
 					div(style="display: table-cell; text-align: center; vertical-align: middle;")
@@ -200,7 +198,7 @@ block content
 
 				div(style="display: table-row;")
 					div(style="display: table-cell; text-align: center; vertical-align: middle;")
-						img(src="./img/story.png", width="50", height="50", style="padding: 10px;")
+						img(src="./img/caption.png", width="50", height="50", style="padding: 10px;")
 
 					div(style="display: table-cell; position: relative; z-index: 0; width: 100%; border-left: 0px solid #f16521;")
 
@@ -214,7 +212,7 @@ block content
 
 										div(class="options", style="width: 75px; display: table-cell; text-align: right; vertical-align: middle;")
 											img(id="hostAddressSave", src="./img/check.png", style="display: none;")
-											img(id="hostAddressInvalid", src="./img/cross-red.png", style="display: none;")
+											img(id="hostAddressInvalid", src="./img/cross.png", style="display: none;")
 
 		li(id="story-step-one-prompt", class="")
 
@@ -280,7 +278,7 @@ block content
 
 				div(style="display: table-row;")
 					div(style="display: table-cell; text-align: center; vertical-align: middle;")
-						img(src="./img/caption.png", width="50", height="50", style="padding: 10px;")
+						img(src="./img/single-caption.png", width="50", height="50", style="padding: 10px;")
 
 					div(style="display: table-cell; position: relative; z-index: 0; width: 100%; border-left: 0px solid #f16521;")
 
@@ -339,7 +337,7 @@ block content
 
 										div(class="options", style="width: 75px; display: table-cell; text-align: right; vertical-align: middle;")
 											img(id="hostAddressSave", src="./img/check.png", style="display: none;")
-											img(id="hostAddressInvalid", src="./img/cross-red.png", style="display: none;")
+											img(id="hostAddressInvalid", src="./img/cross.png", style="display: none;")
 
 
 			//
@@ -350,7 +348,7 @@ block content
 
 				div(style="display: table-row;")
 					div(style="display: table-cell; text-align: center; vertical-align: middle;")
-						img(src="./img/video.png", width="50", height="50", style="padding: 10px;")
+						img(src="./img/film.png", width="50", height="50", style="padding: 10px;")
 
 					div(style="display: table-cell; position: relative; z-index: 0; width: 100%; border-left: 0px solid #f16521;")
 
@@ -364,7 +362,7 @@ block content
 
 										div(class="options", style="width: 75px; display: table-cell; text-align: right; vertical-align: middle;")
 											img(id="hostAddressSave", src="./img/check.png", style="display: none;")
-											img(id="hostAddressInvalid", src="./img/cross-red.png", style="display: none;")
+											img(id="hostAddressInvalid", src="./img/cross.png", style="display: none;")
 
 			//
 			// Sketch
@@ -374,7 +372,7 @@ block content
 
 				div(style="display: table-row;")
 					div(style="display: table-cell; text-align: center; vertical-align: middle;")
-						img(src="./img/palette.png", width="50", height="50", style="padding: 10px;")
+						img(src="./img/crayons.png", width="50", height="50", style="padding: 10px;")
 
 					div(style="display: table-cell; position: relative; z-index: 0; width: 100%; border-left: 0px solid #f16521;")
 
@@ -384,11 +382,11 @@ block content
 
 									div(class="element", style="display: table-row;")
 										div(class="text", style="display: table-cell; min-width: 100%; vertical-align: middle;")
-											img(class="image", src="./img/palette.png", width="570", height="427")
+											img(class="image", src="./img/crayons.png", width="570", height="427")
 
 										div(class="options", style="width: 75px; display: table-cell; text-align: right; vertical-align: middle;")
 											img(id="hostAddressSave", src="./img/check.png", style="display: none;")
-											img(id="hostAddressInvalid", src="./img/cross-red.png", style="display: none;")
+											img(id="hostAddressInvalid", src="./img/cross.png", style="display: none;")
 
 		//
 		// Media Type
@@ -456,7 +454,7 @@ block content
 
 											div(class="options", style="width: 75px; display: table-cell; text-align: right; vertical-align: middle;")
 												img(id="hostAddressSave", src="./img/check.png", style="display: none;")
-												img(id="hostAddressInvalid", src="./img/cross-red.png", style="display: none;")
+												img(id="hostAddressInvalid", src="./img/cross.png", style="display: none;")
 
 			//
 			// Observation
@@ -486,7 +484,7 @@ block content
 
 										div(class="options", style="width: 75px; display: table-cell; text-align: right; vertical-align: middle;")
 											img(id="hostAddressSave", src="./img/check.png", style="display: none;")
-											img(id="hostAddressInvalid", src="./img/cross-red.png", style="display: none;")
+											img(id="hostAddressInvalid", src="./img/cross.png", style="display: none;")
 
 				div(style="display: table-row;")
 					div(style="display: table-cell; text-align: center; vertical-align: middle;")
@@ -510,7 +508,7 @@ block content
 
 											div(class="options", style="width: 75px; display: table-cell; text-align: right; vertical-align: middle;")
 												img(id="hostAddressSave", src="./img/check.png", style="display: none;")
-												img(id="hostAddressInvalid", src="./img/cross-red.png", style="display: none;")
+												img(id="hostAddressInvalid", src="./img/cross.png", style="display: none;")
 
 			//
 			// Sequence
@@ -540,7 +538,7 @@ block content
 
 											div(class="options", style="width: 75px; display: table-cell; text-align: right; vertical-align: middle;")
 												img(id="hostAddressSave", src="./img/check.png", style="display: none;")
-												img(id="hostAddressInvalid", src="./img/cross-red.png", style="display: none;")
+												img(id="hostAddressInvalid", src="./img/cross.png", style="display: none;")
 
 				div(class="sequence-tool-add-step", style="display: table-row;")
 					div(style="display: table-cell; text-align: center; vertical-align: middle;")
@@ -550,7 +548,7 @@ block content
 						// Create new story
 						//
 						a(class="sequence-tool", href="javascript:void(0);", onclick='addSequenceStep();')
-							div(style='background-image: url(./img/plus-red.png); background-repeat:no-repeat; background-position:0px 0px; height: 50px; padding-left: 50px; padding-top: 2px; font-size: 30px; vertical-align: middle;')
+							div(style='background-image: url(./img/letter.png); background-repeat:no-repeat; background-position:0px 0px; height: 50px; padding-left: 50px; padding-top: 2px; font-size: 30px; vertical-align: middle;')
 								| Add a step
 
 				// Sequence Step Template
@@ -577,7 +575,7 @@ block content
 
 											div(class="options", style="width: 75px; display: table-cell; text-align: right; vertical-align: middle;")
 												img(id="hostAddressSave", src="./img/check.png", style="display: none;")
-												img(id="hostAddressInvalid", src="./img/cross-red.png", style="display: none;")
+												img(id="hostAddressInvalid", src="./img/cross.png", style="display: none;")
 
 		li(id="tool-extra-options", class="toolkit-tool tool-template")
 			div(style="display: table; width: 100%;")
@@ -668,7 +666,7 @@ block content
 				div(style='background-image: url(./img/check.png); background-size: 40px 40px; background-repeat:no-repeat; background-position:0px 8px; height: 50px; padding-left: 45px; padding-top: 8px; font-size: 30px; vertical-align: middle;')
 					| yes
 			a(href="javascript:void(0);", onclick="hideConfirm();") 
-				div(style='background-image: url(./img/cross-red.png); background-size: 40px 40px; background-repeat:no-repeat; background-position:0px 8px; height: 50px; padding-left: 45px; padding-top: 8px; font-size: 30px; vertical-align: middle;')
+				div(style='background-image: url(./img/cross.png); background-size: 40px 40px; background-repeat:no-repeat; background-position:0px 8px; height: 50px; padding-left: 45px; padding-top: 8px; font-size: 30px; vertical-align: middle;')
 					| no
 
 	.confirm-cancel-overlay(id="confirm-cancel-overlay", style="height:100%; width:100%; position:fixed; left:0; top:0; z-index:2000; !important; background-color:none;")
@@ -678,11 +676,11 @@ block content
 				div(style='background-image: url(./img/check.png); background-size: 40px 40px; background-repeat:no-repeat; background-position:0px 8px; height: 50px; padding-left: 45px; padding-top: 8px; font-size: 30px; vertical-align: middle;')
 					| yes
 			a(href="javascript:void(0);", onclick="hideConfirm();") 
-				div(style='background-image: url(./img/cross-red.png); background-size: 40px 40px; background-repeat:no-repeat; background-position:0px 8px; height: 50px; padding-left: 45px; padding-top: 8px; font-size: 30px; vertical-align: middle;')
+				div(style='background-image: url(./img/cross.png); background-size: 40px 40px; background-repeat:no-repeat; background-position:0px 8px; height: 50px; padding-left: 45px; padding-top: 8px; font-size: 30px; vertical-align: middle;')
 					| no
 
 	.edge(id="capture-interface", style="border-right: 5px solid #333333; border-image: url(./img/left.png) 0 100% repeat; border-width: 0px 150px 0px 0px; overflow-y: scroll; overflow-x: hidden; -webkit-overflow-scrolling: touch; width: 100%; height:100%; position: fixed; left: 0px; top: 0px; text-align: left; font-size: 13px; padding-top: 0px; padding-left: 0px; z-index: 999;")
-		ul(id="narrative-list", style="background-color: #ffffff; padding-top: 60px;")
+		ul(id="narrative-list", style="background-color: #ffffff; padding-top: 90px;")
 
 	.edge(id="bottom", style="text-align: right; font-size: 30px; padding-right: 10px; z-index: 1000;")
 		a(href="javscript:void(0);", onclick="scrollToBottom();") 
@@ -697,7 +695,7 @@ block content
 				div(style="display: table-row;")
 					div(style="display: table-cell;")
 						a(id="confirm-cancel-tool", href="javascript:void(0);", onclick='confirmCancelTool();')
-							div(style='background-image: url(./img/cross-red.png); background-size: 70px 70px; background-repeat:no-repeat; background-position:10px 8px; height: 80px; padding-left: 80px; padding-top: 24px; font-size: 30px; vertical-align: middle;')
+							div(style='background-image: url(./img/cross.png); background-size: 70px 70px; background-repeat:no-repeat; background-position:10px 8px; height: 80px; padding-left: 80px; padding-top: 24px; font-size: 30px; vertical-align: middle;')
 								| cancel
 					div(style="display: table-cell;")
 						a(id="confirm-save-tool", href="javascript:void(0);", onclick='confirmSaveTool();')
@@ -731,7 +729,9 @@ block content
 
 			.tool-table-row
 				.tool-table-cell(style='text-align: right; vertical-align: middle; padding-right: 30px; padding-top: 30px;')
-					img(class="close", src="./img/cross-gray.png")
+					img(class="close", src="./img/cross.png", width="70")
+				.tool-table-cell(style='text-align: right; vertical-align: middle; padding-right: 30px; padding-top: 30px;')
+					img(class="save", src="./img/check.png", width="70")
 
 			//
 			// Body
@@ -747,8 +747,10 @@ block content
 			//
 
 			.tool-table-row
-				.tool-table-cell
-					| &nbsp;
+				.tool-table-cell(style='text-align: right; vertical-align: middle; padding-right: 30px; padding-bottom: 30px;')
+					img(class="close", src="./img/cross.png", width="70")
+				.tool-table-cell(style='text-align: right; vertical-align: middle; padding-right: 30px; padding-bottom: 30px;')
+					img(class="save", src="./img/check.png", width="70")
 
 	script
 		window.onload = function() {
