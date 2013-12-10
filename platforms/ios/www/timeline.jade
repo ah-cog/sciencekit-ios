@@ -297,10 +297,6 @@ block content
 	// TODO: Add a div here to contain the queue? (Like the narrative-list)
 	ul(id="story-entry-queue", style="z-index: 990;")
 
-
-	//.edge(id="story-interface", style="background-color: #ffffff; overflow-y: scroll; -webkit-overflow-scrolling: touch; width: 100%; height:100%; position: fixed; left: 0px; top: 0px; text-align: left; font-size: 13px; padding-left: 10px; z-index: 990;")
-	//	ul(id="story-list")
-
 	//
 	// Toolkit tool interfaces
 	//
@@ -557,11 +553,6 @@ block content
 
 				// Sequence Step Template
 				// This is the template used for steps in the sequence.
-				//div(id="sequence-tool-template-label", style="display: table-row;")
-				//	div(style="display: table-cell; text-align: center; vertical-align: middle;")
-				//		img(src="./img/blank.png", width="50", height="0", style="padding: 10px;")
-				//	div(class="account", style="display: table-cell; position: relative; z-index: 0; width: 100%; border-left: 0px solid #f16521; vertical-align: middle; padding-left: 22px; padding-top: 10px; font-size: 20px; color: #666666;")
-				//		| What is <strong>first</strong>? (Type/Create)
 
 				div(id="sequence-tool-template-step", style="display: table-row;")
 					div(style="display: table-cell; text-align: center; vertical-align: middle;")
@@ -728,17 +719,7 @@ block content
 		.tool-table
 
 			//
-			// Header
-			//
-
-			//.tool-table-row
-			//	.tool-table-cell(style='text-align: right; vertical-align: middle; padding-right: 30px; padding-top: 30px;')
-			//		img(class="close", src="./img/cross.png", width="70")
-			//	.tool-table-cell(style='text-align: right; vertical-align: middle; padding-right: 30px; padding-top: 30px;')
-			//		img(class="save", src="./img/check.png", width="70")
-
-			//
-			// Body
+			// Canvas (for rendering the drawing canvas and color palette)
 			//
 			.tool-table-row
 				.tool-table-cell(style="vertical-align: middle; text-align: center; height: 100%; width: 100%;")
@@ -749,7 +730,6 @@ block content
 			//
 			// Footer
 			//
-
 			div(style="position: fixed; left: 10px; bottom: 0px; text-align: right; font-size: 30px; padding-right: 10px; width:100%; text-align: center; z-index: 1001; background-color: #ffffff;")
 				div(style="display: inline-block;")
 					div(style="display: table;")
@@ -763,6 +743,7 @@ block content
 									div(style='background-image: url(./img/check.png); background-size: 70px 70px; background-repeat:no-repeat; background-position:10px 8px; height: 80px; padding-left: 80px; padding-top: 24px; font-size: 30px; vertical-align: middle;')
 										| save
 
+	// Spacer at bottom of interface to push up the rest of the content. This is used so the fixed save and cancel buttons don't overlap content.
 	.spacer(id="footer-spacer", style="padding-bottom: 120px;")
 
 	script
@@ -829,14 +810,10 @@ block content
 			$('#confirm-save-overlay').hide();
 			$('#confirm-cancel-overlay').hide();
 
-			//$('#previous-timeline-widget').hide();
-
-			// Populate timeline
-			//getTimeline();
-
 			// Synchronize Accounts
 			getAccounts({}, function(accounts) {
-				for(var i = 0; i < accounts.length; i++) {
+				// Populate list of collaborators. The first account (at accounts[0]) is the current user, so don't include it in the list.
+				for(var i = 1; i < accounts.length; i++) {
 					var option =
 						'<input name="collaborators" id="account-' + accounts[i]._id + '" value="' + accounts[i]._id + '" type="checkbox" />' + 
 						'<label for="account-' + accounts[i]._id + '"> ' + accounts[i].username + '</label>';
@@ -862,10 +839,8 @@ block content
 			$( "ul, li" ).disableSelection();
 		}
 
-		//$(window).on('scroll', function() {
-		//$('#capture-interface').on('touchmove', function() {
+		// Set up scroll events to show and hide entry options
 		$(window).on('touchend', function() {
-		//$('#capture-interface').on('scrollstart', function() {
 
 			if ($(self).data('scrollTimeout')) {
 				clearTimeout($(self).data('scrollTimeout'));

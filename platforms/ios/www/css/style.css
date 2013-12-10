@@ -376,12 +376,6 @@ narrative-templates {
   z-index: 600;
 }
 
-@font-face {
-  font-family: HelvNeue;
-  src: url(../fonts/HelveticaNeue-UltraLight.ttf);
-  font-weight:100;
-}
-
 .toolkit-option-container, .storykit-option-container {
   background-size: 50px 50px;
   background-color: rgba(0, 0, 0, 0.13);
@@ -492,7 +486,6 @@ narrative-templates {
 	vertical-align: middle;
 	text-align: center;
 
-	font-family: HelvNeue;
 	font-weight: 100;
 
 	font-size: 50pt;

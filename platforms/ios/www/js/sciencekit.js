@@ -778,9 +778,6 @@ function openInquiryPerspective() {
 	// TODO: Only open Story Tool
 
 	$('.activity-widget').closest('.activity-template').off('click');
-	// $('.activity-widget').closest('.activity-template').removeClass('activity-template-left');
-	// $('.activity-widget').closest('.activity-template').removeClass('activity-template-right');
-	$('.note-section').hide();
 }
 
 function openEntrySelectionTool() {
@@ -987,10 +984,6 @@ function openStoryTool(options) {
 
 	// Intialize by setting all entires to the right.  By default, entries are added to a new Story.
 	if (options['readOnly'] !== true) {
-
-		// Set entry text
-		$('.note').text('');
-		$('.note-section').hide();
 
 		//$('.activity-widget').closest('.activity-template').addClass('activity-template-right');
 
@@ -1358,7 +1351,7 @@ function openQuestionTool() {
 	$('#bottom').fadeOut();
 	
 	$('#toolkit-options').fadeOut(function() {
-		$('#toolkit-tool-options').fadeIn();
+		// $('#toolkit-tool-options').fadeIn();
 	});
 
 	// Reset form
@@ -1384,7 +1377,7 @@ function openObservationTool() {
 	$('#bottom').fadeOut();
 	
 	$('#toolkit-options').fadeOut(function() {
-		$('#toolkit-tool-options').fadeIn();
+		// $('#toolkit-tool-options').fadeIn();
 	});
 
 	// Reset form
@@ -1410,7 +1403,7 @@ function openSequenceTool() {
 	$('#bottom').fadeOut();
 	
 	$('#toolkit-options').fadeOut(function() {
-		$('#toolkit-tool-options').fadeIn();
+		// $('#toolkit-tool-options').fadeIn();
 	});
 
 	// Reset form
@@ -2581,9 +2574,6 @@ function addTextWidget(entry, options) {
 
 			// Request Tags from server
 			getTags(e);
-
-			// Request Note from server
-			// getNote(e);
 		}
 
 	} else {
@@ -2593,17 +2583,6 @@ function addTextWidget(entry, options) {
 		//
 
 		console.log("Error: Invalid text entry received.");
-
-		// console.log("Creating new Widget for Text.");
-
-		// // Clone template structure and remove 'id' element to avoid 'id' conflict
-		// e = $('#text-activity-template').clone().attr('id', 'volatile-activity');
-		// e.addClass('activity-frame');
-		// e.removeAttr('id'); // Remove 'id' attribute
-		// e.prependTo('#narrative-list');
-
-		// // Show the Widget
-		// e.show();
 	}
 }
 
@@ -2877,9 +2856,6 @@ function addPhotoWidget(entry, options) {
 			e.find('.bump-count').text(entry.bumps.length);
 		}
 
-		// Hide notes section
-		e.find('.note-section').hide();
-
 		//
 		// Question, Observation, Sequence
 		//
@@ -2946,9 +2922,6 @@ function addPhotoWidget(entry, options) {
 		e.find('.tags').off('blur');
 		e.find('.tags').blur(function() { saveTags(e); });
 
-		// e.find('.note').off('blur');
-		// e.find('.note').blur(function() { saveNote(e); });
-
 		// Set image
 		var image = e.find('.element .image');
 		image.attr('src', '' + localStorage['host'] + photo.uri + '');
@@ -2992,21 +2965,12 @@ function addPhotoWidget(entry, options) {
 
 			// Set up bump section event handlers
 			e.find('.bump').click(function() { bumpEntry(e); });
-
-			// Set up note section event handlers
-			e.find('.note').off('click');
-			e.find('.note').click(function(event) { event.stopPropagation(); });
-			// e.find('.note').off('blur');
-			// e.find('.note').blur(function() { saveNote(e); });
 		
 			// Show entry widget
 			e.show();
 
 			// Request Tags from server
 			getTags(e);
-
-			// Request Note from server
-			// getNote(e);
 		}
 
 	} else {
@@ -3114,9 +3078,6 @@ function addVideoWidget(entry, options) {
 		if (entry.hasOwnProperty('bumps')) {
 			e.find('.bump-count').text(entry.bumps.length);
 		}
-
-		// Hide notes section
-		e.find('.note-section').hide();
 
 		// Set video
 		// var videoElement = e.find('.element .video');
@@ -3239,21 +3200,12 @@ function addVideoWidget(entry, options) {
 
 			// Set up bump section event handlers
 			e.find('.bump').click(function() { bumpEntry(e); });
-
-			// Set up note section event handlers
-			e.find('.note').off('click');
-			e.find('.note').click(function(event) { event.stopPropagation(); });
-			// e.find('.note').off('blur');
-			// e.find('.note').blur(function() { saveNote(e); });
 		
 			// Show entry widget
 			e.show();
 
 			// Request Tags from server
 			getTags(e);
-
-			// Request Note from server
-			// getNote(e);
 		}
 
 	} else {
@@ -3447,10 +3399,6 @@ function addSketchWidget(entry, options) {
 
 			// Set up bump section event handlers
 			e.find('.bump').click(function() { bumpEntry(e); });
-
-			// Set up note section event handlers
-			e.find('.note').off('click');
-			e.find('.note').click(function(event) { event.stopPropagation(); });
 		
 			// Show entry widget
 			e.show();
@@ -4178,37 +4126,6 @@ function getTags(e) {
 	});
 }
 
-// function getNote(options) {
-
-// 	var pageId = options['pageId'];
-
-// 	if (pageId === undefined) {
-// 		return;
-// 	}
-
-// 	$.ajax({
-// 		type: 'GET',
-// 		beforeSend: function(request) {
-// 			request.setRequestHeader('Authorization', 'Bearer ' + localStorage['token']);
-// 		},
-// 		url: localStorage['host'] + '/api/note?pageId=' + pageId,
-// 		dataType: 'json',
-// 		success: function(data) {
-// 			// console.log('Received protected thoughts (success).');
-// 			console.log('note: ' + JSON.stringify(data));
-
-// 			if (data.length > 0) { // Check if any results were returned
-// 				var e = $('#frame-' + data.page.entry);
-// 				$(e).find('.note').text(data.note);
-// 			}
-
-// 			// for (tag in data) {
-// 			// 	$(e).find('.tags').append('<span id="tag-' + data[tag]._id + '" style="display:inline-block;" contenteditable="false"><a href="javascript:getTimeline({});">' + data[tag].text + '</a></span> ');
-// 			// }
-// 		}
-// 	});
-// }
-
 function saveTags(e) {
 	console.log('saveTags');
 
@@ -4282,73 +4199,6 @@ function saveTags(e) {
 			}
 		});
 	}
-}
-
-function saveNote(e) {
-	console.log('saveNote');
-
-	var activityType = $(e).attr('data-activity-type');
-	// TODO: Make sure actiivtyType is valid (compare with retreived types from API?)
-
-	console.log('Saving note for activityType: ' + activityType);
-
-	var widget  = e.find('.activity-widget');
-	var element = e.find('.activity-widget .element');
-	var note    = e.find('.activity-widget .note');
-
-	// Get textual tags (i.e., the "raw" tag text, e.g., "mytag" in "#mytag")
-	// var rawTagText = e.find('.tags').text();
-	// rawTagText = rawTagText.replace(/#,/, '');
-	//rawTagText = rawTagText.replace(/^[A-Z0-9]/, '');
-	// rawTagText = rawTagText.toLowerCase();
-	// console.log(rawTagText);
-	// var tagText = rawTagText.split(/\s/);
-	var noteText = e.find('.note').text().trim();
-	var tagTextCount = noteText.length;
-	console.log(tagTextCount);
-
-	console.log('NOTE: ' + noteText);
-
-	// Save each tag
-
-	// Construct JSON object for element to save
-	var dataJSON = {
-		//"timeline": $("#narrative-list").attr("data-timeline"),
-		"entry": element.attr("data-entry"),
-		// "frameType": e.attr("data-activity-type"),
-		"note": noteText
-	};
-
-	//if(element.attr("data-frame")) dataJSON.frame = element.attr("data-frame");
-	//if(element.attr("data-id")) dataJSON.reference = element.attr("data-id"); // Set the element to the reference, since it was edited.
-
-	console.log("Saving Tag for Frame (JSON): ");
-	console.log(dataJSON);
-
-	// POST the JSON object 
-	$.ajax({
-		type: 'POST',
-		beforeSend: function(request) {
-			request.setRequestHeader('Authorization', 'Bearer ' + localStorage['token']);
-		},
-		url: localStorage['host'] + '/api/note',
-		dataType: 'json',
-		contentType: 'application/json; charset=utf-8',
-		data: JSON.stringify(dataJSON),
-		processData: false,
-		success: function(data) {
-			console.log('Saved Note: ');
-			console.log(data);
-
-			// TODO: Only update necessary tags
-			$(e).find('.note').html(data.note);
-
-			console.log('Updated Note.');
-		},
-		error: function() {
-			console.log('Failed to save Note.');
-		}
-	});
 }
 
 function bumpEntry(e) {
