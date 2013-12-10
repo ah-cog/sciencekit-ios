@@ -384,7 +384,7 @@ narrative-templates {
 
 .toolkit-option-container, .storykit-option-container {
   background-size: 50px 50px;
-  background-color: #cccccc;
+  background-color: rgba(0, 0, 0, 0.13);
   background-repeat:no-repeat;
   background-position:10px 4px;
   height: 50px;
@@ -401,6 +401,22 @@ narrative-templates {
 .hide-option-hint > .toolkit-option-container,
 .hide-option-hint > .storykit-option-container {
   background-color: transparent;
+}
+
+.toolkit-previous-container {
+  background-size: 50px 50px;
+  background-color: rgba(0, 0, 0, 0.13);
+  background-repeat:no-repeat;
+  background-position:10px 4px;
+  height: 50px;
+  padding-left: 60px;
+  padding-right: 10px;
+  padding-top: 8px;
+  font-size: 30px;
+  vertical-align: middle;
+  border-top-right-radius: 30px;
+  border-bottom-right-radius: 30px;
+  margin-bottom: 5px;
 }
 
 /*.hide-option-hint .toolkit-option-text {

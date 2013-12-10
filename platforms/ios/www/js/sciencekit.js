@@ -676,6 +676,10 @@ function getAccounts(options, fn) {
 	});
 }
 
+function getAccountTimeline() {
+	getTimeline({ 'accountId': accounts[0]._id });
+}
+
 function getTimeline(options) {
 	console.log('getTimeline()');
 
@@ -692,6 +696,8 @@ function getTimeline(options) {
 			requestUri = requestUri + '?moment_id=' + options['moment_id'];
 		} else if (options.hasOwnProperty('frameId')) {
 			requestUri = requestUri + '?frameId=' + options['frameId'];
+		} else if (options.hasOwnProperty('accountId')) {
+			requestUri = requestUri + '?accountId=' + options['accountId'];
 		}
 	}
 
@@ -817,7 +823,7 @@ function closeEntrySelectionTool() {
 		$('#capture-overlay').fadeOut();
 
 		// Show mode options
-		$('#mode-options').fadeIn();
+		$('#mode-options').fadeOut();
 
 		// Resize photo and video entries
 		$('#narrative-list').find('.activity-widget').find('.image').attr('width', '570'); // Photo
@@ -1205,7 +1211,7 @@ function openTextTool() {
 	$('#bottom').fadeOut();
 	
 	$('#toolkit-options').fadeOut(function() {
-		$('#toolkit-tool-options').fadeIn();
+		// $('#toolkit-tool-options').fadeIn();
 	});
 
 	$('#capture-interface').fadeOut(function() {
@@ -1217,6 +1223,7 @@ function openTextTool() {
 		$('#tool-extra-options').show();
 		$('.text-tool').show();
 		$('#toolkit-list').fadeIn();
+		$('#bottom-mode-options').fadeIn();
 	});
 
 	// TODO: Only open Question Tool
@@ -1232,7 +1239,7 @@ function openPhotoTool() {
 	$('#bottom').fadeOut();
 	
 	$('#toolkit-options').fadeOut(function() {
-		$('#toolkit-tool-options').fadeIn();
+		// $('#toolkit-tool-options').fadeIn();
 	});
 
 	$('#capture-interface').fadeOut(function() {
@@ -1244,6 +1251,7 @@ function openPhotoTool() {
 		$('#tool-extra-options').show();
 		$('.photo-tool').show();
 		$('#toolkit-list').fadeIn();
+		$('#bottom-mode-options').fadeIn();
 	});
 
 	// TODO: Only open Question Tool
@@ -1259,7 +1267,7 @@ function openVideoTool() {
 	$('#bottom').fadeOut();
 	
 	$('#toolkit-options').fadeOut(function() {
-		$('#toolkit-tool-options').fadeIn();
+		// $('#toolkit-tool-options').fadeIn();
 	});
 
 	$('#capture-interface').fadeOut(function() {
@@ -1271,6 +1279,7 @@ function openVideoTool() {
 		$('#tool-extra-options').show();
 		$('.video-tool').show();
 		$('#toolkit-list').fadeIn();
+		$('#bottom-mode-options').fadeIn();
 	});
 
 	// TODO: Only open Question Tool
@@ -1286,7 +1295,7 @@ function openSketchTool2() {
 	$('#bottom').fadeOut();
 	
 	$('#toolkit-options').fadeOut(function() {
-		$('#toolkit-tool-options').fadeIn();
+		// $('#toolkit-tool-options').fadeIn();
 	});
 
 	$('#capture-interface').fadeOut(function() {
@@ -1298,6 +1307,7 @@ function openSketchTool2() {
 		$('#tool-extra-options').show();
 		$('.sketch-tool2').show();
 		$('#toolkit-list').fadeIn();
+		$('#bottom-mode-options').fadeIn();
 	});
 
 	// TODO: Only open Question Tool
@@ -1643,8 +1653,6 @@ function setStoryChapter(options) {
 	// "reflection"
 
 	currentStoryChapter = options['chapter'];
-
-
 }
 
 function confirmSaveTool() {
@@ -1833,6 +1841,41 @@ function closeTool() {
 // "Sketch" Tool
 //
 
+function saveSketchCanvas() {
+	// Disable sketching I/O
+
+	// Get buffered data
+
+	// Format data
+
+	// Send data to server
+	saveSketch();
+
+	// Receive response
+
+	// Add widget to story
+
+	// Close widget
+	$('#sketch-tool').fadeOut();
+}
+
+function cancelSketchCanvas() {
+	// Disable sketching I/O
+
+	// Get buffered data
+
+	// Format data
+
+	// Send data to server
+
+	// Receive response
+
+	// Add widget to story
+
+	// Close widget
+	$('#sketch-tool').fadeOut();
+}
+
 function openSketchTool() {
 	console.log('openSketchTool');
 
@@ -1844,45 +1887,6 @@ function openSketchTool() {
 	$('#sketch-tool').fadeIn();
 
 	initializeSketchTool();
-
-	// Set up event handlers
-
-	$('#sketch-tool').find('.save').click(function() {
-
-		// Disable sketching I/O
-
-		// Get buffered data
-
-		// Format data
-
-		// Send data to server
-		saveSketch();
-
-		// Receive response
-
-		// Add widget to story
-
-		// Close widget
-		$('#sketch-tool').fadeOut();
-	});
-
-	$('#sketch-tool').find('.close').click(function() {
-
-		// Disable sketching I/O
-
-		// Get buffered data
-
-		// Format data
-
-		// Send data to server
-
-		// Receive response
-
-		// Add widget to story
-
-		// Close widget
-		$('#sketch-tool').fadeOut();
-	});
 }
 
 var lastSketch = null;
@@ -2352,7 +2356,8 @@ function handleMouseUp(event) {
 
 //-----------------------------------------------------------------------------
 
-function addTextWidget(entry) {
+function addTextWidget(entry, options) {
+	console.log("addTextWidget");
 
 	// Set up default options
 	var defaults = {
@@ -2374,7 +2379,7 @@ function addTextWidget(entry) {
 	// Make sure that the Moment has a sound structure.
 	//
 
-	if(entry && entry.entry && entry.entry._id) {
+	if (entry && entry.entry && entry.entry._id) {
 
 		var text = entry.entry; // TODO: Update this based on current view for user
 
@@ -2534,11 +2539,8 @@ function addTextWidget(entry) {
 			e.find('.bump-count').text(entry.bumps.length);
 		}
 
-		// Hide notes section
-		e.find('.note-section').hide();
-
 		// Update options for widget
-		var options = e.find('.activity-widget .element .options');
+		//var options = e.find('.activity-widget .element .options');
 
 		//if ($("#frame-" + entry._id).length === 0) {
 		if (!entryExists) {
@@ -2546,6 +2548,8 @@ function addTextWidget(entry) {
 			//
 			// Set up widget event handlers
 			//
+
+			console.log("options['queueingMethod'] = " + options['queueingMethod']);
 
 			// Add to list of entry widgets
 			// e.prependTo('#narrative-list');
@@ -2571,12 +2575,6 @@ function addTextWidget(entry) {
 
 			// Set up bump section event handlers
 			e.find('.bump').click(function() { bumpEntry(e); });
-
-			// Set up note section event handlers
-			e.find('.note').off('click');
-			e.find('.note').click(function(event) { event.stopPropagation(); });
-			// e.find('.note').off('blur');
-			// e.find('.note').blur(function() { saveNote(e); });
 		
 			// Show entry widget
 			e.show();
@@ -2624,20 +2622,9 @@ function addTimelineWidget(entry, options) {
 	// Combine options with default values
 	var options = $.extend({}, defaults, options);
 
-	// if (typeof options !== "undefined") {
-	// 	if (options.hasOwnProperty('id')) {
-	// 		requestUri = requestUri + '?id=' + options['id'];
-	// 	} else if (options.hasOwnProperty('moment_id')) {
-	// 		requestUri = requestUri + '?moment_id=' + options['moment_id'];
-	// 	} else if (options.hasOwnProperty('frameId')) {
-	// 		requestUri = requestUri + '?frameId=' + options['frameId'];
-	// 	}
-	// }
-
-	// console.log(entry.entryType);
-
 	// Add entry to inquiry
 	if(entry.entryType === 'Text') {
+		console.log("options['queuingMethod'] = " + options['queueingMethod']);
 		addTextWidget(entry, options);
 	} else if(entry.entryType === 'Photo') {
 		addPhotoWidget(entry, options);
@@ -2658,18 +2645,6 @@ function addStoryWidget(entry, options) {
 
 	// Combine options with default values
 	var options = $.extend({}, defaults, options);
-
-	// if (typeof options !== "undefined") {
-	// 	if (options.hasOwnProperty('id')) {
-	// 		requestUri = requestUri + '?id=' + options['id'];
-	// 	} else if (options.hasOwnProperty('moment_id')) {
-	// 		requestUri = requestUri + '?moment_id=' + options['moment_id'];
-	// 	} else if (options.hasOwnProperty('frameId')) {
-	// 		requestUri = requestUri + '?frameId=' + options['frameId'];
-	// 	}
-	// }
-
-	// console.log(entry.entryType);
 
 	// Add entry to inquiry
 	if(entry.entryType === 'Text') {
@@ -2704,7 +2679,7 @@ function updateEntryView(id) {
 		// data: JSON.stringify(jsonData),
 		processData: false,
 		success: function(data) {
-			console.log('Saved Question: ');
+			console.log('Entry Data: ');
 			console.log(data);
 
 			// Set element container (e.g., Thought). Only gets set once.
@@ -3332,7 +3307,6 @@ function addSketchWidget(entry, options) {
 			console.log("Found existing sketch widget. Updating widget.");
 
 			e = $('#frame-' + entry._id); // <li> element
-			//div = e.find('.element .text');
 
 		} else {
 
@@ -3356,41 +3330,36 @@ function addSketchWidget(entry, options) {
 		div2.attr('data-id', sketch._id);
 		div2.attr('data-entry', entry._id);
 		div2.attr('data-reference', sketch.reference);
-		// div.attr('contenteditable', 'true');
-		// div.html(activity.text);
 
 		// Update Account that authored the contribution
-		var authorEntryAction = 'make a sketch';
+		var authorEntryAction = 'made a drawing';
+	
 		// Update Account that authored the contribution
-		//if (text.author && text.username) {
-			e.find('.account').html('<strong>' + entry.author.username + '</strong> ' + authorEntryAction);
-			if (entry.hasOwnProperty('collaborations')) {
-				var authors = entry.collaborations[0].authors;
+	
+		e.find('.account').html('<strong>' + entry.author.username + '</strong> ' + authorEntryAction);
+		if (entry.hasOwnProperty('collaborations')) {
+			var authors = entry.collaborations[0].authors;
 
-				if (authors.length > 0) {
-					e.find('.account').html('<strong>' + entry.author.username + '</strong>'  + ' ' + authorEntryAction + ' with ' + authors.length + ' others');
-				}
+			if (authors.length > 0) {
+				e.find('.account').html('<strong>' + entry.author.username + '</strong>'  + ' ' + authorEntryAction + ' with ' + authors.length + ' others');
 			}
+		}
 
-			//
-			// Date
-			//
-			if (entry.hasOwnProperty('date')) {
-				var currentHtml = e.find('.account').html();
-				var entryDate = new Date(entry.date);
-				var formattedDate = entryDate.toString("MMMM d, yyyy");
-				var formattedTime = entryDate.toString("h:mm tt");
-				e.find('.account').html(currentHtml + '<br /> on ' + formattedDate + ' at ' + formattedTime);
-			}
-		//}
+		//
+		// Date
+		//
+		if (entry.hasOwnProperty('date')) {
+			var currentHtml = e.find('.account').html();
+			var entryDate = new Date(entry.date);
+			var formattedDate = entryDate.toString("MMMM d, yyyy");
+			var formattedTime = entryDate.toString("h:mm tt");
+			e.find('.account').html(currentHtml + '<br /> on ' + formattedDate + ' at ' + formattedTime);
+		}
 
 		// Update bumps
 		if (entry.hasOwnProperty('bumps')) {
 			e.find('.bump-count').text(entry.bumps.length);
 		}
-
-		// Hide notes section
-		e.find('.note-section').hide();
 
 		//
 		// Question, Observation, Sequence
@@ -3437,15 +3406,10 @@ function addSketchWidget(entry, options) {
 				$(step).css('display', 'table-row');
 				$(stepDivider).css('display', 'table-row');
 
-				// e.removeAttr('id'); // Remove 'id' attribute
-				// e.prependTo('#narrative-list');
-				// e.find('.element-table').append(step);
 				$(step).insertBefore(e.find('.sequence-section-divider-template'));
 				if (index < sequence.steps.length) {
 					$(stepDivider).insertBefore(e.find('.sequence-section-divider-template'));
 				}
-				// e.find('.sequence-section').append(step);
-				// e.find('.sequence-section').append(stepDivider);
 
 				index++;
 
@@ -3464,17 +3428,12 @@ function addSketchWidget(entry, options) {
 			//
 
 			// Add to list of entry widgets
-			//e.prependTo('#narrative-list');
-			// e.prependTo($(options['destination']));
 			if (options['queueingMethod'] === 'top') {
 				e.prependTo($(options['destination']));
 			} else {
 				e.appendTo($(options['destination']));
 
 				// Scroll to bottom of story
-				// var scrollableDivElement = $('#story-interface');
-				// var height = scrollableDivElement[0].scrollHeight;
-				// scrollableDivElement.scrollTop (height);
 				if (options['autoScroll'] === true) {
 					$('html,body').animate({ scrollTop: document.body.clientHeight }, 1000);
 				}
@@ -3492,17 +3451,12 @@ function addSketchWidget(entry, options) {
 			// Set up note section event handlers
 			e.find('.note').off('click');
 			e.find('.note').click(function(event) { event.stopPropagation(); });
-			// e.find('.note').off('blur');
-			// e.find('.note').blur(function() { saveNote(e); });
 		
 			// Show entry widget
 			e.show();
 
 			// Request Tags from server
 			getTags(e);
-
-			// Request Note from server
-			// getNote(e);
 		}
 
 		// Update the Widget (updates that can only happen after displaying the widget)
@@ -3519,14 +3473,6 @@ function addSketchWidget(entry, options) {
 	} else {
 
 		console.log("Error: Invalid sketch entry received.");
-
-		// // Clone template structure and remove 'id' element to avoid 'id' conflict
-		// e = $('#sketch-activity-template').clone().attr('id', 'volatile-activity');
-		// e.addClass('activity-frame');
-		// e.removeAttr('id'); // Remove 'id' attribute
-		// e.prependTo('#narrative-list');
-		// //e.find('.element .image').click(function() { changeSketch(e) });
-		// e.show(); // Show element
 	}
 }
 
@@ -3548,174 +3494,53 @@ function addEmptyReflectionWidget(entry, options) {
 
 	var destination = $(options['destination']);
 
+	//
 	// Add entry
-	// if (entry && entry.entry && entry.entry._id) { // Validate entry object
+	//
 
-		//var reflection = entry.entry; // TODO: Update this based on current view for user
+	var e;
+	var div;
 
-		// Only continue if Photo entry is valid
-		//if (!reflection) return;
+	var entryExists = false; // Flag indicating whether entry exists in the destination element. If not, create a new entry.
 
-		var e;
-		var div;
+	// Widget does not exist for element does not exist, so create it
+	console.log("Could not find existing widget for reflection. Creating new reflection widget.");
 
-		var entryExists = false; // Flag indicating whether entry exists in the destination element. If not, create a new entry.
-		// if ($(options['destination']).find("#frame-" + entry._id).length != 0) {
-		// 	entryExists = true;
-		// }
+	// Clone template structure and remove 'id' element to avoid 'id' conflict
+	e = $('#reflection-template').clone().attr('id', 'volatile-activity');
+	e.addClass('activity-frame');
+	e.removeAttr('id'); // Remove 'id' attribute
 
-		//if ($("#frame-" + entry._id).length != 0) {
-		//console.log('length = ' + $(options['destination']).find("#frame-" + entry._id).length);
-		// if (entryExists) {
+	// Update element
+	div = e.find('.activity-widget .element');
 
-		// 	// // Frame exists, so update it
-		// 	// console.log("Found existing reflection widget. Updating widget.");
+	console.log("Adding reflection entry.");
 
-		// 	// e = $('#frame-' + entry._id); // <li> element
+	//
+	// Set up widget event handlers
+	//
 
-		// } else {
+	// Add to list of entry widgets
+	if (options['queueingMethod'] === 'top') {
+		e.prependTo($(options['destination']));
+	} else {
+		e.appendTo($(options['destination']));
 
-			// Widget does not exist for element does not exist, so create it
-			console.log("Could not find existing widget for reflection. Creating new reflection widget.");
+		// Scroll to bottom of story
+		if (options['autoScroll'] === true) {
+			$('html,body').animate({ scrollTop: document.body.clientHeight }, 1000);
+		}
+	}
 
-			// Clone template structure and remove 'id' element to avoid 'id' conflict
-			e = $('#reflection-template').clone().attr('id', 'volatile-activity');
-			e.addClass('activity-frame');
-			e.removeAttr('id'); // Remove 'id' attribute
-			//div = e.find('.element .text');
-		// }
-
-		// Update 'li' for element
-		// e.attr('id', 'frame-' + entry._id);
-		// e.attr('data-id', entry._id);
-		// e.attr('data-timeline', entry.timeline);
-
-		// Update element
-		var div2 = e.find('.activity-widget .element');
-		// div2.attr('id', 'reflection-' + reflection._id);
-		// div2.attr('data-id', reflection._id);
-		// div2.attr('data-entry', entry._id);
-
-
-
-		// div2.attr('data-reference', reflection.reference);
-		// div.attr('contenteditable', 'true');
-		// div.html(activity.text);
-
-		// // Update Account that authored the contribution
-		// var authorEntryAction = 'snapped a reflection';
-		// // Update Account that authored the contribution
-		// //if (text.author && text.username) {
-		// 	e.find('.account').html('<strong>' + entry.author.username + '</strong> ' + authorEntryAction);
-		// 	if (entry.hasOwnProperty('collaborations')) {
-		// 		var authors = entry.collaborations[0].authors;
-
-		// 		if (authors.length > 0) {
-		// 			e.find('.account').html('<strong>' + entry.author.username + '</strong>'  + ' ' + authorEntryAction + ' with ' + authors.length + ' others');
-		// 		}
-		// 	}
-
-		// 	//
-		// 	// Date
-		// 	//
-		// 	if (entry.hasOwnProperty('date')) {
-		// 		var currentHtml = e.find('.account').html();
-		// 		var entryDate = new Date(entry.date);
-		// 		var formattedDate = entryDate.toString("MMMM d, yyyy");
-		// 		var formattedTime = entryDate.toString("h:mm tt");
-		// 		e.find('.account').html(currentHtml + '<br /> on ' + formattedDate + ' at ' + formattedTime);
-		// 	}
-		// //}
-
-		// Update bumps
-		// if (entry.hasOwnProperty('bumps')) {
-		// 	e.find('.bump-count').text(entry.bumps.length);
-		// }
-
-		// Hide notes section
-		// e.find('.note-section').hide();
-
-		// // Add Tags
-		// e.find('.tags').off('blur');
-		// e.find('.tags').blur(function() { saveTags(e); });
-
-		// e.find('.note').off('blur');
-		// e.find('.note').blur(function() { saveNote(e); });
-
-		// TODO: Set reflection text
-		// Set image
-		// var image = e.find('.element .image');
-		// image.attr('src', '' + localStorage['host'] + reflection.uri + '');
-
-		// console.log("ABOUT TO ADD REFLECTION WIDGET");
-		// console.log($("#frame-" + entry._id).length);
-
-		// Make sure that entry does not exist already
-		// if (!entryExists) {
-		//if ($("#frame-" + entry._id).length === 0) { // Check if entry exists
-		//if ($(options['destination']).find("#frame-" + entry._id).length === 0) {
-
-			console.log("Adding reflection entry.");
-
-			//
-			// Set up widget event handlers
-			//
-
-			// Add to list of entry widgets
-			// e.prependTo('#narrative-list');
-			// e.prependTo($(options['destination']));
-			if (options['queueingMethod'] === 'top') {
-				e.prependTo($(options['destination']));
-			} else {
-				e.appendTo($(options['destination']));
-
-				// Scroll to bottom of story
-				// var scrollableDivElement = $('#story-interface');
-				// var height = scrollableDivElement[0].scrollHeight;
-				// scrollableDivElement.scrollTop (height);
-				if (options['autoScroll'] === true) {
-					$('html,body').animate({ scrollTop: document.body.clientHeight }, 1000);
-				}
-			}
-
-			// Set up tags section event handlers
-			// e.find('.tags').off('click');
-			// e.find('.tags').click(function(event) { event.stopPropagation(); });
-			// e.find('.tags').off('blur');
-			// e.find('.tags').blur(function() { saveTags(e); });
-
-			// Set up bump section event handlers
-			// e.find('.bump').click(function() { bumpEntry(e); });
-
-			// Set up note section event handlers
-			// e.find('.note').off('click');
-			// e.find('.note').click(function(event) { event.stopPropagation(); });
-			// e.find('.note').off('blur');
-			// e.find('.note').blur(function() { saveNote(e); });
-		
-			// Show entry widget
-			e.show();
-
-			// Request Tags from server
-			// getTags(e);
-
-			// Request Note from server
-			// getNote(e);
-		// }
-
-	// } else {
-
-	// 	console.log("Error: Invalid reflection entry received.");
-	// }
-
-	//alert('Here:' + entry);
+	// Show entry widget
+	e.show();
 
 	//if (entry['text'] !== '') {
 	if (entry && entry.element) {
 		var reflectionText = $(entry.element).find('#reflection-text').val();
 		$(e).find('#reflection-text').val(reflectionText);
 	} else {
-		storyStepEntries[currentToolStep].push({ type: 'Reflection', element: e }); // id: entryId });
+		storyStepEntries[currentToolStep].push({ type: 'Reflection', element: e });
 	}
 }
 
@@ -3753,8 +3578,7 @@ function addReflectionWidget(entry, options) {
 			entryExists = true;
 		}
 
-		//if ($("#frame-" + entry._id).length != 0) {
-		//console.log('length = ' + $(options['destination']).find("#frame-" + entry._id).length);
+		// Check if the entry has already been added to the story
 		if (entryExists) {
 
 			// Frame exists, so update it
@@ -3771,7 +3595,6 @@ function addReflectionWidget(entry, options) {
 			e = $('#reflection-template').clone().attr('id', 'volatile-activity');
 			e.addClass('activity-frame');
 			e.removeAttr('id'); // Remove 'id' attribute
-			//div = e.find('.element .text');
 		}
 
 		// Update 'li' for element
@@ -3788,64 +3611,8 @@ function addReflectionWidget(entry, options) {
 		//var reflectionText = $(entry.element).find('#reflection-text').val();
 		$(e).find('#reflection-text').val(reflection.text);
 
-
-
-		// div2.attr('data-reference', reflection.reference);
-		// div.attr('contenteditable', 'true');
-		// div.html(activity.text);
-
-		// // Update Account that authored the contribution
-		// var authorEntryAction = 'snapped a reflection';
-		// // Update Account that authored the contribution
-		// //if (text.author && text.username) {
-		// 	e.find('.account').html('<strong>' + entry.author.username + '</strong> ' + authorEntryAction);
-		// 	if (entry.hasOwnProperty('collaborations')) {
-		// 		var authors = entry.collaborations[0].authors;
-
-		// 		if (authors.length > 0) {
-		// 			e.find('.account').html('<strong>' + entry.author.username + '</strong>'  + ' ' + authorEntryAction + ' with ' + authors.length + ' others');
-		// 		}
-		// 	}
-
-		// 	//
-		// 	// Date
-		// 	//
-		// 	if (entry.hasOwnProperty('date')) {
-		// 		var currentHtml = e.find('.account').html();
-		// 		var entryDate = new Date(entry.date);
-		// 		var formattedDate = entryDate.toString("MMMM d, yyyy");
-		// 		var formattedTime = entryDate.toString("h:mm tt");
-		// 		e.find('.account').html(currentHtml + '<br /> on ' + formattedDate + ' at ' + formattedTime);
-		// 	}
-		// //}
-
-		// Update bumps
-		// if (entry.hasOwnProperty('bumps')) {
-		// 	e.find('.bump-count').text(entry.bumps.length);
-		// }
-
-		// Hide notes section
-		// e.find('.note-section').hide();
-
-		// // Add Tags
-		// e.find('.tags').off('blur');
-		// e.find('.tags').blur(function() { saveTags(e); });
-
-		// e.find('.note').off('blur');
-		// e.find('.note').blur(function() { saveNote(e); });
-
-		// TODO: Set reflection text
-		// Set image
-		// var image = e.find('.element .image');
-		// image.attr('src', '' + localStorage['host'] + reflection.uri + '');
-
-		// console.log("ABOUT TO ADD REFLECTION WIDGET");
-		// console.log($("#frame-" + entry._id).length);
-
 		// Make sure that entry does not exist already
 		if (!entryExists) {
-		//if ($("#frame-" + entry._id).length === 0) { // Check if entry exists
-		//if ($(options['destination']).find("#frame-" + entry._id).length === 0) {
 
 			console.log("Adding reflection entry.");
 
@@ -3854,61 +3621,25 @@ function addReflectionWidget(entry, options) {
 			//
 
 			// Add to list of entry widgets
-			// e.prependTo('#narrative-list');
-			// e.prependTo($(options['destination']));
 			if (options['queueingMethod'] === 'top') {
 				e.prependTo($(options['destination']));
 			} else {
 				e.appendTo($(options['destination']));
 
 				// Scroll to bottom of story
-				// var scrollableDivElement = $('#story-interface');
-				// var height = scrollableDivElement[0].scrollHeight;
-				// scrollableDivElement.scrollTop (height);
 				if (options['autoScroll'] === true) {
 					$('html,body').animate({ scrollTop: document.body.clientHeight }, 1000);
 				}
 			}
-
-			// Set up tags section event handlers
-			// e.find('.tags').off('click');
-			// e.find('.tags').click(function(event) { event.stopPropagation(); });
-			// e.find('.tags').off('blur');
-			// e.find('.tags').blur(function() { saveTags(e); });
-
-			// Set up bump section event handlers
-			// e.find('.bump').click(function() { bumpEntry(e); });
-
-			// Set up note section event handlers
-			// e.find('.note').off('click');
-			// e.find('.note').click(function(event) { event.stopPropagation(); });
-			// e.find('.note').off('blur');
-			// e.find('.note').blur(function() { saveNote(e); });
 		
 			// Show entry widget
 			e.show();
-
-			// Request Tags from server
-			// getTags(e);
-
-			// Request Note from server
-			// getNote(e);
 		}
 		
 	} else {
 
 		console.log("Error: Invalid reflection entry received.");
 	}
-
-	//alert('Here:' + entry);
-
-	//if (entry['text'] !== '') {
-	// if (entry && entry.element) {
-	// 	var reflectionText = $(entry.element).find('#reflection-text').val();
-	// 	$(e).find('#reflection-text').val(reflectionText);
-	// } else {
-	// 	storyStepEntries[currentToolStep].push({ type: 'Reflection', element: e }); // id: entryId });
-	// }
 }
 
 //
@@ -4114,6 +3845,9 @@ function saveStoryTool(fn) {
 				}
 			}
 		}
+
+		// TODO: Change this so it only goes back to the story perspective when things are successfully saved
+		openStoryPerspective();
 	});
 
 	// while(reflectionCount > 0) {};
@@ -4137,13 +3871,6 @@ function saveStoryTool(fn) {
 				console.log('Saved Story: ');
 				console.log(data);
 
-				// alert(JSON.stringify(data));
-
-				// Set element container (e.g., Thought). Only gets set once.
-				// $(e).attr('id', 'frame-' + data.frame._id); // e.data('id', data._id);
-				// addTimelineWidget(data);
-				//addSketchWidget();
-
 				fn(data);
 
 				console.log('Saved Story.');
@@ -4161,8 +3888,6 @@ function saveStoryTool(fn) {
 
 		var pageJSON = JSON.stringify(pageTemplate);
 
-		//alert("SAVING: " + pageJSON);
-
 		// POST the JSON object
 		$.ajax({
 			type: 'POST',
@@ -4178,13 +3903,6 @@ function saveStoryTool(fn) {
 				console.log('Saved Story: ');
 				console.log(data);
 
-				//alert('entry: ' + JSON.stringify(data));
-
-				// Set element container (e.g., Thought). Only gets set once.
-				// $(e).attr('id', 'frame-' + data.frame._id); // e.data('id', data._id);
-				// addTimelineWidget(data);
-				//addSketchWidget();
-
 				fn(data);
 
 				console.log('Saved Story.');
@@ -4196,7 +3914,7 @@ function saveStoryTool(fn) {
 	}
 
 	// TODO: Change this so it only goes back to the story perspective when things are successfully saved
-	openStoryPerspective();
+	// openStoryPerspective();
 }
 
 //function add

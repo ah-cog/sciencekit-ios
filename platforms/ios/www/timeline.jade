@@ -25,24 +25,28 @@ block content
 	// Bottom of interface
 	//
 	.edge(id="story-mode-previous-button", style="position: fixed; vertical-align: middle; left: 0px; bottom: 45%; text-align: right; font-size: 30px; padding-right: 10px; text-align: center; z-index: 1001;")
-		a(href="javascript:void(0);", onclick="getPreviousChapter();") 
-			div(style='background-image: url(./img/green-arrow-left.png); background-size: 70px 70px; background-repeat:no-repeat; background-position:10px 8px; height: 80px; padding-left: 80px; padding-top: 24px; font-size: 30px; vertical-align: middle;')
-				| previous
+		a(class="toolkit-option", href="javascript:void(0);", onclick="getPreviousChapter();") 
+			.toolkit-previous-container(style="background-image: url(./img/green-arrow-left.png);")
+				p.toolkit-option-text
+					| previous
 
-	.edge(id="story-mode-next-button", style="position: fixed; vertical-align: middle; right: 0px; bottom: 45%; text-align: right; font-size: 30px; padding-right: 10px; text-align: center; z-index: 1001;")
-		a(href="javascript:void(0);", onclick="getNextChapter();") 
-			div(style='background-image: url(./img/green-arrow-right.png); background-size: 70px 70px; background-repeat:no-repeat; background-position: -10px 8px; height: 80px; padding-left: 80px; padding-top: 24px; font-size: 30px; vertical-align: middle;')
-				| next
+	.edge(id="story-mode-next-button", style="position: fixed; vertical-align: middle; right: 0px; bottom: 45%; text-align: right; font-size: 30px; padding-right: 0px; text-align: center; z-index: 1001;")
+		a(class="toolkit-option", href="javascript:void(0);", onclick="getNextChapter();") 
+			.toolkit-option-container(style="background-image: url(./img/green-arrow-right.png);")
+				p.toolkit-option-text
+					| next
+
 
 	//
 	// Top-right floating options
 	//
 	.edge(id="top", style="text-align: right; font-size: 30px; padding-right: 10px; z-index: 1000;")
-		a(href="javascript:void(0);", onclick="scrollTickle();") 
+		//a(href="javascript:void(0);", onclick="scrollTickle();")
+		a(href="javascript:void(0);", onclick="getAccountTimeline();")
 			img(src="./img/search.png", alt="search", height="60")
-		a(href="./timeline.html") 
-			img(src="./img/refresh.png", alt="refresh", height="60") 
-		a(href="javscript:void(0);", onclick="scrollToTop();") 
+		a(href="./timeline.html")
+			img(src="./img/refresh.png", alt="refresh", height="60")
+		a(href="javscript:void(0);", onclick="scrollToTop();")
 			img(src="./img/up-arrow.png", alt="top")
 
 	//
@@ -291,7 +295,7 @@ block content
 											input(type='text', id='story-text-tool-text')
 
 	// TODO: Add a div here to contain the queue? (Like the narrative-list)
-	ul(id="story-entry-queue", style="z-index: 990;")
+	ul(id="story-entry-queue", style="z-index: 990; padding-bottom: 100px;")
 
 
 	//.edge(id="story-interface", style="background-color: #ffffff; overflow-y: scroll; -webkit-overflow-scrolling: touch; width: 100%; height:100%; position: fixed; left: 0px; top: 0px; text-align: left; font-size: 13px; padding-left: 10px; z-index: 990;")
@@ -659,9 +663,9 @@ block content
 
 	.dim(id="capture-overlay", style="height:100%; width:100%; position:fixed; left:0; top:0; z-index:995 !important; background-color:black; opacity: 0.2;")
 
-	.confirm-save-overlay(id="confirm-save-overlay", style="height:100%; width:100%; position:fixed; left:0; top:0; z-index:2000; !important; background-color:none;")
-		.message(style="width:300px; height:300px; background:#333333; position:fixed; top:50%; left:50%; margin-top:-150px; margin-left:-150px; border-radius: 15px; padding: 20px;")
-			| Do you want to save?
+	.confirm-save-overlay(id="confirm-save-overlay", style="height:100%; width:100%; position:fixed; left:0; top:0; z-index:2000; !important; background-color:rgba(36,44,47,0.7);;")
+		.message(style="width:300px; height:300px; background-color:rgba(0, 0, 0, 0.6);; position:fixed; top:50%; left:50%; margin-top:-150px; margin-left:-150px; border-radius: 15px; padding: 20px; font-size: 20px; color: #666666;")
+			| <strong>Do you want to save?</strong>
 			a(href="javascript:void(0);", onclick="saveTool();") 
 				div(style='background-image: url(./img/check.png); background-size: 40px 40px; background-repeat:no-repeat; background-position:0px 8px; height: 50px; padding-left: 45px; padding-top: 8px; font-size: 30px; vertical-align: middle;')
 					| yes
@@ -669,9 +673,9 @@ block content
 				div(style='background-image: url(./img/cross.png); background-size: 40px 40px; background-repeat:no-repeat; background-position:0px 8px; height: 50px; padding-left: 45px; padding-top: 8px; font-size: 30px; vertical-align: middle;')
 					| no
 
-	.confirm-cancel-overlay(id="confirm-cancel-overlay", style="height:100%; width:100%; position:fixed; left:0; top:0; z-index:2000; !important; background-color:none;")
-		.message(style="width:300px; height:300px; background:#333333; position:fixed; top:50%; left:50%; margin-top:-150px; margin-left:-150px; border-radius: 15px; padding: 20px;")
-			| Do you want to cancel?
+	.confirm-cancel-overlay(id="confirm-cancel-overlay", style="height:100%; width:100%; position:fixed; left:0; top:0; z-index:2000; !important; background-color:rgba(36,44,47,0.7);")
+		.message(style="width:300px; height:300px; background-color:rgba(0, 0, 0, 0.6); position:fixed; top:50%; left:50%; margin-top:-150px; margin-left:-150px; border-radius: 15px; padding: 20px; font-size: 20px; color: #666666;")
+			| <strong>Do you want to cancel?</strong>
 			a(href="javascript:void(0);", onclick="cancelTool();") 
 				div(style='background-image: url(./img/check.png); background-size: 40px 40px; background-repeat:no-repeat; background-position:0px 8px; height: 50px; padding-left: 45px; padding-top: 8px; font-size: 30px; vertical-align: middle;')
 					| yes
@@ -727,11 +731,11 @@ block content
 			// Header
 			//
 
-			.tool-table-row
-				.tool-table-cell(style='text-align: right; vertical-align: middle; padding-right: 30px; padding-top: 30px;')
-					img(class="close", src="./img/cross.png", width="70")
-				.tool-table-cell(style='text-align: right; vertical-align: middle; padding-right: 30px; padding-top: 30px;')
-					img(class="save", src="./img/check.png", width="70")
+			//.tool-table-row
+			//	.tool-table-cell(style='text-align: right; vertical-align: middle; padding-right: 30px; padding-top: 30px;')
+			//		img(class="close", src="./img/cross.png", width="70")
+			//	.tool-table-cell(style='text-align: right; vertical-align: middle; padding-right: 30px; padding-top: 30px;')
+			//		img(class="save", src="./img/check.png", width="70")
 
 			//
 			// Body
@@ -746,11 +750,18 @@ block content
 			// Footer
 			//
 
-			.tool-table-row
-				.tool-table-cell(style='text-align: right; vertical-align: middle; padding-right: 30px; padding-bottom: 30px;')
-					img(class="close", src="./img/cross.png", width="70")
-				.tool-table-cell(style='text-align: right; vertical-align: middle; padding-right: 30px; padding-bottom: 30px;')
-					img(class="save", src="./img/check.png", width="70")
+			div(style="position: fixed; left: 10px; bottom: 0px; text-align: right; font-size: 30px; padding-right: 10px; width:100%; text-align: center; z-index: 1001; background-color: #ffffff;")
+				div(style="display: inline-block;")
+					div(style="display: table;")
+						div(style="display: table-row;")
+							div(style="display: table-cell;")
+								a(class="confirm-cancel-tool", href="javascript:void(0);", onclick='cancelSketchCanvas();')
+									div(style='background-image: url(./img/cross.png); background-size: 70px 70px; background-repeat:no-repeat; background-position:10px 8px; height: 80px; padding-left: 80px; padding-top: 24px; font-size: 30px; vertical-align: middle;')
+										| cancel
+							div(style="display: table-cell;")
+								a(id="confirm-save-tool", href="javascript:void(0);", onclick='saveSketchCanvas();')
+									div(style='background-image: url(./img/check.png); background-size: 70px 70px; background-repeat:no-repeat; background-position:10px 8px; height: 80px; padding-left: 80px; padding-top: 24px; font-size: 30px; vertical-align: middle;')
+										| save
 
 	script
 		window.onload = function() {
