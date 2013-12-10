@@ -2066,7 +2066,7 @@ var paletteTools = [];
 
 // Drawing tools (color palette and brush size)
 var paletteX = 10;
-var paletteY = 10;
+var paletteY = 20;
 var currentPaletteColor = "#000000";
 var currentPalleteSize = 10;
 var padding = 5;
@@ -2090,7 +2090,7 @@ function initializeSketchTool() {
 	}
 	sketchCanvas = $('#sketch-tool').find('canvas').get(0); // Get "raw" DOM element wrapped by jQuery selector
 	index = 0;
-	paletteColors = ["#f04950", "#f58d4e", "#fece3e", "#fff533", "#a3fd39", "#33b8a5", "#33a7d7", "#3276b5", "#8869ad", "#e966ac", "#fe8a00"];
+	paletteColors = ["#f04950", "#f58d4e", "#fece3e", "#fff533", "#a3fd39", "#33b8a5", "#33a7d7", "#3276b5", "#8869ad", "#e966ac"];
 
 	// Update canvas geometry
 	$(sketchCanvas).attr('width', $(sketchCanvas).parent().width()); // Update size
@@ -2114,7 +2114,7 @@ function initializeSketchTool() {
 	stage.addEventListener("stagemouseup", handleMouseUp);
 
 	// Center instructions on the sketching canvas
-	title = new createjs.Text("touch here to draw", "36px Quicksand", "#777777");
+	title = new createjs.Text("", "36px Quicksand", "#777777");
 	title.x = ($(sketchCanvas).width() - title.getMeasuredWidth()) / 2;
 	title.y = $(sketchCanvas).height() / 2;
 	stage.addChild(title);
