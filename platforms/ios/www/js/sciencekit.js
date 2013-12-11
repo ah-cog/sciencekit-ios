@@ -983,7 +983,7 @@ function openStoryTool(options) {
 	// });
 
 	// Intialize by setting all entires to the right.  By default, entries are added to a new Story.
-	if (options['readOnly'] !== true) {
+	// if (options['readOnly'] !== true) {
 
 		//$('.activity-widget').closest('.activity-template').addClass('activity-template-right');
 
@@ -1003,16 +1003,21 @@ function openStoryTool(options) {
 			// Upon click, add the entry to the story queue: Make HTTP request, put it in the story queue
 
 			// alert("REQUEST FOR STORY");
+			var entryPosition = storyStepEntries[currentToolStep].length; // Used for sorting when re-inserting entries into story
 			var entryId = $(this).attr('data-id');
+			var entry = { id: entryId, type: 'Entry', position: entryPosition };
+			
 			// alert(entryId);
-			addEntryToStory(entryId);
+			addEntryToStory(entry);
 
 			// Put the following in a callback
-			storyStepEntries[currentToolStep].push({ id: entryId, type: 'Entry' }); // Add entry to story for current step
+			// var entryPosition = storyStepEntries[currentToolStep].length;
+			
+			storyStepEntries[currentToolStep].push(entry); // Add entry to story for current step
 			//$(this).remove(); // Remove entry from capture queue
 			$(this).slideUp(); // Remove entry from capture queue
 		});
-	}
+	// }
 }
 
 function getNextChapter() {
@@ -1129,20 +1134,15 @@ function showChapter() {
 			// Add the entry to the story queue
 			var entry = storyStepEntries[currentToolStep][i];
 
-			console.log(entry);
-
-			//if (entry.type === 'Entry') {
 			if (entry.hasOwnProperty('id')) {
 
-				addEntryToStory(entry['id']);
+				addEntryToStory(entry, { 'insertPosition': entry['position'] });
 
 			} else if (entry.type === 'Reflection') {
 
-				// storyStepEntries[currentToolStep].push({ type: 'Reflection', element: e });
 				var reflectionText = $(entry.element).find('#reflection-text').val();
-				//alert(reflectionText);
 				$(entry.element).remove();
-				addEmptyReflectionWidget(entry);
+				addEmptyReflectionWidget(entry, { 'insertPosition': entry['position'] });
 			}
 
 			// Remove the entries that are in the story queue from the data queue
@@ -1308,38 +1308,8 @@ function openSketchTool2() {
 
 function openReflectionTool() {
 
-	//storyStepEntries[currentToolStep].push({ type: 'Reflection', text: '' }); // id: entryId });
-
+	// Add empty reflection widget
 	addEmptyReflectionWidget();
-
-	return;
-
-	// // currentConceptTool = 'Reflection';
-	// currentTool = 'Reflection';
-
-	// $('#logo').fadeOut();
-	// $('#top').fadeOut();
-	// $('#bottom').fadeOut();
-	
-	// $('#toolkit-options').fadeOut(function() {
-	// 	$('.story-toolkit-tool-options').fadeOut();
-	// 	$('#toolkit-tool-options').fadeIn();
-	// });
-
-	// // Reset form
-	// $('#story-text-tool-text').val('');
-
-	// //$('#story-entry-queue').fadeOut(function() {
-	// $('#story-perspective-list').fadeOut(function() {
-	// 	$('.story-concept-tool').hide();
-	// 	$('#story-concept-toolkit').show();
-	// 	$('#story-toolkit-list').fadeIn();
-
-	// 	// $('#media-type-options .media-type-options').fadeOut(function () {
-	// 		//$('.story-text-tool').fadeIn();
-	// 		$('#story-text-tool').fadeIn();
-	// 	// });
-	// });
 }
 
 function openQuestionTool() {
@@ -1491,7 +1461,6 @@ function getStories(options) {
 			var currentRow = -1;
 			var currentColumn = 0;
 			for(var i = 0; i < data.length; i++) {
-				//console.log('Story: ' + data[story].title);
 
 				// Create a new row
 				if (currentRow === -1 || i % 3 === 0) {
@@ -1537,7 +1506,7 @@ function getStories(options) {
 				});
 
 				// TODO: Populate the covers and show them once they're ready
-				console.log('story: ' + currentRow + ', ' + currentColumn);
+				// console.log('story: ' + currentRow + ', ' + currentColumn);
 
 			}
 		}
@@ -2004,7 +1973,6 @@ function saveSketchTool() {
 			// Set element container (e.g., Thought). Only gets set once.
 			// $(e).attr('id', 'frame-' + data.frame._id); // e.data('id', data._id);
 			addTimelineWidget(data);
-			//addSketchWidget();
 
 			// Set element container (e.g., Thought). Only gets set once.
 			// $(e).attr('id', 'frame-' + data._id); // e.data('id', data._id);
@@ -2362,9 +2330,7 @@ function addTextWidget(entry, options) {
 
 	//console.log("options['destination'] = " + options['destination']);
 
-	var destination = $(options['destination']);
-
-	
+	var destination = $(options['destination']);	
 
 	var type = 'text';
 
@@ -2382,17 +2348,14 @@ function addTextWidget(entry, options) {
 		var e;
 		var div;
 
+		// Check if a widget for the Activity already exists. If so, store a reference 
+		// to it.  If not, create the widget and store a reference to it.
+
 		var entryExists = false; // Flag indicating whether entry exists in the destination element. If not, create a new entry.
 		if ($(options['destination']).find("#frame-" + entry._id).length != 0) {
 			entryExists = true;
 		}
 
-		//
-		// Check if a widget for the Activity already exists. If so, store a reference 
-		// to it.  If not, create the widget and store a reference to it.
-		//
-
-		//if ($("#frame-" + entry._id).length != 0) {
 		if (entryExists) {
 			// Element exists, so update it
 			console.log("Found existing text widget. Updating widget.");
@@ -2542,23 +2505,66 @@ function addTextWidget(entry, options) {
 			// Set up widget event handlers
 			//
 
-			console.log("options['queueingMethod'] = " + options['queueingMethod']);
-
 			// Add to list of entry widgets
-			// e.prependTo('#narrative-list');
 			if (options['queueingMethod'] === 'top') {
-				e.prependTo($(options['destination']));
-			} else {
-				e.appendTo($(options['destination']));
 
-				// Scroll to bottom of story
-				// var scrollableDivElement = $('#story-interface');
-				// var height = scrollableDivElement[0].scrollHeight;
-				// scrollableDivElement.scrollTop (height);
-				if (options['autoScroll'] === true) {
-					$('html,body').animate({ scrollTop: document.body.clientHeight }, 1000);
+				e.prependTo($(options['destination']));
+
+			} else {
+				if (options['insertPosition'] !== null && $(options['destination']).find('li').length > 0) {
+
+					var entryTargetPosition = options['insertPosition']; // Get the value of the property to sort by
+
+					// Insertion sort the entry based on the position specified
+					for (var i = 0; i < $(options['destination']).find('li').length; i++) {
+
+						// console.log('Previous: ' + previousEntry);
+
+						if (i == 0) {
+
+							var previousEntry = $(options['destination']).find('li')[0];
+							var previousPosition = $(previousEntry).attr('position');
+							console.log(entryTargetPosition + ' must be > ' + previousPosition + ' (of ' + $(options['destination']).find('li').length + ')');
+							if (entryTargetPosition < previousPosition) {
+								console.log("WTF");
+								$(e).attr('position', options['insertPosition']);
+								$(e).prependTo($(options['destination']));
+								break;
+							}
+
+						} else {
+						
+							console.log("NOT NULL");
+							var previousEntry = $(options['destination']).find('li')[i - 1];
+							var previousPosition = $(previousEntry).attr('position');
+							console.log(entryTargetPosition + ' must be > ' + previousPosition + ' (of ' + $(options['destination']).find('li').length + ')');
+							if (!(entryTargetPosition > previousPosition)) {
+								console.log("WTF");
+								$(e).attr('position', options['insertPosition']);
+								$(e).insertAfter($(previousEntry));
+								break;
+							}
+						}
+					}
+
+					// The entry was not yet added, so thre must not be any entries yet. Just append it to the list.
+					if (i == $(options['destination']).find('li').length) {
+						$(e).attr('position', options['insertPosition']);
+						$(e).appendTo($(options['destination']));
+					}
+
+				} else {
+					$(e).attr('position', '0');
+					$(e).appendTo($(options['destination'])); // Prepend the entry
 				}
 			}
+
+			// HACK: Sort everything any time anything is added to the list
+			destination.find('.activity-frame').sort(function (a, b) {
+			    //return +a.dataset.percentage - +b.dataset.percentage;
+			    return +$(a).attr('position') - +$(b).attr('position');
+			})
+			.appendTo( destination );
 
 			// Set up tags section event handlers
 			e.find('.tags').off('click');
@@ -2673,8 +2679,10 @@ function updateEntryView(id) {
 
 // Get entry and add it to the story
 // TODO: Update this to accept options parameter, not just an id
-function addEntryToStory (id) {
+function addEntryToStory (entry) {
 	console.log('addEntryToStory');
+
+	var id = entry['id'];
 
 	// console.log("Saving Question (JSON): ");
 	// console.log(jsonData);
@@ -2695,16 +2703,15 @@ function addEntryToStory (id) {
 			console.log(data);
 
 			// Set element container (e.g., Thought). Only gets set once.
-			// $(e).attr('id', 'frame-' + data.frame._id); // e.data('id', data._id);
-			//addTimelineWidget(data);
-			//var options = { destination: '#story-list' };
 			var options = { destination: '#story-entry-queue' };
 			if (currentStoryMode == 'Writeable') {
 				options['autoScroll'] = true;
+				options['insertPosition'] = entry['position'];
+
 			} else {
 				options['autoScroll'] = false;
 			}
-			//addTimelineWidget(data, options);
+
 			addStoryWidget(data, options);
 			closeEntrySelectionTool(); // TODO: Move this into a callback
 			console.log(data);
@@ -2765,7 +2772,8 @@ function addPhotoWidget(entry, options) {
 
 	// Set up default options
 	var defaults = {
-		'destination': '#narrative-list'
+		'destination': '#narrative-list',
+		'queueingMethod': 'top'
 	};
 
 	// Combine options with default values
@@ -2943,19 +2951,66 @@ function addPhotoWidget(entry, options) {
 			// Add to list of entry widgets
 			// e.prependTo('#narrative-list');
 			// e.prependTo($(options['destination']));
+			// Add to list of entry widgets
 			if (options['queueingMethod'] === 'top') {
-				e.prependTo($(options['destination']));
-			} else {
-				e.appendTo($(options['destination']));
 
-				// Scroll to bottom of story
-				// var scrollableDivElement = $('#story-interface');
-				// var height = scrollableDivElement[0].scrollHeight;
-				// scrollableDivElement.scrollTop (height);
-				if (options['autoScroll'] === true) {
-					$('html,body').animate({ scrollTop: document.body.clientHeight }, 1000);
+				e.prependTo($(options['destination']));
+
+			} else {
+				if (options['insertPosition'] !== null && $(options['destination']).find('li').length > 0) {
+
+					var entryTargetPosition = options['insertPosition']; // Get the value of the property to sort by
+
+					// Insertion sort the entry based on the position specified
+					for (var i = 0; i < $(options['destination']).find('li').length; i++) {
+
+						// console.log('Previous: ' + previousEntry);
+
+						if (i == 0) {
+
+							var previousEntry = $(options['destination']).find('li')[0];
+							var previousPosition = $(previousEntry).attr('position');
+							console.log(entryTargetPosition + ' must be > ' + previousPosition + ' (of ' + $(options['destination']).find('li').length + ')');
+							if (entryTargetPosition < previousPosition) {
+								console.log("WTF");
+								$(e).attr('position', options['insertPosition']);
+								$(e).prependTo($(options['destination']));
+								break;
+							}
+
+						} else {
+						
+							console.log("NOT NULL");
+							var previousEntry = $(options['destination']).find('li')[i - 1];
+							var previousPosition = $(previousEntry).attr('position');
+							console.log(entryTargetPosition + ' must be > ' + previousPosition + ' (of ' + $(options['destination']).find('li').length + ')');
+							if (!(entryTargetPosition > previousPosition)) {
+								console.log("WTF");
+								$(e).attr('position', options['insertPosition']);
+								$(e).insertAfter($(previousEntry));
+								break;
+							}
+						}
+					}
+
+					// The entry was not yet added, so thre must not be any entries yet. Just append it to the list.
+					if (i == $(options['destination']).find('li').length) {
+						$(e).attr('position', options['insertPosition']);
+						$(e).appendTo($(options['destination']));
+					}
+
+				} else {
+					$(e).attr('position', '0');
+					$(e).appendTo($(options['destination'])); // Prepend the entry
 				}
 			}
+
+			// HACK: Sort everything any time anything is added to the list
+			destination.find('.activity-frame').sort(function (a, b) {
+			    //return +a.dataset.percentage - +b.dataset.percentage;
+			    return +$(a).attr('position') - +$(b).attr('position');
+			})
+			.appendTo( destination );
 
 			// Set up tags section event handlers
 			e.find('.tags').off('click');
@@ -3178,19 +3233,66 @@ function addVideoWidget(entry, options) {
 			// Add to list of entry widgets
 			// e.prependTo('#narrative-list');
 			// e.prependTo($(options['destination']));
+			// Add to list of entry widgets
 			if (options['queueingMethod'] === 'top') {
-				e.prependTo($(options['destination']));
-			} else {
-				e.appendTo($(options['destination']));
 
-				// Scroll to bottom of story
-				// var scrollableDivElement = $('#story-interface');
-				// var height = scrollableDivElement[0].scrollHeight;
-				// scrollableDivElement.scrollTop (height);
-				if (options['autoScroll'] === true) {
-					$('html,body').animate({ scrollTop: document.body.clientHeight }, 1000);
+				e.prependTo($(options['destination']));
+
+			} else {
+				if (options['insertPosition'] !== null && $(options['destination']).find('li').length > 0) {
+
+					var entryTargetPosition = options['insertPosition']; // Get the value of the property to sort by
+
+					// Insertion sort the entry based on the position specified
+					for (var i = 0; i < $(options['destination']).find('li').length; i++) {
+
+						// console.log('Previous: ' + previousEntry);
+
+						if (i == 0) {
+
+							var previousEntry = $(options['destination']).find('li')[0];
+							var previousPosition = $(previousEntry).attr('position');
+							console.log(entryTargetPosition + ' must be > ' + previousPosition + ' (of ' + $(options['destination']).find('li').length + ')');
+							if (entryTargetPosition < previousPosition) {
+								console.log("WTF");
+								$(e).attr('position', options['insertPosition']);
+								$(e).prependTo($(options['destination']));
+								break;
+							}
+
+						} else {
+						
+							console.log("NOT NULL");
+							var previousEntry = $(options['destination']).find('li')[i - 1];
+							var previousPosition = $(previousEntry).attr('position');
+							console.log(entryTargetPosition + ' must be > ' + previousPosition + ' (of ' + $(options['destination']).find('li').length + ')');
+							if (!(entryTargetPosition > previousPosition)) {
+								console.log("WTF");
+								$(e).attr('position', options['insertPosition']);
+								$(e).insertAfter($(previousEntry));
+								break;
+							}
+						}
+					}
+
+					// The entry was not yet added, so thre must not be any entries yet. Just append it to the list.
+					if (i == $(options['destination']).find('li').length) {
+						$(e).attr('position', options['insertPosition']);
+						$(e).appendTo($(options['destination']));
+					}
+
+				} else {
+					$(e).attr('position', '0');
+					$(e).appendTo($(options['destination'])); // Prepend the entry
 				}
 			}
+
+			// HACK: Sort everything any time anything is added to the list
+			destination.find('.activity-frame').sort(function (a, b) {
+			    //return +a.dataset.percentage - +b.dataset.percentage;
+			    return +$(a).attr('position') - +$(b).attr('position');
+			})
+			.appendTo( destination );
 
 			// Set up tags section event handlers
 			e.find('.tags').off('click');
@@ -3238,6 +3340,8 @@ function addSketchWidget(entry, options) {
 
 	var destination = $(options['destination']);
 
+	console.log(options);
+
 	if(entry && entry.entry && entry.entry._id) {
 
 		var sketch = entry.entry; // TODO: Update this based on current view for user
@@ -3254,10 +3358,8 @@ function addSketchWidget(entry, options) {
 		}
 
 		if (entryExists) {
-		//if ($("#frame-" + entry._id).length != 0) {
 			// Frame exists, so update it
 			console.log("Found existing sketch widget. Updating widget.");
-
 			e = $('#frame-' + entry._id); // <li> element
 
 		} else {
@@ -3372,24 +3474,76 @@ function addSketchWidget(entry, options) {
 		var image = e.find('.element .image');
 		image.attr('src', sketch.imageData);
 
+		console.log("HEY: " + !entryExists);
+
 		if (!entryExists) {
-		//if ($("#frame-" + entry._id).length === 0) {
 
 			//
 			// Set up widget event handlers
 			//
 
+			console.log(options);
+
 			// Add to list of entry widgets
 			if (options['queueingMethod'] === 'top') {
-				e.prependTo($(options['destination']));
-			} else {
-				e.appendTo($(options['destination']));
 
-				// Scroll to bottom of story
-				if (options['autoScroll'] === true) {
-					$('html,body').animate({ scrollTop: document.body.clientHeight }, 1000);
+				e.prependTo($(options['destination']));
+
+			} else {
+				if (options['insertPosition'] !== null && $(options['destination']).find('li').length > 0) {
+
+					var entryTargetPosition = options['insertPosition']; // Get the value of the property to sort by
+
+					// Insertion sort the entry based on the position specified
+					for (var i = 0; i < $(options['destination']).find('li').length; i++) {
+
+						// console.log('Previous: ' + previousEntry);
+
+						if (i == 0) {
+
+							var previousEntry = $(options['destination']).find('li')[0];
+							var previousPosition = $(previousEntry).attr('position');
+							console.log(entryTargetPosition + ' must be > ' + previousPosition + ' (of ' + $(options['destination']).find('li').length + ')');
+							if (entryTargetPosition < previousPosition) {
+								console.log("WTF");
+								$(e).attr('position', options['insertPosition']);
+								$(e).prependTo($(options['destination']));
+								break;
+							}
+
+						} else {
+						
+							console.log("NOT NULL");
+							var previousEntry = $(options['destination']).find('li')[i - 1];
+							var previousPosition = $(previousEntry).attr('position');
+							console.log(entryTargetPosition + ' must be > ' + previousPosition + ' (of ' + $(options['destination']).find('li').length + ')');
+							if (!(entryTargetPosition > previousPosition)) {
+								console.log("WTF");
+								$(e).attr('position', options['insertPosition']);
+								$(e).insertAfter($(previousEntry));
+								break;
+							}
+						}
+					}
+
+					// The entry was not yet added, so thre must not be any entries yet. Just append it to the list.
+					if (i == $(options['destination']).find('li').length) {
+						$(e).attr('position', options['insertPosition']);
+						$(e).appendTo($(options['destination']));
+					}
+
+				} else {
+					$(e).attr('position', '0');
+					$(e).appendTo($(options['destination'])); // Prepend the entry
 				}
 			}
+
+			// HACK: Sort everything any time anything is added to the list
+			destination.find('.activity-frame').sort(function (a, b) {
+			    //return +a.dataset.percentage - +b.dataset.percentage;
+			    return +$(a).attr('position') - +$(b).attr('position');
+			})
+			.appendTo( destination );
 
 			// Set up tags section event handlers
 			e.find('.tags').off('click');
@@ -3413,7 +3567,7 @@ function addSketchWidget(entry, options) {
 			// var adjustedImageWidth = $(image).parent().width();
 			var adjustedImageWidth = 570;
 			var adjustedImageHeight = Math.floor(adjustedImageWidth / ratio);
-			console.log('adjustedWidth/Height: ' + ratio + ', ' + adjustedImageWidth + ', ' + adjustedImageHeight);
+			//console.log('adjustedWidth/Height: ' + ratio + ', ' + adjustedImageWidth + ', ' + adjustedImageHeight);
 			image.attr('width', adjustedImageWidth);
 			image.attr('height', adjustedImageHeight);
 		}
@@ -3434,13 +3588,15 @@ function addEmptyReflectionWidget(entry, options) {
 	// Set up default options
 	var defaults = {
 		'destination': '#story-entry-queue',
-		'autoScroll': true
+		'autoScroll': true,
+		'insertPosition': null,
+		'queueingMethod': 'bottom'
 	};
-
-	// Combine options with default values
-	var options = $.extend({}, defaults, options);
+	var options = $.extend({}, defaults, options); // Combine options with default values
 
 	var destination = $(options['destination']);
+
+	var entryExists = (entry === null ? true : false);
 
 	//
 	// Add entry
@@ -3449,10 +3605,8 @@ function addEmptyReflectionWidget(entry, options) {
 	var e;
 	var div;
 
-	var entryExists = false; // Flag indicating whether entry exists in the destination element. If not, create a new entry.
-
 	// Widget does not exist for element does not exist, so create it
-	console.log("Could not find existing widget for reflection. Creating new reflection widget.");
+	console.log("Creating new reflection widget.");
 
 	// Clone template structure and remove 'id' element to avoid 'id' conflict
 	e = $('#reflection-template').clone().attr('id', 'volatile-activity');
@@ -3468,27 +3622,91 @@ function addEmptyReflectionWidget(entry, options) {
 	// Set up widget event handlers
 	//
 
+	console.log(options);
+
 	// Add to list of entry widgets
 	if (options['queueingMethod'] === 'top') {
-		e.prependTo($(options['destination']));
-	} else {
-		e.appendTo($(options['destination']));
 
-		// Scroll to bottom of story
-		if (options['autoScroll'] === true) {
-			$('html,body').animate({ scrollTop: document.body.clientHeight }, 1000);
+		if (entryExists) {
+			e.prependTo($(options['destination']));
+		} else {
+			e.prependTo($(options['destination']));
+		}
+
+	} else {
+
+		if (entryExists) {
+			if (options['insertPosition'] !== null && $(options['destination']).find('li').length > 0) {
+
+				var entryTargetPosition = options['insertPosition']; // Get the value of the property to sort by
+
+				// Insertion sort the entry based on the position specified
+				for (var i = 0; i < $(options['destination']).find('li').length; i++) {
+
+					// console.log('Previous: ' + previousEntry);
+
+					if (i == 0) {
+
+						var previousEntry = $(options['destination']).find('li')[0];
+						var previousPosition = $(previousEntry).attr('position');
+						console.log(entryTargetPosition + ' must be > ' + previousPosition + ' (of ' + $(options['destination']).find('li').length + ')');
+						if (entryTargetPosition < previousPosition) {
+							console.log("i = 0");
+							$(e).attr('position', options['insertPosition']);
+							$(e).prependTo($(options['destination']));
+							break;
+						}
+
+					} else {
+					
+						console.log("NOT NULL");
+						var previousEntry = $(options['destination']).find('li')[i - 1];
+						var previousPosition = $(previousEntry).attr('position');
+						console.log(entryTargetPosition + ' must be > ' + previousPosition + ' (of ' + $(options['destination']).find('li').length + ')');
+						if (!(entryTargetPosition > previousPosition)) {
+							console.log("i > 0");
+							$(e).attr('position', options['insertPosition']);
+							$(e).insertAfter($(previousEntry));
+							break;
+						}
+					}
+				}
+
+				// The entry was not yet added, so thre must not be any entries yet. Just append it to the list.
+				if (i == $(options['destination']).find('li').length) {
+					$(e).attr('position', options['insertPosition']);
+					$(e).appendTo($(options['destination']));
+				}
+
+			} else {
+				console.log('STEEE');
+				$(e).attr('position', '0');
+				$(e).appendTo($(options['destination'])); // Prepend the entry
+			}
+
+		} else {
+			$(e).appendTo($(options['destination'])); // Prepend the entry
 		}
 	}
+
+	// HACK: Sort everything any time anything is added to the list
+	destination.find('.activity-frame').sort(function (a, b) {
+	    //return +a.dataset.percentage - +b.dataset.percentage;
+	    return +$(a).attr('position') - +$(b).attr('position');
+	})
+	.appendTo( destination );
 
 	// Show entry widget
 	e.show();
 
-	//if (entry['text'] !== '') {
+	// Check if reflection entry widget exists, and if so, update it, but if not, create the widget.
 	if (entry && entry.element) {
 		var reflectionText = $(entry.element).find('#reflection-text').val();
 		$(e).find('#reflection-text').val(reflectionText);
 	} else {
-		storyStepEntries[currentToolStep].push({ type: 'Reflection', element: e });
+		// Add reflection widget to the story, along with the corresponding element
+		var entryPosition = storyStepEntries[currentToolStep].length; // Used for sorting when re-inserting entries into story
+		storyStepEntries[currentToolStep].push({ type: 'Reflection', element: e, position: entryPosition });
 	}
 }
 
@@ -3870,7 +4088,7 @@ function saveStoryTool(fn) {
 function saveReflectionTool() {
 	var element = $('#story-text-tool');
 
-	addEmptyReflectionWidget(null, '#story-entry-queue');
+	addEmptyReflectionWidget(null, { destination: '#story-entry-queue', queueingMethod: 'bottom' });
 
 
 	//saveText(element);
