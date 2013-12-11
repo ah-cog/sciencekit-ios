@@ -3686,6 +3686,7 @@ function addEmptyReflectionWidget(entry, options) {
 
 		} else {
 			$(e).appendTo($(options['destination'])); // Prepend the entry
+			$(e).attr('position', $(options['destination']).find('li').length);
 		}
 	}
 
